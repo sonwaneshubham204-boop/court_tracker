@@ -2250,8 +2250,7 @@ def add_missing_case_columns():
 # CREATE DATABASE TABLES AND RUN APP
 # =========================================================
 
-if __name__ == "__main__":
-    with app.app_context():
+with app.app_context():
     db.create_all()
     add_missing_case_columns()
     create_default_admin()
