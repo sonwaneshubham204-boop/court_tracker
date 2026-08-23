@@ -1,0 +1,2267 @@
+import os
+import uuid
+
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    send_file,
+    send_from_directory,
+    session,
+    flash,
+    url_for
+)
+
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+from datetime import datetime, date, timedelta
+from openpyxl import Workbook, load_workbook
+from io import BytesIO
+
+
+app = Flask(__name__)
+
+app.config["SECRET_KEY"] = os.environ.get(
+    "SECRET_KEY",
+    "change-this-to-a-long-random-secret-key"
+)
+
+
+# =========================================================
+# DATABASE CONFIGURATION
+# =========================================================
+
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "sqlite:///court_tracker.db"
+)
+
+# Some hosting platforms provide postgres://; SQLAlchemy expects postgresql://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace(
+        "postgres://",
+        "postgresql://",
+        1
+    )
+
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+
+# =========================================================
+# FILE UPLOAD CONFIGURATION
+# =========================================================
+
+BASE_DIR = os.path.abspath(
+    os.path.dirname(__file__)
+)
+
+UPLOAD_FOLDER = os.path.join(
+    BASE_DIR,
+    "uploads"
+)
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+
+os.makedirs(
+    UPLOAD_FOLDER,
+    exist_ok=True
+)
+
+
+ALLOWED_EXTENSIONS = {
+
+    "pdf",
+    "doc",
+    "docx",
+    "txt",
+    "xlsx",
+
+    "png",
+    "jpg",
+    "jpeg",
+    "gif"
+}
+
+
+db = SQLAlchemy(app)
+
+# =========================================================
+# USER MODEL
+# =========================================================
+
+class User(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    username = db.Column(
+        db.String(100),
+        unique=True,
+        nullable=False
+    )
+
+    password_hash = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+
+# =========================================================
+# HELPER FUNCTION
+# =========================================================
+
+def allowed_file(filename):
+
+    return (
+        "." in filename
+        and filename.rsplit(
+            ".",
+            1
+        )[1].lower()
+        in ALLOWED_EXTENSIONS
+    )
+
+# =========================================================
+# LOGIN REQUIRED DECORATOR
+# =========================================================
+
+def login_required(view):
+
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+
+        if "user_id" not in session:
+
+            flash(
+                "Please log in to continue.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("login")
+            )
+
+        return view(*args, **kwargs)
+
+    return wrapped_view
+
+# =========================================================
+# CASE DATABASE MODEL
+# =========================================================
+
+class Case(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    case_no = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    crn_no = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    advocate_name = db.Column(
+        db.String(200),
+        nullable=True
+    )
+
+    case_disposed = db.Column(
+        db.String(20),
+        nullable=True,
+        default="No"
+    )
+
+    court_no = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+    parties = db.Column(
+        db.String(200),
+        nullable=False
+    )
+
+    case_stage = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    case_stage_other = db.Column(
+        db.String(200),
+        nullable=True
+    )
+
+    next_hearing_date = db.Column(
+        db.Date,
+        nullable=True
+    )
+
+    today_serial_no = db.Column(
+        db.Integer,
+        nullable=True
+    )
+
+
+    hearings = db.relationship(
+        "Hearing",
+        backref="case",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+
+    evidences = db.relationship(
+        "Evidence",
+        backref="case",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+
+# =========================================================
+# HEARING MODEL
+# =========================================================
+
+class Hearing(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    case_id = db.Column(
+        db.Integer,
+        db.ForeignKey("case.id"),
+        nullable=False
+    )
+
+    hearing_date = db.Column(
+        db.Date,
+        nullable=False,
+        default=date.today
+    )
+
+    outcome = db.Column(
+        db.String(200),
+        nullable=False
+    )
+
+    next_hearing_date = db.Column(
+        db.Date,
+        nullable=True
+    )
+
+    notes = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+
+# =========================================================
+# EVIDENCE MODEL
+# =========================================================
+
+class Evidence(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    case_id = db.Column(
+        db.Integer,
+        db.ForeignKey("case.id"),
+        nullable=False
+    )
+
+    evidence_name = db.Column(
+        db.String(200),
+        nullable=False
+    )
+
+    evidence_type = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    description = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    submitted_date = db.Column(
+        db.Date,
+        nullable=True
+    )
+
+    status = db.Column(
+        db.String(100),
+        nullable=False,
+        default="Pending"
+    )
+
+
+    files = db.relationship(
+        "EvidenceFile",
+        backref="evidence",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
+
+
+# =========================================================
+# MULTIPLE EVIDENCE FILE MODEL
+# =========================================================
+
+class EvidenceFile(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    evidence_id = db.Column(
+        db.Integer,
+        db.ForeignKey("evidence.id"),
+        nullable=False
+    )
+
+    file_name = db.Column(
+        db.String(300),
+        nullable=False
+    )
+
+    original_filename = db.Column(
+        db.String(300),
+        nullable=False
+    )
+
+# =========================================================
+# LOGIN
+# =========================================================
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if "user_id" in session:
+        return redirect(url_for("home"))
+
+    if request.method == "POST":
+
+        username = request.form.get(
+            "username"
+        ).strip()
+
+        password = request.form.get(
+            "password"
+        )
+
+        user = User.query.filter_by(
+            username=username
+        ).first()
+
+        if user and check_password_hash(
+            user.password_hash,
+            password
+        ):
+
+            session["user_id"] = user.id
+
+            flash(
+                "Login successful!",
+                "success"
+            )
+
+            return redirect(
+                url_for("home")
+            )
+
+        flash(
+            "Invalid username or password.",
+            "danger"
+        )
+
+    return render_template(
+        "login.html"
+    )
+
+
+# =========================================================
+# LOGOUT
+# =========================================================
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    flash(
+        "You have been logged out.",
+        "success"
+    )
+
+    return redirect(
+        url_for("login")
+    )
+
+# =========================================================
+# SMART DASHBOARD
+# =========================================================
+
+@app.route("/")
+@login_required
+def home():
+
+    today = date.today()
+
+    tomorrow = today + timedelta(
+        days=1
+    )
+
+    next_7_days = today + timedelta(
+        days=7
+    )
+
+
+    total_cases = Case.query.count()
+
+
+    court_1_count = Case.query.filter_by(
+        court_no=1
+    ).count()
+
+    court_2_count = Case.query.filter_by(
+        court_no=2
+    ).count()
+
+    court_3_count = Case.query.filter_by(
+        court_no=3
+    ).count()
+
+
+    past_cases = Case.query.filter(
+        Case.next_hearing_date < today
+    ).count()
+
+
+    todays_cases = Case.query.filter(
+        Case.next_hearing_date == today
+    ).count()
+
+
+    tomorrow_cases = Case.query.filter(
+        Case.next_hearing_date == tomorrow
+    ).count()
+
+
+    upcoming_cases = Case.query.filter(
+        Case.next_hearing_date > today
+    ).count()
+
+
+    next_7_days_count = Case.query.filter(
+        Case.next_hearing_date >= today,
+        Case.next_hearing_date <= next_7_days
+    ).count()
+
+
+    undated_cases = Case.query.filter(
+        Case.next_hearing_date.is_(None)
+    ).count()
+
+
+    disposed_cases = Case.query.filter_by(
+        case_disposed="Yes"
+    ).count()
+
+
+    # =====================================================
+    # CASE STAGE COUNTS
+    # =====================================================
+
+    notice_count = Case.query.filter_by(
+        case_stage="Notice"
+    ).count()
+
+    admission_count = Case.query.filter_by(
+        case_stage="Admission"
+    ).count()
+
+    hearing_count = Case.query.filter_by(
+        case_stage="Hearing"
+    ).count()
+
+    evidence_count = Case.query.filter_by(
+        case_stage="Evidence"
+    ).count()
+
+    cross_examination_count = Case.query.filter_by(
+        case_stage="Cross Examination"
+    ).count()
+
+    arguments_count = Case.query.filter_by(
+        case_stage="Arguments"
+    ).count()
+
+    final_arguments_count = Case.query.filter_by(
+        case_stage="Final Arguments"
+    ).count()
+
+    final_hearing_count = Case.query.filter_by(
+        case_stage="Final Hearing"
+    ).count()
+
+    judgment_count = Case.query.filter_by(
+        case_stage="Judgment"
+    ).count()
+
+    order_count = Case.query.filter_by(
+        case_stage="Order"
+    ).count()
+
+
+    # =====================================================
+    # REMINDER LISTS
+    # =====================================================
+
+    todays_hearings = Case.query.filter(
+        Case.next_hearing_date == today
+    ).order_by(
+        Case.court_no
+    ).all()
+
+
+    tomorrow_hearings = Case.query.filter(
+        Case.next_hearing_date == tomorrow
+    ).order_by(
+        Case.court_no
+    ).all()
+
+
+    upcoming_hearings = Case.query.filter(
+        Case.next_hearing_date > tomorrow,
+        Case.next_hearing_date <= next_7_days
+    ).order_by(
+        Case.next_hearing_date
+    ).all()
+
+
+    overdue_hearings = Case.query.filter(
+        Case.next_hearing_date < today
+    ).order_by(
+        Case.next_hearing_date
+    ).all()
+
+
+    # =====================================================
+    # RECENT HEARING UPDATES
+    # =====================================================
+
+    recent_hearings = Hearing.query.order_by(
+        Hearing.id.desc()
+    ).limit(5).all()
+
+
+    # =====================================================
+    # RECENT EVIDENCE
+    # =====================================================
+
+    recent_evidences = Evidence.query.order_by(
+        Evidence.id.desc()
+    ).limit(5).all()
+
+
+    return render_template(
+
+        "dashboard.html",
+
+        total_cases=total_cases,
+
+        court_1_count=court_1_count,
+        court_2_count=court_2_count,
+        court_3_count=court_3_count,
+
+        past_cases=past_cases,
+        todays_cases=todays_cases,
+        tomorrow_cases=tomorrow_cases,
+        upcoming_cases=upcoming_cases,
+        next_7_days_count=next_7_days_count,
+        undated_cases=undated_cases,
+        disposed_cases=disposed_cases,
+
+        notice_count=notice_count,
+        admission_count=admission_count,
+        hearing_count=hearing_count,
+        evidence_count=evidence_count,
+        cross_examination_count=cross_examination_count,
+        arguments_count=arguments_count,
+        final_arguments_count=final_arguments_count,
+        final_hearing_count=final_hearing_count,
+        judgment_count=judgment_count,
+        order_count=order_count,
+
+        todays_hearings=todays_hearings,
+        tomorrow_hearings=tomorrow_hearings,
+        upcoming_hearings=upcoming_hearings,
+        overdue_hearings=overdue_hearings,
+
+        recent_hearings=recent_hearings,
+        recent_evidences=recent_evidences,
+
+        today=today,
+        tomorrow=tomorrow
+    )
+
+
+# =========================================================
+# ADVANCED SEARCH + FILTER
+# =========================================================
+
+@app.route("/cases")
+@login_required
+def case_list():
+
+    search = request.args.get(
+        "search",
+        ""
+    ).strip()
+
+    court_no = request.args.get(
+        "court_no",
+        ""
+    ).strip()
+
+    case_stage = request.args.get(
+        "case_stage",
+        ""
+    ).strip()
+
+    hearing_status = request.args.get(
+        "hearing_status",
+        ""
+    ).strip()
+
+    case_disposed = request.args.get(
+        "case_disposed",
+        ""
+    ).strip()
+
+    date_from = request.args.get(
+        "date_from",
+        ""
+    ).strip()
+
+    date_to = request.args.get(
+        "date_to",
+        ""
+    ).strip()
+
+
+    today = date.today()
+
+
+    query = Case.query
+
+
+    # SEARCH CASE NUMBER / PARTY NAME
+
+    if search:
+
+        query = query.filter(
+
+            db.or_(
+
+                Case.case_no.ilike(
+                    f"%{search}%"
+                ),
+
+                Case.parties.ilike(
+                    f"%{search}%"
+                ),
+
+                Case.crn_no.ilike(
+                    f"%{search}%"
+                ),
+
+                Case.advocate_name.ilike(
+                    f"%{search}%"
+                )
+
+            )
+
+        )
+
+
+    # COURT FILTER
+
+    if court_no:
+
+        try:
+
+            query = query.filter(
+                Case.court_no == int(
+                    court_no
+                )
+            )
+
+        except ValueError:
+
+            pass
+
+
+    # CASE STAGE FILTER
+
+    if case_stage:
+
+        query = query.filter(
+            Case.case_stage == case_stage
+        )
+
+
+    # HEARING STATUS FILTER
+
+    if hearing_status == "past":
+
+        query = query.filter(
+            Case.next_hearing_date < today
+        )
+
+
+    elif hearing_status == "today":
+
+        query = query.filter(
+            Case.next_hearing_date == today
+        )
+
+
+    elif hearing_status == "tomorrow":
+
+        query = query.filter(
+            Case.next_hearing_date == (
+                today + timedelta(days=1)
+            )
+        )
+
+
+    elif hearing_status == "upcoming":
+
+        query = query.filter(
+            Case.next_hearing_date > today
+        )
+
+
+    elif hearing_status == "undated":
+
+        query = query.filter(
+            Case.next_hearing_date.is_(None)
+        )
+
+
+    # CASE DISPOSED FILTER
+
+    if case_disposed in ["Yes", "No"]:
+
+        query = query.filter(
+            Case.case_disposed == case_disposed
+        )
+
+
+    # FROM DATE FILTER
+
+    if date_from:
+
+        try:
+
+            from_date = datetime.strptime(
+                date_from,
+                "%Y-%m-%d"
+            ).date()
+
+            query = query.filter(
+                Case.next_hearing_date >= from_date
+            )
+
+        except ValueError:
+
+            pass
+
+
+    # TO DATE FILTER
+
+    if date_to:
+
+        try:
+
+            to_date = datetime.strptime(
+                date_to,
+                "%Y-%m-%d"
+            ).date()
+
+            query = query.filter(
+                Case.next_hearing_date <= to_date
+            )
+
+        except ValueError:
+
+            pass
+
+
+    cases = query.order_by(
+        Case.next_hearing_date
+    ).all()
+
+
+    return render_template(
+
+        "cases.html",
+
+        cases=cases,
+
+        today=today,
+
+        title="Court Cases",
+
+        search=search,
+
+        court_no=court_no,
+
+        case_stage=case_stage,
+
+        hearing_status=hearing_status,
+
+        case_disposed=case_disposed,
+
+        date_from=date_from,
+
+        date_to=date_to
+    )
+
+
+# =========================================================
+# COURT-WISE CASES
+# =========================================================
+
+@app.route("/court/<int:court_no>")
+@login_required
+def court_cases(court_no):
+
+    if court_no not in [1, 2, 3]:
+
+        return "Invalid Court Number"
+
+
+    cases = Case.query.filter_by(
+        court_no=court_no
+    ).all()
+
+
+    return render_template(
+
+        "cases.html",
+
+        cases=cases,
+
+        today=date.today(),
+
+        title=f"Court {court_no} Cases",
+
+        search="",
+
+        court_no=str(court_no),
+
+        case_stage="",
+
+        hearing_status="",
+
+        date_from="",
+
+        date_to=""
+    )
+
+
+# =========================================================
+# CASE STATUS FILTER
+# =========================================================
+
+@app.route("/status/<status>")
+@login_required
+def status_cases(status):
+
+    return redirect(
+        f"/cases?hearing_status={status}"
+    )
+
+
+# =========================================================
+# CASE STAGE FILTER
+# =========================================================
+
+@app.route("/stage/<stage>")
+@login_required
+def stage_cases(stage):
+
+    return redirect(
+        f"/cases?case_stage={stage}"
+    )
+
+
+# =========================================================
+# ADD CASE
+# =========================================================
+
+@app.route(
+    "/add-case",
+    methods=["GET", "POST"]
+)
+
+@login_required
+def add_case():
+
+    if request.method == "POST":
+
+        hearing_date = request.form.get(
+            "next_hearing_date"
+        )
+
+
+        new_case = Case(
+
+            case_no=request.form.get(
+                "case_no"
+            ),
+
+            crn_no=request.form.get(
+                "crn_no"
+            ) or None,
+
+            advocate_name=request.form.get(
+                "advocate_name"
+            ) or None,
+
+            case_disposed=request.form.get(
+                "case_disposed"
+            ) or "No",
+
+            court_no=int(
+                request.form.get(
+                    "court_no"
+                )
+            ),
+
+            parties=request.form.get(
+                "parties"
+            ),
+
+            case_stage=request.form.get(
+                "case_stage"
+            ),
+
+            case_stage_other=(
+                request.form.get(
+                    "case_stage_other"
+                ).strip()
+                if request.form.get(
+                    "case_stage"
+                ) == "Other"
+                and request.form.get(
+                    "case_stage_other"
+                )
+                else None
+            ),
+
+            next_hearing_date=(
+
+                datetime.strptime(
+                    hearing_date,
+                    "%Y-%m-%d"
+                ).date()
+
+                if hearing_date
+
+                else None
+            )
+        )
+
+
+        db.session.add(
+            new_case
+        )
+
+        db.session.commit()
+
+
+        return redirect(
+            "/add-case"
+        )
+
+
+    return render_template(
+        "add_case.html"
+    )
+
+
+# =========================================================
+# EDIT CASE
+# =========================================================
+
+@app.route(
+    "/edit-case/<int:id>",
+    methods=["GET", "POST"]
+)
+
+@login_required
+def edit_case(id):
+
+    case = Case.query.get_or_404(id)
+
+
+    if request.method == "POST":
+
+        hearing_date = request.form.get(
+            "next_hearing_date"
+        )
+
+
+        case.case_no = request.form.get(
+            "case_no"
+        )
+
+        case.crn_no = request.form.get(
+            "crn_no"
+        ) or None
+
+        case.advocate_name = request.form.get(
+            "advocate_name"
+        ) or None
+
+        case.case_disposed = request.form.get(
+            "case_disposed"
+        ) or "No"
+
+        case.court_no = int(
+            request.form.get(
+                "court_no"
+            )
+        )
+
+        case.parties = request.form.get(
+            "parties"
+        )
+
+        case.case_stage = request.form.get(
+            "case_stage"
+        )
+
+        case.case_stage_other = (
+            request.form.get(
+                "case_stage_other"
+            ).strip()
+            if request.form.get(
+                "case_stage"
+            ) == "Other"
+            and request.form.get(
+                "case_stage_other"
+            )
+            else None
+        )
+
+        case.next_hearing_date = (
+
+            datetime.strptime(
+                hearing_date,
+                "%Y-%m-%d"
+            ).date()
+
+            if hearing_date
+
+            else None
+        )
+
+
+        db.session.commit()
+
+
+        return redirect(
+            f"/case/{case.id}"
+        )
+
+
+    return render_template(
+
+        "edit_case.html",
+
+        case=case
+    )
+
+
+# =========================================================
+# CASE DETAIL PAGE
+# =========================================================
+
+@app.route("/case/<int:id>")
+@login_required
+def case_detail(id):
+
+    case = Case.query.get_or_404(id)
+
+
+    hearings = Hearing.query.filter_by(
+        case_id=case.id
+    ).order_by(
+        Hearing.hearing_date.desc()
+    ).all()
+
+
+    evidences = Evidence.query.filter_by(
+        case_id=case.id
+    ).order_by(
+        Evidence.id.desc()
+    ).all()
+
+
+    return render_template(
+
+        "case_detail.html",
+
+        case=case,
+
+        hearings=hearings,
+
+        evidences=evidences,
+
+        today=date.today()
+    )
+
+
+# =========================================================
+# TODAY'S CASE BASKET
+# =========================================================
+
+@app.route("/today-cases")
+@login_required
+def today_cases():
+
+    today = date.today()
+
+    cases = Case.query.filter(
+        Case.next_hearing_date == today
+    ).order_by(
+        Case.court_no,
+        Case.today_serial_no.is_(None),
+        Case.today_serial_no,
+        Case.id
+    ).all()
+
+    court_1_cases = [case for case in cases if case.court_no == 1]
+    court_2_cases = [case for case in cases if case.court_no == 2]
+    court_3_cases = [case for case in cases if case.court_no == 3]
+
+    return render_template(
+        "today_cases.html",
+        cases=cases,
+        court_1_cases=court_1_cases,
+        court_2_cases=court_2_cases,
+        court_3_cases=court_3_cases,
+        court_1_count=len(court_1_cases),
+        court_2_count=len(court_2_cases),
+        court_3_count=len(court_3_cases),
+        today=today
+    )
+
+
+# =========================================================
+# UPDATE TODAY'S CASE BY SERIAL NUMBER
+# =========================================================
+
+@app.route(
+    "/case/<int:id>/update-today-case",
+    methods=["POST"]
+)
+@login_required
+def update_today_case(id):
+
+    case = Case.query.get_or_404(id)
+
+    serial_value = request.form.get(
+        "today_serial_no",
+        ""
+    ).strip()
+
+    # First step: only assign/change the temporary serial number.
+    if serial_value:
+        try:
+            case.today_serial_no = int(serial_value)
+        except ValueError:
+            return "Serial number must be a whole number.", 400
+    else:
+        case.today_serial_no = None
+
+    stage = request.form.get(
+        "case_stage",
+        ""
+    ).strip()
+
+    next_date_value = request.form.get(
+        "next_hearing_date",
+        ""
+    ).strip()
+
+    outcome = request.form.get(
+        "outcome",
+        ""
+    ).strip()
+
+    notes = request.form.get(
+        "notes",
+        ""
+    ).strip()
+
+    # Only create hearing history when an actual hearing update is entered.
+    if outcome or notes or stage or next_date_value:
+
+        if stage:
+            case.case_stage = stage
+
+        if next_date_value:
+            try:
+                next_hearing_date = datetime.strptime(
+                    next_date_value,
+                    "%Y-%m-%d"
+                ).date()
+            except ValueError:
+                return "Invalid next hearing date.", 400
+        else:
+            next_hearing_date = case.next_hearing_date
+
+        case.next_hearing_date = next_hearing_date
+
+        new_hearing = Hearing(
+            case_id=case.id,
+            hearing_date=date.today(),
+            outcome=outcome or "Updated from Today's Case Basket",
+            next_hearing_date=next_hearing_date,
+            notes=notes or None
+        )
+
+        db.session.add(new_hearing)
+
+        # Hearing is completed, so remove it from today's serial board.
+        case.today_serial_no = None
+
+    db.session.commit()
+
+    return redirect("/today-cases")
+
+
+# =========================================================
+# QUICK HEARING UPDATE
+# =========================================================
+
+@app.route(
+    "/case/<int:id>/update-hearing",
+    methods=["POST"]
+)
+
+@login_required
+def update_hearing(id):
+
+    case = Case.query.get_or_404(id)
+
+
+    outcome = request.form.get(
+        "outcome"
+    )
+
+
+    hearing_date = request.form.get(
+        "hearing_date"
+    )
+
+
+    next_hearing_date = request.form.get(
+        "next_hearing_date"
+    )
+
+
+    notes = request.form.get(
+        "notes"
+    )
+
+
+    if hearing_date:
+
+        hearing_date = datetime.strptime(
+            hearing_date,
+            "%Y-%m-%d"
+        ).date()
+
+    else:
+
+        hearing_date = date.today()
+
+
+    if next_hearing_date:
+
+        next_hearing_date = datetime.strptime(
+            next_hearing_date,
+            "%Y-%m-%d"
+        ).date()
+
+    else:
+
+        next_hearing_date = None
+
+
+    new_hearing = Hearing(
+
+        case_id=case.id,
+
+        hearing_date=hearing_date,
+
+        outcome=outcome,
+
+        next_hearing_date=next_hearing_date,
+
+        notes=notes
+    )
+
+
+    db.session.add(
+        new_hearing
+    )
+
+
+    case.next_hearing_date = (
+        next_hearing_date
+    )
+
+
+    if outcome == "Evidence Submitted":
+
+        case.case_stage = "Evidence"
+
+    elif outcome == "Arguments":
+
+        case.case_stage = "Arguments"
+
+    elif outcome == "Order Passed":
+
+        case.case_stage = "Order"
+
+    elif outcome == "Hearing":
+
+        case.case_stage = "Hearing"
+
+
+    db.session.commit()
+
+
+    return redirect(
+        f"/case/{case.id}"
+    )
+
+
+# =========================================================
+# ADD EVIDENCE + MULTIPLE FILE UPLOAD
+# =========================================================
+
+@app.route(
+    "/case/<int:id>/add-evidence",
+    methods=["POST"]
+)
+
+@login_required
+def add_evidence(id):
+
+    case = Case.query.get_or_404(id)
+
+
+    submitted_date = request.form.get(
+        "submitted_date"
+    )
+
+
+    if submitted_date:
+
+        submitted_date = datetime.strptime(
+            submitted_date,
+            "%Y-%m-%d"
+        ).date()
+
+    else:
+
+        submitted_date = None
+
+
+    # CREATE EVIDENCE FIRST
+
+    new_evidence = Evidence(
+
+        case_id=case.id,
+
+        evidence_name=request.form.get(
+            "evidence_name"
+        ),
+
+        evidence_type=request.form.get(
+            "evidence_type"
+        ),
+
+        description=request.form.get(
+            "description"
+        ),
+
+        submitted_date=submitted_date,
+
+        status=request.form.get(
+            "status"
+        )
+    )
+
+
+    db.session.add(
+        new_evidence
+    )
+
+    db.session.flush()
+
+
+    # MULTIPLE FILES
+
+    uploaded_files = request.files.getlist(
+        "evidence_files"
+    )
+
+
+    for uploaded_file in uploaded_files:
+
+
+        if not uploaded_file:
+
+            continue
+
+
+        if uploaded_file.filename == "":
+
+            continue
+
+
+        if not allowed_file(
+            uploaded_file.filename
+        ):
+
+            continue
+
+
+        original_filename = secure_filename(
+            uploaded_file.filename
+        )
+
+
+        unique_filename = (
+
+            str(uuid.uuid4())
+
+            + "_"
+
+            + original_filename
+        )
+
+
+        uploaded_file.save(
+
+            os.path.join(
+
+                app.config["UPLOAD_FOLDER"],
+
+                unique_filename
+            )
+        )
+
+
+        new_file = EvidenceFile(
+
+            evidence_id=new_evidence.id,
+
+            file_name=unique_filename,
+
+            original_filename=original_filename
+        )
+
+
+        db.session.add(
+            new_file
+        )
+
+
+    if request.form.get(
+        "status"
+    ) == "Submitted":
+
+        case.case_stage = "Evidence"
+
+
+    db.session.commit()
+
+
+    return redirect(
+        f"/case/{case.id}"
+    )
+
+
+# =========================================================
+# VIEW EVIDENCE FILE
+# =========================================================
+
+@app.route(
+    "/evidence-file/<int:id>"
+)
+
+@login_required
+def view_evidence_file(id):
+
+    evidence_file = EvidenceFile.query.get_or_404(
+        id
+    )
+
+
+    return send_from_directory(
+
+        app.config["UPLOAD_FOLDER"],
+
+        evidence_file.file_name,
+
+        as_attachment=False
+    )
+
+
+# =========================================================
+# DELETE SINGLE EVIDENCE FILE
+# =========================================================
+
+@app.route(
+    "/evidence-file/<int:id>/delete",
+    methods=["POST"]
+)
+
+@login_required
+def delete_evidence_file(id):
+
+    evidence_file = EvidenceFile.query.get_or_404(
+        id
+    )
+
+
+    evidence_id = evidence_file.evidence_id
+
+
+    file_path = os.path.join(
+
+        app.config["UPLOAD_FOLDER"],
+
+        evidence_file.file_name
+    )
+
+
+    if os.path.exists(
+        file_path
+    ):
+
+        os.remove(
+            file_path
+        )
+
+
+    db.session.delete(
+        evidence_file
+    )
+
+    db.session.commit()
+
+
+    evidence = Evidence.query.get(
+        evidence_id
+    )
+
+
+    return redirect(
+        f"/case/{evidence.case_id}"
+    )
+
+
+# =========================================================
+# EDIT EVIDENCE
+# =========================================================
+
+@app.route(
+    "/evidence/<int:id>/edit",
+    methods=["GET", "POST"]
+)
+
+@login_required
+def edit_evidence(id):
+
+    evidence = Evidence.query.get_or_404(id)
+
+
+    if request.method == "POST":
+
+        submitted_date = request.form.get(
+            "submitted_date"
+        )
+
+
+        evidence.evidence_name = request.form.get(
+            "evidence_name"
+        )
+
+        evidence.evidence_type = request.form.get(
+            "evidence_type"
+        )
+
+        evidence.description = request.form.get(
+            "description"
+        )
+
+        evidence.status = request.form.get(
+            "status"
+        )
+
+
+        if submitted_date:
+
+            evidence.submitted_date = (
+                datetime.strptime(
+                    submitted_date,
+                    "%Y-%m-%d"
+                ).date()
+            )
+
+        else:
+
+            evidence.submitted_date = None
+
+
+        # ADD MORE FILES
+
+        uploaded_files = request.files.getlist(
+            "evidence_files"
+        )
+
+
+        for uploaded_file in uploaded_files:
+
+
+            if not uploaded_file:
+
+                continue
+
+
+            if uploaded_file.filename == "":
+
+                continue
+
+
+            if not allowed_file(
+                uploaded_file.filename
+            ):
+
+                continue
+
+
+            original_filename = secure_filename(
+                uploaded_file.filename
+            )
+
+
+            unique_filename = (
+
+                str(uuid.uuid4())
+
+                + "_"
+
+                + original_filename
+            )
+
+
+            uploaded_file.save(
+
+                os.path.join(
+
+                    app.config["UPLOAD_FOLDER"],
+
+                    unique_filename
+                )
+            )
+
+
+            new_file = EvidenceFile(
+
+                evidence_id=evidence.id,
+
+                file_name=unique_filename,
+
+                original_filename=original_filename
+            )
+
+
+            db.session.add(
+                new_file
+            )
+
+
+        db.session.commit()
+
+
+        return redirect(
+            f"/case/{evidence.case_id}"
+        )
+
+
+    return render_template(
+
+        "edit_evidence.html",
+
+        evidence=evidence
+    )
+
+
+# =========================================================
+# DELETE EVIDENCE + ALL FILES
+# =========================================================
+
+@app.route(
+    "/evidence/<int:id>/delete",
+    methods=["POST"]
+)
+
+@login_required
+def delete_evidence(id):
+
+    evidence = Evidence.query.get_or_404(id)
+
+
+    case_id = evidence.case_id
+
+
+    for evidence_file in evidence.files:
+
+
+        file_path = os.path.join(
+
+            app.config["UPLOAD_FOLDER"],
+
+            evidence_file.file_name
+        )
+
+
+        if os.path.exists(
+            file_path
+        ):
+
+            os.remove(
+                file_path
+            )
+
+
+    db.session.delete(
+        evidence
+    )
+
+    db.session.commit()
+
+
+    return redirect(
+        f"/case/{case_id}"
+    )
+
+
+# =========================================================
+# IMPORT CASES FROM EXCEL
+# =========================================================
+
+@app.route(
+    "/import-excel",
+    methods=["GET", "POST"]
+)
+
+@login_required
+def import_excel():
+
+    if request.method == "POST":
+
+        excel_file = request.files.get(
+            "excel_file"
+        )
+
+        if not excel_file:
+            return "Please select an Excel file."
+
+        if not excel_file.filename.lower().endswith(
+            ".xlsx"
+        ):
+            return "Please upload a valid .xlsx file."
+
+        try:
+
+            workbook = load_workbook(
+                excel_file,
+                data_only=True
+            )
+
+            worksheet = workbook.active
+
+            # Header-based import allows flexible column order.
+            headers = {}
+
+            for index, cell in enumerate(
+                worksheet[1]
+            ):
+
+                if cell.value is not None:
+
+                    headers[
+                        str(cell.value).strip().lower()
+                    ] = index
+
+
+            def get_value(row, *names):
+
+                for name in names:
+
+                    key = name.lower()
+
+                    if key in headers:
+
+                        return row[
+                            headers[key]
+                        ]
+
+                return None
+
+
+            for row in worksheet.iter_rows(
+                min_row=2,
+                values_only=True
+            ):
+
+                case_no = get_value(
+                    row,
+                    "Case Number",
+                    "Case No",
+                    "case_no"
+                )
+
+                crn_no = get_value(
+                    row,
+                    "CRN",
+                    "CRN No",
+                    "crn_no"
+                )
+
+                court_no = get_value(
+                    row,
+                    "Court Number",
+                    "Court No",
+                    "court_no"
+                )
+
+                parties = get_value(
+                    row,
+                    "Name of Parties",
+                    "Parties",
+                    "parties"
+                )
+
+                advocate_name = get_value(
+                    row,
+                    "Name of Advocate",
+                    "Advocate Name",
+                    "advocate_name"
+                )
+
+                case_stage = get_value(
+                    row,
+                    "Case Stage",
+                    "case_stage"
+                )
+
+                case_stage_other = get_value(
+                    row,
+                    "Case Stage Other",
+                    "Other Case Stage",
+                    "case_stage_other"
+                )
+
+                case_disposed = get_value(
+                    row,
+                    "Case Disposed",
+                    "Disposed",
+                    "case_disposed"
+                )
+
+                hearing_date = get_value(
+                    row,
+                    "Next Hearing Date",
+                    "Hearing Date",
+                    "next_hearing_date"
+                )
+
+                if not all([
+                    case_no,
+                    court_no,
+                    parties,
+                    case_stage
+                ]):
+                    continue
+
+                try:
+                    court_no = int(court_no)
+                except (TypeError, ValueError):
+                    continue
+
+                if isinstance(
+                    hearing_date,
+                    datetime
+                ):
+                    hearing_date = hearing_date.date()
+
+                elif isinstance(
+                    hearing_date,
+                    str
+                ) and hearing_date.strip():
+
+                    parsed_date = None
+
+                    for date_format in [
+                        "%Y-%m-%d",
+                        "%d-%m-%Y",
+                        "%d/%m/%Y"
+                    ]:
+
+                        try:
+                            parsed_date = datetime.strptime(
+                                hearing_date.strip(),
+                                date_format
+                            ).date()
+
+                            break
+
+                        except ValueError:
+                            pass
+
+                    hearing_date = parsed_date
+
+                else:
+                    hearing_date = None
+
+
+                new_case = Case(
+
+                    case_no=str(
+                        case_no
+                    ).strip(),
+
+                    crn_no=(
+                        str(crn_no).strip()
+                        if crn_no
+                        else None
+                    ),
+
+                    court_no=court_no,
+
+                    parties=str(
+                        parties
+                    ).strip(),
+
+                    advocate_name=(
+                        str(advocate_name).strip()
+                        if advocate_name
+                        else None
+                    ),
+
+                    case_stage=str(
+                        case_stage
+                    ).strip(),
+
+                    case_stage_other=(
+                        str(case_stage_other).strip()
+                        if case_stage_other
+                        else None
+                    ),
+
+                    case_disposed=(
+                        str(case_disposed).strip()
+                        if case_disposed
+                        else "No"
+                    ),
+
+                    next_hearing_date=hearing_date
+                )
+
+                db.session.add(
+                    new_case
+                )
+
+
+            db.session.commit()
+
+            return redirect(
+                "/cases"
+            )
+
+        except Exception as error:
+
+            db.session.rollback()
+
+            return f"Error importing file: {error}"
+
+
+    return render_template(
+        "import_excel.html"
+    )
+
+
+# =========================================================
+# EXPORT CASES TO EXCEL
+# =========================================================
+
+@app.route("/export-excel")
+@login_required
+def export_excel():
+
+    cases = Case.query.all()
+
+
+    workbook = Workbook()
+
+    worksheet = workbook.active
+
+    worksheet.title = "Court Cases"
+
+
+    worksheet.append([
+
+        "ID",
+        "Case Number",
+        "CRN",
+        "Court Number",
+        "Name of Parties",
+        "Name of Advocate",
+        "Case Stage",
+        "Case Stage Other",
+        "Case Disposed",
+        "Next Hearing Date"
+    ])
+
+
+    for case in cases:
+
+
+        worksheet.append([
+
+            case.id,
+
+            case.case_no,
+
+            case.crn_no or "",
+
+            case.court_no,
+
+            case.parties,
+
+            case.advocate_name or "",
+
+            case.case_stage,
+
+            case.case_stage_other or "",
+
+            case.case_disposed or "No",
+
+            case.next_hearing_date.strftime(
+                "%d-%m-%Y"
+            )
+
+            if case.next_hearing_date
+
+            else ""
+        ])
+
+
+    excel_file = BytesIO()
+
+    workbook.save(
+        excel_file
+    )
+
+    excel_file.seek(
+        0
+    )
+
+
+    return send_file(
+
+        excel_file,
+
+        as_attachment=True,
+
+        download_name="court_cases.xlsx",
+
+        mimetype=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        )
+    )
+
+
+# =========================================================
+# DELETE CASE + ALL EVIDENCE FILES
+# =========================================================
+
+@app.route(
+    "/delete-case/<int:id>",
+    methods=["POST"]
+)
+
+@login_required
+def delete_case(id):
+
+    case = Case.query.get_or_404(id)
+
+
+    for evidence in case.evidences:
+
+        for evidence_file in evidence.files:
+
+
+            file_path = os.path.join(
+
+                app.config["UPLOAD_FOLDER"],
+
+                evidence_file.file_name
+            )
+
+
+            if os.path.exists(
+                file_path
+            ):
+
+                os.remove(
+                    file_path
+                )
+
+
+    db.session.delete(
+        case
+    )
+
+    db.session.commit()
+
+
+    return redirect(
+        "/cases"
+    )
+
+
+# =========================================================
+# SQLITE DATABASE MIGRATION FOR NEW CASE FIELDS
+# =========================================================
+
+def create_default_admin():
+
+    admin = User.query.filter_by(
+        username="admin"
+    ).first()
+
+    if not admin:
+
+        admin = User(
+            username="admin",
+            password_hash=generate_password_hash("admin")
+        )
+
+        db.session.add(admin)
+
+    else:
+
+        admin.password_hash = generate_password_hash(
+            "admin"
+        )
+
+    db.session.commit()
+
+def add_missing_case_columns():
+
+    # This migration is only needed for an existing SQLite database.
+    # PostgreSQL creates the current schema through db.create_all().
+    if not app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite"):
+        return
+
+    existing_columns = db.session.execute(
+        db.text(
+            "PRAGMA table_info('case')"
+        )
+    ).fetchall()
+
+    existing_names = {
+        column[1]
+        for column in existing_columns
+    }
+
+    columns_to_add = {
+        "crn_no": "VARCHAR(100)",
+        "advocate_name": "VARCHAR(200)",
+        "case_disposed": "VARCHAR(20) DEFAULT 'No'",
+        "case_stage_other": "VARCHAR(200)",
+        "today_serial_no": "INTEGER"
+    }
+
+    for column_name, column_type in columns_to_add.items():
+
+        if column_name not in existing_names:
+
+            db.session.execute(
+                db.text(
+                    f'ALTER TABLE "case" ADD COLUMN '
+                    f"{column_name} {column_type}"
+                )
+            )
+
+    db.session.commit()
+
+# =========================================================
+# CREATE DATABASE TABLES AND RUN APP
+# =========================================================
+
+# =========================================================
+# CREATE DATABASE TABLES AND RUN APP
+# =========================================================
+
+if __name__ == "__main__":
+
+    with app.app_context():
+
+        db.create_all()
+
+        add_missing_case_columns()
+
+        create_default_admin()
+
+    app.run(
+        debug=os.environ.get("FLASK_DEBUG") == "1",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000))
+    )
