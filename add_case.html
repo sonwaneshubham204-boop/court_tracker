@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Add New Case</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <h1>Add New Case</h1>
+
+
+    <form method="POST">
+
+
+        <!-- CASE NUMBER -->
+
+        <label>Case Number:</label>
+        <br>
+
+        <input
+            type="text"
+            name="case_no"
+            required
+        >
+
+        <br><br>
+
+
+        <!-- CRN NUMBER -->
+
+        <label>CRN Number:</label>
+        <br>
+
+        <input
+            type="text"
+            name="crn_no"
+            placeholder="Enter CRN Number"
+        >
+
+        <br><br>
+
+
+        <!-- COURT NUMBER -->
+
+        <label>Court Number:</label>
+        <br>
+
+        <select
+            name="court_no"
+            required
+        >
+
+            <option value="">
+                Select Court
+            </option>
+
+            <option value="1">
+                Court 1
+            </option>
+
+            <option value="2">
+                Court 2
+            </option>
+
+            <option value="3">
+                Court 3
+            </option>
+
+        </select>
+
+        <br><br>
+
+
+        <!-- NAME OF PARTIES -->
+
+        <label>Name of Parties:</label>
+        <br>
+
+        <input
+            type="text"
+            name="parties"
+            required
+        >
+
+        <br><br>
+
+
+        <!-- NAME OF ADVOCATE -->
+
+        <label>Name of Advocate:</label>
+        <br>
+
+        <input
+            type="text"
+            name="advocate_name"
+            placeholder="Enter Advocate Name"
+        >
+
+        <br><br>
+
+
+        <!-- CASE STAGE -->
+
+        <label>Case Stage:</label>
+        <br>
+
+        <select
+            name="case_stage"
+            id="case_stage"
+            required
+            onchange="toggleOtherStage()"
+        >
+
+            <option value="">
+                Select Case Stage
+            </option>
+
+            <option value="Notice">
+                Notice
+            </option>
+
+            <option value="Admission">
+                Admission
+            </option>
+
+            <option value="Hearing">
+                Hearing
+            </option>
+
+            <option value="Evidence">
+                Evidence
+            </option>
+
+            <option value="Cross Examination">
+                Cross Examination
+            </option>
+
+            <option value="Arguments">
+                Arguments
+            </option>
+
+            <option value="Final Arguments">
+                Final Arguments
+            </option>
+
+            <option value="Final Hearing">
+                Final Hearing
+            </option>
+
+            <option value="Judgment">
+                Judgment
+            </option>
+
+            <option value="Order">
+                Order
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+        <br><br>
+
+
+        <!-- OTHER CASE STAGE -->
+
+        <div
+            id="other_stage_box"
+            style="display: none;"
+        >
+
+            <label>
+                Specify Other Case Stage:
+            </label>
+
+            <br>
+
+            <input
+                type="text"
+                name="case_stage_other"
+                id="case_stage_other"
+                placeholder="Enter other case stage"
+            >
+
+            <br><br>
+
+        </div>
+
+
+        <!-- DECISION DATE -->
+
+        <label>Decision Date:</label>
+        <br>
+
+        <input
+            type="date"
+            name="decision_date"
+        >
+
+        <br><br>
+
+        <small>
+            Decision Date भरल्यास case आपोआप Disposed म्हणून mark होईल.
+        </small>
+
+        <br><br>
+
+
+        <!-- NEXT HEARING DATE -->
+
+        <label>Next Hearing Date:</label>
+        <br>
+
+        <input
+            type="date"
+            name="next_hearing_date"
+        >
+
+        <br><br>
+
+
+        <!-- SAVE BUTTON -->
+
+        <button type="submit">
+
+            Save Case
+
+        </button>
+
+
+    </form>
+
+
+    <br>
+
+
+    <a href="/">
+
+        Back to Dashboard
+
+    </a>
+
+    |
+
+    <a href="/cases">
+
+        View All Cases
+
+    </a>
+
+
+    <!-- JAVASCRIPT FOR OTHER CASE STAGE -->
+
+    <script>
+
+        function toggleOtherStage() {
+
+            var caseStage =
+                document.getElementById(
+                    "case_stage"
+                );
+
+            var otherStageBox =
+                document.getElementById(
+                    "other_stage_box"
+                );
+
+            var otherStageInput =
+                document.getElementById(
+                    "case_stage_other"
+                );
+
+
+            if (
+                caseStage.value === "Other"
+            ) {
+
+                otherStageBox.style.display =
+                    "block";
+
+                otherStageInput.required =
+                    true;
+
+            }
+
+            else {
+
+                otherStageBox.style.display =
+                    "none";
+
+                otherStageInput.required =
+                    false;
+
+                otherStageInput.value =
+                    "";
+
+            }
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>
