@@ -1,0 +1,11 @@
+Court Tracker update
+
+Changes included:
+1. Decision Date field is available on Edit Case.
+2. Saving a Decision Date automatically marks the case as Disposed.
+3. A case with no Next Hearing Date and no Decision Date is Undated.
+4. Disposed cases are excluded from active hearing lists.
+5. Template files that were accidentally wrapped as Python source have been restored to normal HTML.
+6. requirements.txt has been converted to UTF-8.
+
+For GitHub: upload/replace the contents of this package at the repository root.
