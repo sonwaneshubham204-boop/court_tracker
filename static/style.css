@@ -609,8 +609,13 @@ td:nth-child(2) {
 }
 .case-history-table .history-date-col { width: 18%; }
 .case-history-table .history-next-col { width: 20%; }
-.case-history-table .history-purpose-col { width: 30%; }
-.case-history-table .history-notes-col { width: 32%; }
+.case-history-table .history-purpose-col { width: 24%; }
+.case-history-table .history-notes-col { width: 24%; }
+.case-history-table .history-action-col { width: 16%; }
+.history-actions { display:flex; gap:8px; align-items:center; white-space:nowrap; }
+.history-edit { display:inline-flex; padding:7px 10px; border-radius:6px; background:#2563eb; color:#fff; text-decoration:none; font-weight:600; }
+.history-delete-form { display:inline; margin:0; padding:0; box-shadow:none; background:transparent; width:auto; }
+.history-delete-form button { display:inline-flex; width:auto; margin:0; padding:7px 10px; border-radius:6px; background:#dc2626; color:#fff; font-weight:600; }
 .case-history-table th,
 .case-history-table td {
     padding: 12px 14px !important;
@@ -626,5 +631,61 @@ td:nth-child(2) {
     .case-history-table .history-date-col { width: 22%; }
     .case-history-table .history-next-col { width: 22%; }
     .case-history-table .history-purpose-col { width: 28%; }
-    .case-history-table .history-notes-col { width: 28%; }
+    .case-history-table .history-notes-col { width: 22%; }
+    .case-history-table .history-action-col { width: 20%; }
+}
+
+
+/* ===== SIMPLE CASE HISTORY FIX ===== */
+.case-history-table{
+    width:100% !important;
+    min-width:0 !important;
+    table-layout:auto !important;
+    border-collapse:collapse !important;
+}
+.case-history-table th,
+.case-history-table td{
+    padding:12px 14px !important;
+    height:auto !important;
+    min-height:0 !important;
+    line-height:1.35 !important;
+    vertical-align:middle !important;
+    white-space:normal !important;
+}
+.case-history-table th:nth-child(1){width:18% !important;}
+.case-history-table th:nth-child(2){width:20% !important;}
+.case-history-table th:nth-child(3){width:26% !important;}
+.case-history-table th:nth-child(4){width:22% !important;}
+.case-history-table th:nth-child(5){width:14% !important;}
+.business-date-link{color:#216b3a !important;font-weight:700 !important;text-decoration:underline !important;}
+.history-action-cell{white-space:nowrap !important;}
+.history-delete-form{
+    display:inline-block !important;
+    width:auto !important;
+    max-width:none !important;
+    margin:0 0 0 6px !important;
+    padding:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    border:0 !important;
+    border-radius:0 !important;
+}
+.history-edit,
+.history-delete-form button{
+    display:inline-block !important;
+    width:auto !important;
+    min-width:0 !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:5px 9px !important;
+    font-size:13px !important;
+    line-height:1.2 !important;
+    border-radius:5px !important;
+}
+.history-edit{background:#2563eb !important;color:#fff !important;text-decoration:none !important;}
+.history-delete-form button{background:#dc2626 !important;color:#fff !important;border:0 !important;cursor:pointer !important;}
+@media(max-width:700px){
+    .case-history-table{font-size:13px !important;}
+    .case-history-table th,.case-history-table td{padding:9px 8px !important;}
+    .history-edit,.history-delete-form button{padding:4px 6px !important;font-size:11px !important;}
 }
