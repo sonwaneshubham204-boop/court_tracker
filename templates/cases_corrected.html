@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<style>
+* { box-sizing: border-box; }
+
+.cases-page { max-width: 1400px; margin: 0 auto; }
+.top-links { margin: 12px 0 18px; }
+.top-links a { margin-right: 10px; }
+
+.search-card {
+    background: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    margin-bottom: 18px;
+}
+
+.compact-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.compact-search {
+    flex: 1 1 420px;
+    min-width: 220px;
+}
+
+.compact-search input {
+    width: 100%;
+    padding: 11px 12px;
+}
+
+.filter-toggle, .search-btn, .clear-btn {
+    padding: 11px 16px;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-toggle { background: #e5e7eb; color: #111827; }
+.search-btn { background: #2563eb; color: #fff; }
+.clear-btn { background: #6b7280; color: #fff; }
+
+.filters-panel {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #ddd;
+}
+
+.filters-panel.open { display: block; }
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.filter-field label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    padding: 10px;
+}
+
+.bulkbar {
+    display: none;
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+    background: #eef6ff;
+    border: 1px solid #bcd;
+    border-radius: 9px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.bulkbar button {
+    padding: 8px 11px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+.danger { background: #c62828; color: white; border: 0; }
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 9px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background: #b3122b;
+    color: #fff;
+}
+
+.weekday {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    color: #666;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal .box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: min(420px, 92vw);
+}
+
+.modal input, .modal select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+@media (max-width: 900px) {
+    .filter-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+@media (max-width: 600px) {
+    .filter-grid { grid-template-columns: 1fr; }
+    .compact-row { align-items: stretch; }
+    .compact-search { flex-basis: 100%; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="cases-page">
+
+<h1>{{ title }}</h1>
+
+<div class="top-links">
+    <a href="/">Dashboard</a> |
+    <a href="/add-case">Add New Case</a> |
+    <a href="/analytics">📊 Analytics</a> |
+    <a href="/export-excel">Export to Excel</a>
+</div>
+
+<form class="search-card" method="GET" action="/cases">
+
+    <div class="compact-row">
+        <div class="compact-search">
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search Case No, CNR, Party, Advocate or Place...">
+        </div>
+
+        <button type="button" class="filter-toggle" id="filterToggle">
+            ⚙ Filters ▼
+        </button>
+
+        <button type="submit" class="search-btn">Search</button>
+        <a href="/cases" class="clear-btn">Clear</a>
+    </div>
+
+    <div class="filters-panel" id="filtersPanel">
+
+        <div class="filter-grid">
+
+            <div class="filter-field">
+                <label>Court</label>
+                <select name="court_no">
+                    <option value="">All Courts</option>
+                    {% for n in [1,2,3] %}
+                    <option value="{{ n }}" {% if court_no == n|string %}selected{% endif %}>
+                        Court {{ n }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Case Stage</label>
+                <select name="case_stage">
+                    <option value="">All Stages</option>
+                    {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
+                    <option value="{{ s }}" {% if case_stage == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Hearing Status</label>
+                <select name="hearing_status">
+                    <option value="">All</option>
+                    <option value="past" {% if hearing_status == "past" %}selected{% endif %}>Past / Overdue</option>
+                    <option value="today" {% if hearing_status == "today" %}selected{% endif %}>Today</option>
+                    <option value="tomorrow" {% if hearing_status == "tomorrow" %}selected{% endif %}>Tomorrow</option>
+                    <option value="upcoming" {% if hearing_status == "upcoming" %}selected{% endif %}>Upcoming</option>
+                    <option value="undated" {% if hearing_status == "undated" %}selected{% endif %}>Undated</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Hearing Date From</label>
+                <input type="date" name="date_from" value="{{ date_from }}">
+            </div>
+
+            <div class="filter-field">
+                <label>Hearing Date To</label>
+                <input type="date" name="date_to" value="{{ date_to }}">
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<h2>Total Results: {{ cases|length }}</h2>
+
+<div id="bulkbar" class="bulkbar">
+    <b id="selcount">0</b> selected:
+    <button type="button" onclick="openModal('date')">📅 Change Next Hearing Date</button>
+    <button type="button" onclick="openModal('stage')">⚖️ Change Case Stage</button>
+    <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
+    <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+    <th><input type="checkbox" id="all"></th>
+    <th>ID</th>
+    <th>Case Number</th>
+    <th>Court</th>
+    <th>Name of Parties</th>
+    <th>Case Stage</th>
+    <th>Next Hearing Date</th>
+    <th>Time Left</th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody>
+{% for case in cases %}
+<tr>
+    <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
+    <td>{{ case.id }}</td>
+    <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
+    <td>Court {{ case.court_no }}</td>
+    <td>{{ case.parties }}</td>
+    <td>
+        {% if case.case_stage == "Other" and case.case_stage_other %}
+            {{ case.case_stage_other }}
+        {% else %}
+            {{ case.case_stage }}
+        {% endif %}
+    </td>
+    <td>
+        {% if case.next_hearing_date %}
+            {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
+            <small class="weekday">{{ case.next_hearing_date.strftime("%A") }}</small>
+        {% else %}
+            Not Scheduled
+        {% endif %}
+    </td>
+    <td>
+        {% if case.next_hearing_date %}
+            {% set d = (case.next_hearing_date - today).days %}
+            {% if d < 0 %}
+                {{ d|abs }} days overdue
+            {% elif d == 0 %}
+                TODAY
+            {% elif d == 1 %}
+                Tomorrow
+            {% else %}
+                {{ d }} days left
+            {% endif %}
+        {% else %}
+            Undated
+        {% endif %}
+    </td>
+    <td>
+        <a href="/case/{{ case.id }}">Open</a> |
+        <a href="/edit-case/{{ case.id }}">Edit</a>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<div id="modal" class="modal">
+<div class="box">
+<form id="modalForm" method="POST">
+
+    <h3 id="mtitle"></h3>
+
+    <input id="bulkdate" type="date" name="next_hearing_date" style="display:none">
+
+    <select id="bulkstage" name="case_stage" style="display:none">
+        <option value="">Select Stage</option>
+        {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
+        <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+    </select>
+
+    <input id="decision" type="date" name="decision_date" style="display:none">
+
+    <div>
+        <button type="submit">Confirm</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+    </div>
+
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+<script>
+const filterToggle = document.getElementById('filterToggle');
+const filtersPanel = document.getElementById('filtersPanel');
+
+filterToggle.addEventListener('click', () => {
+    filtersPanel.classList.toggle('open');
+    filterToggle.innerHTML = filtersPanel.classList.contains('open')
+        ? '⚙ Filters ▲'
+        : '⚙ Filters ▼';
+});
+
+const hasActiveFilter = {{ 'true' if court_no or case_stage or hearing_status or date_from or date_to else 'false' }};
+if (hasActiveFilter) {
+    filtersPanel.classList.add('open');
+    filterToggle.innerHTML = '⚙ Filters ▲';
+}
+
+const boxes = () => document.querySelectorAll('.casebox');
+
+function selected() {
+    return [...boxes()].filter(x => x.checked).map(x => x.value);
+}
+
+function refresh() {
+    const n = selected().length;
+    document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
+    document.getElementById('selcount').textContent = n;
+}
+
+boxes().forEach(x => x.addEventListener('change', refresh));
+
+document.getElementById('all').addEventListener('change', e => {
+    boxes().forEach(x => x.checked = e.target.checked);
+    refresh();
+});
+
+function openModal(type) {
+    const ids = selected();
+    if (!ids.length) return;
+
+    const form = document.getElementById('modalForm');
+
+    document.getElementById('bulkdate').style.display = type === 'date' ? 'block' : 'none';
+    document.getElementById('bulkstage').style.display = type === 'stage' ? 'block' : 'none';
+    document.getElementById('decision').style.display = type === 'dispose' ? 'block' : 'none';
+
+    document.getElementById('mtitle').textContent =
+        type === 'date' ? 'Change Next Hearing Date' :
+        type === 'stage' ? 'Change Case Stage' :
+        'Dispose Selected — Select Decision Date';
+
+    form.action = '/bulk/' + type + '?ids=' + ids.join(',');
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+function bulkDelete() {
+    const ids = selected();
+    if (ids.length && confirm('Delete selected cases?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/bulk/delete?ids=' + ids.join(',');
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+
+</body>
+</html>
