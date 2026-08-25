@@ -14,7 +14,6 @@ from flask import (
 )
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import inspect
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -265,6 +264,16 @@ class Hearing(db.Model):
         nullable=False
     )
 
+    presentee = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    business = db.Column(
+        db.Text,
+        nullable=True
+    )
+
     next_hearing_date = db.Column(
         db.Date,
         nullable=True
@@ -459,44 +468,40 @@ def home():
 
 
     past_cases = Case.query.filter(
-        Case.next_hearing_date < today,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date < today
     ).count()
 
 
     todays_cases = Case.query.filter(
-        Case.next_hearing_date == today,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date == today
     ).count()
 
 
     tomorrow_cases = Case.query.filter(
-        Case.next_hearing_date == tomorrow,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date == tomorrow
     ).count()
 
 
     upcoming_cases = Case.query.filter(
-        Case.next_hearing_date > today,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date > today
     ).count()
 
 
     next_7_days_count = Case.query.filter(
         Case.next_hearing_date >= today,
-        Case.next_hearing_date <= next_7_days,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date <= next_7_days
     ).count()
 
 
     undated_cases = Case.query.filter(
         Case.next_hearing_date.is_(None),
-        Case.decision_date.is_(None)
+        Case.decision_date.is_(None),
+        Case.case_disposed != "Yes"
     ).count()
 
 
-    disposed_cases = Case.query.filter(
-        Case.decision_date.is_not(None)
+    disposed_cases = Case.query.filter_by(
+        case_disposed="Yes"
     ).count()
 
 
@@ -550,16 +555,14 @@ def home():
     # =====================================================
 
     todays_hearings = Case.query.filter(
-        Case.next_hearing_date == today,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date == today
     ).order_by(
         Case.court_no
     ).all()
 
 
     tomorrow_hearings = Case.query.filter(
-        Case.next_hearing_date == tomorrow,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date == tomorrow
     ).order_by(
         Case.court_no
     ).all()
@@ -567,16 +570,14 @@ def home():
 
     upcoming_hearings = Case.query.filter(
         Case.next_hearing_date > tomorrow,
-        Case.next_hearing_date <= next_7_days,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date <= next_7_days
     ).order_by(
         Case.next_hearing_date
     ).all()
 
 
     overdue_hearings = Case.query.filter(
-        Case.next_hearing_date < today,
-        Case.decision_date.is_(None)
+        Case.next_hearing_date < today
     ).order_by(
         Case.next_hearing_date
     ).all()
@@ -752,16 +753,14 @@ def case_list():
     if hearing_status == "past":
 
         query = query.filter(
-            Case.next_hearing_date < today,
-            Case.decision_date.is_(None)
+            Case.next_hearing_date < today
         )
 
 
     elif hearing_status == "today":
 
         query = query.filter(
-            Case.next_hearing_date == today,
-            Case.decision_date.is_(None)
+            Case.next_hearing_date == today
         )
 
 
@@ -770,16 +769,14 @@ def case_list():
         query = query.filter(
             Case.next_hearing_date == (
                 today + timedelta(days=1)
-            ),
-            Case.decision_date.is_(None)
+            )
         )
 
 
     elif hearing_status == "upcoming":
 
         query = query.filter(
-            Case.next_hearing_date > today,
-            Case.decision_date.is_(None)
+            Case.next_hearing_date > today
         )
 
 
@@ -787,22 +784,17 @@ def case_list():
 
         query = query.filter(
             Case.next_hearing_date.is_(None),
-            Case.decision_date.is_(None)
+            Case.decision_date.is_(None),
+            Case.case_disposed != "Yes"
         )
 
 
     # CASE DISPOSED FILTER
 
-    if case_disposed == "Yes":
+    if case_disposed in ["Yes", "No"]:
 
         query = query.filter(
-            Case.decision_date.is_not(None)
-        )
-
-    elif case_disposed == "No":
-
-        query = query.filter(
-            Case.decision_date.is_(None)
+            Case.case_disposed == case_disposed
         )
 
 
@@ -962,20 +954,8 @@ def add_case():
         hearing_date = request.form.get(
             "next_hearing_date"
         )
-
-        decision_date_value = request.form.get(
-            "decision_date"
-        )
-
-        decision_date = (
-            datetime.strptime(
-                decision_date_value,
-                "%Y-%m-%d"
-            ).date()
-            if decision_date_value
-            else None
-        )
-
+        decision_date_value = request.form.get("decision_date")
+        decision_date = datetime.strptime(decision_date_value, "%Y-%m-%d").date() if decision_date_value else None
 
         new_case = Case(
 
@@ -991,11 +971,11 @@ def add_case():
                 "advocate_name"
             ) or None,
 
-            case_disposed=(
-                "Yes"
-                if decision_date
-                else "No"
-            ),
+            case_disposed="Yes" if decision_date else (request.form.get(
+                "case_disposed"
+            ) or "No"),
+
+            decision_date=decision_date,
 
             court_no=int(
                 request.form.get(
@@ -1034,9 +1014,7 @@ def add_case():
                 if hearing_date
 
                 else None
-            ),
-
-            decision_date=decision_date
+            )
         )
 
 
@@ -1077,19 +1055,8 @@ def edit_case(id):
         hearing_date = request.form.get(
             "next_hearing_date"
         )
-
-        decision_date_value = request.form.get(
-            "decision_date"
-        )
-
-        decision_date = (
-            datetime.strptime(
-                decision_date_value,
-                "%Y-%m-%d"
-            ).date()
-            if decision_date_value
-            else None
-        )
+        decision_date_value = request.form.get("decision_date")
+        decision_date = datetime.strptime(decision_date_value, "%Y-%m-%d").date() if decision_date_value else None
 
 
         case.case_no = request.form.get(
@@ -1104,11 +1071,10 @@ def edit_case(id):
             "advocate_name"
         ) or None
 
-        case.case_disposed = (
-            "Yes"
-            if decision_date
-            else "No"
-        )
+        case.decision_date = decision_date
+        case.case_disposed = "Yes" if decision_date else (request.form.get(
+            "case_disposed"
+        ) or "No")
 
         case.court_no = int(
             request.form.get(
@@ -1148,8 +1114,6 @@ def edit_case(id):
 
             else None
         )
-
-        case.decision_date = decision_date
 
 
         db.session.commit()
@@ -1204,6 +1168,27 @@ def case_detail(id):
         evidences=evidences,
 
         today=date.today()
+    )
+
+
+# =========================================================
+# VIEW BUSINESS / HEARING DETAIL
+# =========================================================
+
+@app.route("/case/<int:case_id>/business/<int:hearing_id>")
+@login_required
+def view_business(case_id, hearing_id):
+
+    case = Case.query.get_or_404(case_id)
+    hearing = Hearing.query.filter_by(
+        id=hearing_id,
+        case_id=case.id
+    ).first_or_404()
+
+    return render_template(
+        "view_business.html",
+        case=case,
+        hearing=hearing
     )
 
 
@@ -1361,6 +1346,16 @@ def update_hearing(id):
         "notes"
     )
 
+    presentee = request.form.get(
+        "presentee",
+        ""
+    ).strip()
+
+    business = request.form.get(
+        "business",
+        ""
+    ).strip()
+
 
     if hearing_date:
 
@@ -1393,6 +1388,10 @@ def update_hearing(id):
         hearing_date=hearing_date,
 
         outcome=outcome,
+
+        presentee=presentee or None,
+
+        business=business or None,
 
         next_hearing_date=next_hearing_date,
 
@@ -1981,12 +1980,6 @@ def import_excel():
                     "next_hearing_date"
                 )
 
-                decision_date = get_value(
-                    row,
-                    "Decision Date",
-                    "decision_date"
-                )
-
                 if not all([
                     case_no,
                     court_no,
@@ -2035,47 +2028,6 @@ def import_excel():
                 else:
                     hearing_date = None
 
-                if isinstance(
-                    decision_date,
-                    datetime
-                ):
-                    decision_date = decision_date.date()
-
-                elif isinstance(
-                    decision_date,
-                    date
-                ):
-                    decision_date = decision_date
-
-                elif isinstance(
-                    decision_date,
-                    str
-                ) and decision_date.strip():
-
-                    parsed_decision_date = None
-
-                    for date_format in [
-                        "%Y-%m-%d",
-                        "%d-%m-%Y",
-                        "%d/%m/%Y"
-                    ]:
-
-                        try:
-                            parsed_decision_date = datetime.strptime(
-                                decision_date.strip(),
-                                date_format
-                            ).date()
-
-                            break
-
-                        except ValueError:
-                            pass
-
-                    decision_date = parsed_decision_date
-
-                else:
-                    decision_date = None
-
 
                 new_case = Case(
 
@@ -2112,14 +2064,12 @@ def import_excel():
                     ),
 
                     case_disposed=(
-                        "Yes"
-                        if decision_date
+                        str(case_disposed).strip()
+                        if case_disposed
                         else "No"
                     ),
 
-                    next_hearing_date=hearing_date,
-
-                    decision_date=decision_date
+                    next_hearing_date=hearing_date
                 )
 
                 db.session.add(
@@ -2174,8 +2124,7 @@ def export_excel():
         "Case Stage",
         "Case Stage Other",
         "Case Disposed",
-        "Next Hearing Date",
-        "Decision Date"
+        "Next Hearing Date"
     ])
 
 
@@ -2207,14 +2156,6 @@ def export_excel():
             )
 
             if case.next_hearing_date
-
-            else "",
-
-            case.decision_date.strftime(
-                "%d-%m-%Y"
-            )
-
-            if case.decision_date
 
             else ""
         ])
@@ -2324,16 +2265,8 @@ def create_default_admin():
 
 def add_missing_case_columns():
 
-    # Keep existing databases in sync when new Case fields are added.
-    inspector = inspect(db.engine)
-
-    if "case" not in inspector.get_table_names():
-        return
-
-    existing_names = {
-        column["name"]
-        for column in inspector.get_columns("case")
-    }
+    inspector = db.inspect(db.engine)
+    existing_names = {column["name"] for column in inspector.get_columns("case")}
 
     columns_to_add = {
         "crn_no": "VARCHAR(100)",
@@ -2358,8 +2291,33 @@ def add_missing_case_columns():
     db.session.commit()
 
 # =========================================================
-# CREATE DATABASE TABLES AND RUN APP
+# HEARING TABLE MIGRATION
 # =========================================================
+
+def add_missing_hearing_columns():
+
+    inspector = db.inspect(db.engine)
+    table_names = inspector.get_table_names()
+
+    if "hearing" not in table_names:
+        return
+
+    existing_names = {column["name"] for column in inspector.get_columns("hearing")}
+
+    columns_to_add = {
+        "presentee": "TEXT",
+        "business": "TEXT"
+    }
+
+    for column_name, column_type in columns_to_add.items():
+        if column_name not in existing_names:
+            db.session.execute(
+                db.text(
+                    f'ALTER TABLE "hearing" ADD COLUMN {column_name} {column_type}'
+                )
+            )
+
+    db.session.commit()
 
 # =========================================================
 # CREATE DATABASE TABLES AND RUN APP
@@ -2368,6 +2326,7 @@ def add_missing_case_columns():
 with app.app_context():
     db.create_all()
     add_missing_case_columns()
+    add_missing_hearing_columns()
     create_default_admin()
 
 
