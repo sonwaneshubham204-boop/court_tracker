@@ -1193,6 +1193,60 @@ def view_business(case_id, hearing_id):
 
 
 # =========================================================
+# EDIT / DELETE CASE HISTORY
+# =========================================================
+
+@app.route("/case/<int:case_id>/hearing/<int:hearing_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_hearing(case_id, hearing_id):
+    case = Case.query.get_or_404(case_id)
+    hearing = Hearing.query.filter_by(id=hearing_id, case_id=case.id).first_or_404()
+
+    if request.method == "POST":
+        hearing_date_value = request.form.get("hearing_date", "").strip()
+        next_date_value = request.form.get("next_hearing_date", "").strip()
+
+        try:
+            hearing.hearing_date = datetime.strptime(hearing_date_value, "%Y-%m-%d").date() if hearing_date_value else hearing.hearing_date
+            hearing.next_hearing_date = datetime.strptime(next_date_value, "%Y-%m-%d").date() if next_date_value else None
+        except ValueError:
+            return "Invalid date.", 400
+
+        hearing.outcome = request.form.get("outcome", "").strip() or "Hearing"
+        hearing.presentee = request.form.get("presentee", "").strip() or None
+        hearing.business = request.form.get("business", "").strip() or None
+        hearing.notes = request.form.get("notes", "").strip() or None
+
+        latest = Hearing.query.filter_by(case_id=case.id).order_by(Hearing.hearing_date.desc(), Hearing.id.desc()).first()
+        if latest and latest.id == hearing.id:
+            case.next_hearing_date = hearing.next_hearing_date
+
+        db.session.commit()
+        return redirect(url_for("case_detail", id=case.id))
+
+    return render_template("edit_hearing.html", case=case, hearing=hearing)
+
+
+@app.route("/case/<int:case_id>/hearing/<int:hearing_id>/delete", methods=["POST"])
+@login_required
+def delete_hearing(case_id, hearing_id):
+    case = Case.query.get_or_404(case_id)
+    hearing = Hearing.query.filter_by(id=hearing_id, case_id=case.id).first_or_404()
+
+    db.session.delete(hearing)
+    db.session.flush()
+
+    latest = Hearing.query.filter_by(case_id=case.id).order_by(Hearing.hearing_date.desc(), Hearing.id.desc()).first()
+    if latest:
+        case.next_hearing_date = latest.next_hearing_date
+    else:
+        case.next_hearing_date = None
+
+    db.session.commit()
+    return redirect(url_for("case_detail", id=case.id))
+
+
+# =========================================================
 # TODAY'S CASE BASKET
 # =========================================================
 
