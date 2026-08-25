@@ -1,6 +1,4 @@
-from pathlib import Path
-
-src = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -28,13 +26,15 @@ input, select, textarea { width:100%; box-sizing:border-box; }
 textarea { min-height:110px; resize:vertical; }
 .form-actions { margin-top:18px; }
 .table-container { overflow-x:auto; width:100%; }
-table { min-width:700px; }
+table { min-width:760px; }
 .file-info { margin-top:5px; font-size:14px; color:#555; }
 .action-links { display:flex; flex-wrap:wrap; gap:8px; min-width:150px; }
 .action-links a, .delete-form button { display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:7px 10px; margin:0; border-radius:6px; text-decoration:none; font-weight:600; background:#e5e7eb; color:#1f2937; }
 .delete-form { display:inline; width:auto; margin:0; padding:0; background:transparent; box-shadow:none; }
 .delete-form button { background:#dc2626; color:#fff; }
 .empty-message { margin:0; color:#6b7280; }
+.business-date-link { color:#15803d; font-weight:700; text-decoration:underline; }
+.history-note { white-space:pre-wrap; max-width:280px; }
 
 @media (max-width:700px) {
   .page-header { flex-direction:column; align-items:stretch; }
@@ -67,13 +67,14 @@ table { min-width:700px; }
 </div>
 
 <div class="section">
-<h2>📝 Quick Hearing Update</h2>
+<h2>📝 Add Case History</h2>
 <form action="/case/{{ case.id }}/update-hearing" method="POST">
 <div class="form-grid">
-<div class="form-group"><label>Hearing Date</label><input type="date" name="hearing_date" value="{{ today.strftime('%Y-%m-%d') }}"></div>
-<div class="form-group"><label>Outcome</label>
+<div class="form-group"><label>Business Date</label><input type="date" name="hearing_date" value="{{ today.strftime('%Y-%m-%d') }}"></div>
+<div class="form-group"><label>Purpose of Hearing</label>
 <select name="outcome" required>
-<option value="">Select Outcome</option>
+<option value="">Select Purpose</option>
+<option value="Notice">Notice</option>
 <option value="Hearing">Hearing</option>
 <option value="Evidence Submitted">Evidence Submitted</option>
 <option value="Arguments">Arguments</option>
@@ -81,21 +82,42 @@ table { min-width:700px; }
 <option value="Adjourned">Adjourned</option>
 </select></div>
 <div class="form-group"><label>Next Hearing Date</label><input type="date" name="next_hearing_date"></div>
-<div class="form-group full"><label>Notes</label><textarea name="notes" placeholder="Enter hearing notes..."></textarea></div>
+<div class="form-group full"><label>Presentee</label><textarea name="presentee" placeholder="Who was present..."></textarea></div>
+<div class="form-group full"><label>Business</label><textarea name="business" placeholder="Enter business / daily status..."></textarea></div>
+<div class="form-group full"><label>Notes</label><textarea name="notes" placeholder="Example: आज सुट्टी असल्यामुळे कामकाज झाले नाही..."></textarea></div>
 </div>
-<div class="form-actions"><button type="submit">💾 Save Hearing Update</button></div>
+<div class="form-actions"><button type="submit">💾 Save Case History</button></div>
 </form>
 </div>
 
 <div class="section">
-<h2>📋 Hearing History</h2>
+<h2>📋 Case History</h2>
 {% if hearings %}
-<div class="table-container"><table><tr><th>Date</th><th>Outcome</th><th>Next Hearing</th><th>Notes</th></tr>
+<div class="table-container">
+<table>
+<tr>
+<th>Business Date</th>
+<th>Next Hearing Date</th>
+<th>Purpose of Hearing</th>
+<th>Notes</th>
+</tr>
 {% for hearing in hearings %}
-<tr><td>{{ hearing.hearing_date.strftime("%d-%m-%Y") }}</td><td>{{ hearing.outcome }}</td><td>{% if hearing.next_hearing_date %}{{ hearing.next_hearing_date.strftime("%d-%m-%Y") }}{% else %}-{% endif %}</td><td>{{ hearing.notes or "-" }}</td></tr>
+<tr>
+<td>
+<a href="{{ url_for('view_business', case_id=case.id, hearing_id=hearing.id) }}" class="business-date-link">
+{{ hearing.hearing_date.strftime("%d-%m-%Y") }}
+</a>
+</td>
+<td>{% if hearing.next_hearing_date %}{{ hearing.next_hearing_date.strftime("%d-%m-%Y") }}{% else %}-{% endif %}</td>
+<td>{{ hearing.outcome }}</td>
+<td class="history-note">{{ hearing.notes or "-" }}</td>
+</tr>
 {% endfor %}
-</table></div>
-{% else %}<p class="empty-message">No hearing history available.</p>{% endif %}
+</table>
+</div>
+{% else %}
+<p class="empty-message">No case history available.</p>
+{% endif %}
 </div>
 
 <div class="section">
@@ -105,7 +127,12 @@ table { min-width:700px; }
 <div class="form-group"><label>Evidence Name</label><input type="text" name="evidence_name" placeholder="Example: CCTV Footage" required></div>
 <div class="form-group"><label>Evidence Type</label>
 <select name="evidence_type" required>
-<option value="">Select Evidence Type</option><option value="Document">Document</option><option value="Image">Image</option><option value="Photograph">Photograph</option><option value="Digital Evidence">Digital Evidence</option><option value="Other">Other</option>
+<option value="">Select Evidence Type</option>
+<option value="Document">Document</option>
+<option value="Image">Image</option>
+<option value="Photograph">Photograph</option>
+<option value="Digital Evidence">Digital Evidence</option>
+<option value="Other">Other</option>
 </select></div>
 <div class="form-group"><label>Submitted Date</label><input type="date" name="submitted_date"></div>
 <div class="form-group"><label>Status</label>
@@ -138,9 +165,7 @@ table { min-width:700px; }
 {% else %}<p class="empty-message">No evidence added yet.</p>{% endif %}
 </div>
 
-</div></div>
+</div>
+</div>
 </body>
-</html>'''
-out=Path("/mnt/data/case_detail.html")
-out.write_text(src,encoding="utf-8")
-print(out)
+</html>
