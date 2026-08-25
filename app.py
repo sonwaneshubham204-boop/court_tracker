@@ -1381,10 +1381,9 @@ def update_hearing(id):
     case = Case.query.get_or_404(id)
 
 
-    outcome = request.form.get(
-        "outcome"
-    )
-
+    outcome = request.form.get("outcome", "").strip()
+    if outcome == "Other":
+        outcome = request.form.get("other_outcome", "").strip() or "Other"
 
     hearing_date = request.form.get(
         "hearing_date"
@@ -2376,6 +2375,81 @@ def add_missing_hearing_columns():
 # =========================================================
 # CREATE DATABASE TABLES AND RUN APP
 # =========================================================
+
+
+# =========================================================
+# BULK ACTIONS + ANALYTICS
+# =========================================================
+def _bulk_cases():
+    raw = request.args.get("ids", "")
+    ids = []
+    for x in raw.split(","):
+        try: ids.append(int(x))
+        except ValueError: pass
+    return Case.query.filter(Case.id.in_(ids)).all()
+
+@app.route("/bulk/date", methods=["POST"])
+@login_required
+def bulk_date():
+    value=request.form.get("next_hearing_date","")
+    if not value: flash("Please select a date.","warning"); return redirect(request.referrer or url_for("case_list"))
+    try: d=datetime.strptime(value,"%Y-%m-%d").date()
+    except ValueError: return "Invalid date",400
+    for c in _bulk_cases(): c.next_hearing_date=d
+    db.session.commit(); flash("Next hearing date updated for selected cases.","success")
+    return redirect(request.referrer or url_for("case_list"))
+
+@app.route("/bulk/stage", methods=["POST"])
+@login_required
+def bulk_stage():
+    stage=request.form.get("case_stage","").strip()
+    if not stage: flash("Please select a stage.","warning"); return redirect(request.referrer or url_for("case_list"))
+    for c in _bulk_cases(): c.case_stage=stage
+    db.session.commit(); flash("Case stage updated for selected cases.","success")
+    return redirect(request.referrer or url_for("case_list"))
+
+@app.route("/bulk/dispose", methods=["POST"])
+@login_required
+def bulk_dispose():
+    value=request.form.get("decision_date","")
+    if not value: return "Decision date is required.",400
+    try: d=datetime.strptime(value,"%Y-%m-%d").date()
+    except ValueError: return "Invalid date",400
+    for c in _bulk_cases():
+        c.case_disposed="Yes"; c.decision_date=d; c.next_hearing_date=None
+    db.session.commit(); flash("Selected cases disposed.","success")
+    return redirect(request.referrer or url_for("case_list"))
+
+@app.route("/bulk/delete", methods=["POST"])
+@login_required
+def bulk_delete():
+    for c in _bulk_cases(): db.session.delete(c)
+    db.session.commit(); flash("Selected cases deleted.","success")
+    return redirect(request.referrer or url_for("case_list"))
+
+@app.route("/analytics")
+@login_required
+def analytics():
+    today=date.today()
+    total=Case.query.count()
+    active=Case.query.filter(Case.case_disposed != "Yes").count()
+    disposed=Case.query.filter_by(case_disposed="Yes").count()
+    undated=Case.query.filter(Case.next_hearing_date.is_(None),Case.case_disposed!="Yes").count()
+    next7=Case.query.filter(Case.next_hearing_date>=today,Case.next_hearing_date<=today+timedelta(days=7)).count()
+    days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+    counts=[]
+    for i in range(6):
+        counts.append(Case.query.filter(db.extract("dow", Case.next_hearing_date)==i).count())
+    # PostgreSQL dow differs; calculate reliably in Python from scheduled cases.
+    counts=[0]*6
+    for c in Case.query.filter(Case.next_hearing_date.isnot(None)).all():
+        if c.next_hearing_date.weekday()<6: counts[c.next_hearing_date.weekday()]+=1
+    courts=[Case.query.filter_by(court_no=n).count() for n in (1,2,3)]
+    mx=max(counts) if counts else 0
+    positive=[x for x in counts if x>0]
+    mn=min(positive) if positive else 0
+    return render_template("analytics.html",total=total,active=active,disposed=disposed,undated=undated,next7=next7,days=days,counts=counts,courts=courts,busiest=days[counts.index(mx)] if counts else "-",busiest_count=mx,least=days[counts.index(mn)] if positive else "-",least_count=mn,no_days=[days[i] for i,x in enumerate(counts) if x==0])
+
 
 with app.app_context():
     db.create_all()
