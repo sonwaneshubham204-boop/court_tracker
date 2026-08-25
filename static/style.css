@@ -600,3 +600,31 @@ td:nth-child(2) {
         font-size: 14px !important;
     }
 }
+
+/* ================= COMPACT CASE HISTORY TABLE ================= */
+.case-history-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed;
+}
+.case-history-table .history-date-col { width: 18%; }
+.case-history-table .history-next-col { width: 20%; }
+.case-history-table .history-purpose-col { width: 30%; }
+.case-history-table .history-notes-col { width: 32%; }
+.case-history-table th,
+.case-history-table td {
+    padding: 12px 14px !important;
+    vertical-align: middle !important;
+    overflow-wrap: anywhere;
+}
+.business-date-link {
+    font-weight: 700;
+    text-decoration: underline;
+}
+@media (max-width: 700px) {
+    .case-history-table { min-width: 620px !important; }
+    .case-history-table .history-date-col { width: 22%; }
+    .case-history-table .history-next-col { width: 22%; }
+    .case-history-table .history-purpose-col { width: 28%; }
+    .case-history-table .history-notes-col { width: 28%; }
+}
