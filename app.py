@@ -845,7 +845,7 @@ def case_list():
 
     return render_template(
 
-        "cases.html",
+        "cases_corrected.html",
 
         cases=cases,
 
@@ -889,7 +889,7 @@ def court_cases(court_no):
 
     return render_template(
 
-        "cases.html",
+        "cases_corrected.html",
 
         cases=cases,
 
