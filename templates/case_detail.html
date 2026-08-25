@@ -80,8 +80,8 @@ table { min-width:700px; }
 <option value="Evidence Submitted">Evidence Submitted</option>
 <option value="Arguments">Arguments</option>
 <option value="Order Passed">Order Passed</option>
-<option value="Adjourned">Adjourned</option>
-</select></div>
+<option value="Adjourned">Adjourned</option><option value="Other">Other</option>
+</select><div id="otherPurposeWrap" style="display:none;margin-top:8px"><input type="text" name="other_outcome" placeholder="Write other purpose..."></div></div>
 <div class="form-group"><label>Next Hearing Date</label><input type="date" name="next_hearing_date"></div>
 <div class="form-group full"><label>Presentee</label><textarea name="presentee" placeholder="Who was present..."></textarea></div>
 <div class="form-group full"><label>Business</label><textarea name="business" placeholder="Enter business / daily status..."></textarea></div>
@@ -164,7 +164,9 @@ table { min-width:700px; }
 </div>
 
 </div></div>
-</body>
+<script>
+document.addEventListener("DOMContentLoaded",function(){const s=document.querySelector('select[name="outcome"]'),w=document.getElementById("otherPurposeWrap");if(s&&w){function t(){w.style.display=s.value==="Other"?"block":"none"}s.addEventListener("change",t);t()}})
+</script></body>
 </html>'''
 out=Path("/mnt/data/case_detail.html")
 out.write_text(src,encoding="utf-8")
