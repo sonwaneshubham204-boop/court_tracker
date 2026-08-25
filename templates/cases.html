@@ -119,7 +119,14 @@
             display: inline;
         }
 
-    </style>
+    
+        .hearing-date-cell .weekday {
+            display: block;
+            margin-top: 4px;
+            color: #666;
+            font-size: 12px;
+        }
+</style>
 
 </head>
 
@@ -538,11 +545,14 @@
 
             <!-- HEARING DATE -->
 
-            <td>
+            <td class="hearing-date-cell">
 
                 {% if case.next_hearing_date %}
 
-                    {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
+                    <div>{{ case.next_hearing_date.strftime("%d-%m-%Y") }}</div>
+                    <small class="weekday">
+                        {{ case.next_hearing_date.strftime("%A") }}
+                    </small>
 
                 {% else %}
 
