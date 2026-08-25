@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Case History</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+.edit-history-page{max-width:900px;margin:30px auto}.history-card{background:#fff;padding:25px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.1)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.full{grid-column:1/-1}label{display:block;font-weight:700;margin-bottom:6px}input,select,textarea{width:100%;box-sizing:border-box}textarea{min-height:110px}.actions{display:flex;gap:10px;margin-top:20px}.cancel{padding:10px 16px;background:#6b7280;color:#fff;text-decoration:none;border-radius:6px}@media(max-width:700px){.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.actions{flex-direction:column}.actions button,.cancel{width:100%;box-sizing:border-box;text-align:center}}
+</style>
+</head>
+<body><div class="container"><div class="edit-history-page"><div class="history-card">
+<h1>✏️ Edit Case History</h1>
+<p><strong>Case:</strong> {{ case.case_no }}</p>
+<form method="POST">
+<div class="form-grid">
+<div><label>Business Date</label><input type="date" name="hearing_date" value="{{ hearing.hearing_date.strftime('%Y-%m-%d') }}"></div>
+<div><label>Next Hearing Date</label><input type="date" name="next_hearing_date" value="{% if hearing.next_hearing_date %}{{ hearing.next_hearing_date.strftime('%Y-%m-%d') }}{% endif %}"></div>
+<div class="full"><label>Purpose of Hearing</label><input type="text" name="outcome" value="{{ hearing.outcome }}" required></div>
+<div class="full"><label>Presentee</label><textarea name="presentee">{{ hearing.presentee or '' }}</textarea></div>
+<div class="full"><label>Business</label><textarea name="business">{{ hearing.business or '' }}</textarea></div>
+<div class="full"><label>Notes</label><textarea name="notes">{{ hearing.notes or '' }}</textarea></div>
+</div>
+<div class="actions"><button type="submit">💾 Save Changes</button><a class="cancel" href="{{ url_for('case_detail', id=case.id) }}">Cancel</a></div>
+</form></div></div></div></body></html>
