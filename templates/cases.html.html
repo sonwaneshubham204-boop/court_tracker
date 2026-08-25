@@ -73,6 +73,34 @@
         padding-bottom: 5px;
     }
 
+
+    /* Final compact widths: only checkbox + ID columns */
+    table th:nth-child(1),
+    table td:nth-child(1) {
+        width: 34px !important;
+        min-width: 34px !important;
+        max-width: 34px !important;
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+        text-align: center;
+    }
+
+    table th:nth-child(2),
+    table td:nth-child(2) {
+        width: 52px !important;
+        min-width: 52px !important;
+        max-width: 52px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        white-space: nowrap;
+    }
+
+    /* Keep dropdowns compact inside the existing red header row */
+    .red-header-dropdown {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
 </style>
 </head>
 <body>
