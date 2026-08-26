@@ -231,7 +231,7 @@
             <td>{{ case.id }}</td>
             <td><a class="case-link" href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
             <td>Court {{ case.court_no }}</td>
-            <td>{{ case.parties }}</td>
+            <td>{{ case.parties|format_vs }}</td>
             <td>
                 {{ case.case_stage }}
                 {% if case.case_stage == "Other" and case.case_stage_other %}
