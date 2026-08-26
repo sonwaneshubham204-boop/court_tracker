@@ -129,6 +129,17 @@ th {
     color: #fff;
 }
 
+/* LOCKED: only Name of Parties font slightly larger */
+td:nth-child(5) {
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+}
+
+.weekday-dark {
+    color: #374151 !important;
+    font-weight: 700 !important;
+}
+
 .weekday {
     display: block;
     margin-top: 3px;
@@ -395,14 +406,14 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
 }
 
 table {
-    min-width: 1180px !important;
+    min-width: 1240px !important;
 }
 
 th:last-child,
 td.action-cell {
-    width: 190px !important;
-    min-width: 190px !important;
-    max-width: 190px !important;
+    width: 230px !important;
+    min-width: 230px !important;
+    max-width: 230px !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
     overflow: visible !important;
@@ -693,7 +704,7 @@ td a:hover { text-decoration:underline !important; }
     <td>
         {% if case.next_hearing_date %}
             {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
-            <small class="weekday">{{ case.next_hearing_date.strftime("%A") }}</small>
+            <small class="weekday {% if case.next_hearing_date.strftime('%A') in ['Sunday', 'Monday'] %}weekday-dark{% endif %}">{{ case.next_hearing_date.strftime("%A") }}</small>
         {% else %}
             Not Scheduled
         {% endif %}
