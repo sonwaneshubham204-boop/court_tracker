@@ -507,7 +507,7 @@ td a:hover { text-decoration:underline !important; }
 
 
 .action-links form:first-child button {
-    color: #7b3f00 !important;
+    color: #87CEEB !important;
     font-weight: 800 !important;
 }
 
@@ -526,6 +526,44 @@ td.action-cell .action-links {
 }
 </style>
 
+
+<style>
+/* FINAL LOCK — Action column only, keep all other features unchanged */
+.table-wrap table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    table-layout: fixed !important;
+}
+.table-wrap table col.col-check  { width: 4% !important; }
+.table-wrap table col.col-id     { width: 5% !important; }
+.table-wrap table col.col-case   { width: 15% !important; }
+.table-wrap table col.col-court  { width: 9% !important; }
+.table-wrap table col.col-parties{ width: 21% !important; }
+.table-wrap table col.col-stage  { width: 11% !important; }
+.table-wrap table col.col-date   { width: 12% !important; }
+.table-wrap table col.col-left   { width: 7% !important; }
+.table-wrap table col.col-action { width: 16% !important; }
+
+th:last-child, td.action-cell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+}
+td.action-cell .action-links {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    align-items: flex-start !important;
+}
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    word-break: normal !important;
+}
+</style>
 </head>
 
 <body>
