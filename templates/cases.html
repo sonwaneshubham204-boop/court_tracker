@@ -237,6 +237,43 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
     .compact-search { flex-basis: 100%; }
 }
 
+
+/* FINAL TABLE FIT FIX */
+.table-wrap { width: 100% !important; overflow-x: auto !important; }
+.table-wrap table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+.table-wrap table col.col-check  { width: 4% !important; }
+.table-wrap table col.col-id     { width: 5% !important; }
+.table-wrap table col.col-case   { width: 16% !important; }
+.table-wrap table col.col-court  { width: 10% !important; }
+.table-wrap table col.col-parties{ width: 24% !important; }
+.table-wrap table col.col-stage  { width: 12% !important; }
+.table-wrap table col.col-date   { width: 14% !important; }
+.table-wrap table col.col-left   { width: 8% !important; }
+.table-wrap table col.col-action { width: 7% !important; }
+
+.table-wrap th,
+.table-wrap td {
+    padding: 8px 8px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+.table-wrap th.next-date-head,
+.table-wrap th.time-left-head,
+.table-wrap td:nth-child(7),
+.table-wrap td:nth-child(8) {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.45 !important;
+}
+
 </style>
 </head>
 
@@ -372,8 +409,8 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
             {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
         </select>
     </th>
-    <th>Next Hearing Date</th>
-    <th>Time Left</th>
+    <th class="next-date-head">Next Hearing<br>Date</th>
+    <th class="time-left-head">Time<br>Left</th>
     <th>Action</th>
 </tr>
 </thead>
