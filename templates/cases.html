@@ -232,9 +232,17 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
 .header-filter option { color: #111827; background: #fff; }
 .header-label { display:block; white-space:nowrap; }
 
-@media (max-width: 760px) {
-    .compact-row { flex-wrap: wrap; }
-    .compact-search { flex-basis: 100%; }
+/* Keep Filter + Search + Clear on one line */
+.compact-row {
+    flex-wrap: nowrap !important;
+}
+.compact-search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+.filter-toggle, .search-btn, .clear-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 
@@ -459,7 +467,12 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
     </td>
     <td>
         <a href="/case/{{ case.id }}">Open</a> |
-        <a href="/edit-case/{{ case.id }}">Edit</a>
+        <a href="/edit-case/{{ case.id }}">Edit</a> |
+        <form action="/delete-case/{{ case.id }}" method="POST" style="display:inline;">
+            <button type="submit"
+                    style="display:inline; border:0; background:none; padding:0; color:#2563eb; text-decoration:underline; cursor:pointer;"
+                    onclick="return confirm('Delete this case?')">Delete</button>
+        </form>
     </td>
 </tr>
 {% endfor %}
