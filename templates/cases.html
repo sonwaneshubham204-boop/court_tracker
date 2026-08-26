@@ -674,7 +674,7 @@ td a:hover { text-decoration:underline !important; }
 <tr class="case-row {% if case.highlighted %}highlighted-case{% endif %}"
     data-case-no="{{ case.case_no }}"
     data-court="Court {{ case.court_no }}"
-    data-party="{{ case.parties|format_vs }}"
+    data-party="{{ case.parties }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
