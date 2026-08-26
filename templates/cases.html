@@ -347,6 +347,113 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
     line-height: normal !important;
 }
 
+
+/* LOCKED FIX: Action column only */
+.action-cell {
+    width: 170px !important;
+    min-width: 170px !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    overflow: visible !important;
+}
+.action-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    white-space: nowrap !important;
+}
+.action-links a,
+.action-links form,
+.action-links button {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+}
+.action-links form {
+    padding: 0 !important;
+}
+.action-links button {
+    border: 0 !important;
+    background: none !important;
+    padding: 0 !important;
+    color: #2563eb !important;
+    font: inherit !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+.action-links a:hover,
+.action-links button:hover {
+    text-decoration: underline !important;
+}
+
+
+/* FINAL LOCKED FIX — ACTION COLUMN ONLY */
+.table-wrap {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+}
+
+table {
+    min-width: 1180px !important;
+}
+
+th:last-child,
+td.action-cell {
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    overflow: visible !important;
+}
+
+.action-cell .action-links {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    overflow: visible !important;
+}
+
+.action-cell .action-links a,
+.action-cell .action-links form,
+.action-cell .action-links button {
+    position: static !important;
+    float: none !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+
+/* ACTION CELL — vertical links only */
+td.action-cell .action-links {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    white-space: normal !important;
+}
+td.action-cell .action-links > span {
+    display: none !important;
+}
+td.action-cell .action-links form {
+    display: block !important;
+}
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+}
+
 </style>
 
 <style>
@@ -594,14 +701,17 @@ td a:hover { text-decoration:underline !important; }
             Undated
         {% endif %}
     </td>
-    <td>
-        <a href="/case/{{ case.id }}">Open</a> |
-        <a href="/edit-case/{{ case.id }}">Edit</a> |
-        <form action="/delete-case/{{ case.id }}" method="POST" style="display:inline;">
-            <button type="submit"
-                    style="display:inline; border:0; background:none; padding:0; color:#2563eb; text-decoration:underline; cursor:pointer;"
-                    onclick="return confirm('Delete this case?')">Delete</button>
-        </form>
+    <td class="action-cell">
+        <div class="action-links">
+            <a href="/case/{{ case.id }}">Open</a>
+            <span>|</span>
+            <a href="/edit-case/{{ case.id }}">Edit</a>
+            <span>|</span>
+            <form action="/delete-case/{{ case.id }}" method="POST">
+                <button type="submit"
+                        onclick="return confirm('Delete this case?')">Delete</button>
+            </form>
+        </div>
     </td>
 </tr>
 {% endfor %}
