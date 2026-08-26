@@ -481,6 +481,11 @@ tbody tr:nth-child(even) { background:#f8fafc !important; }
 tbody tr:hover { background:#eff6ff !important; }
 td a { color:#2563eb !important; font-weight:600 !important; text-decoration:none !important; }
 td a:hover { text-decoration:underline !important; }
+.highlight-filter { background:#7c3f00 !important; color:#fff !important; padding:0 14px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; height:44px !important; border-radius:8px !important; font-weight:700 !important; text-decoration:none !important; white-space:nowrap !important; }
+.highlight-filter.active { background:#4a2500 !important; }
+.case-row.highlighted-case td { background:#fff7cc !important; }
+.case-row.highlighted-case:hover td { background:#ffef99 !important; }
+.vs-highlight { font-weight:800 !important; color:#7b3f00 !important; }
 .header-filter { border-radius:6px !important; }
 .bulkbar { border-color:#bfdbfe !important; background:#eff6ff !important; box-shadow:0 1px 2px rgba(15,23,42,.06) !important; }
 @media(max-width:700px){
@@ -488,6 +493,13 @@ td a:hover { text-decoration:underline !important; }
   .compact-row { flex-wrap:wrap !important; }
   .compact-search { flex-basis:100% !important; }
 }
+
+
+.action-links form:first-child button {
+    color: #7b3f00 !important;
+    font-weight: 800 !important;
+}
+
 </style>
 
 </head>
@@ -521,6 +533,7 @@ td a:hover { text-decoration:underline !important; }
         </button>
 
         <button type="submit" class="search-btn">Search</button>
+        <a href="/cases?highlighted=1" class="highlight-filter {% if highlighted_only == '1' %}active{% endif %}">⭐ Highlighted Cases Only</a>
         <a href="/cases" class="clear-btn">Clear</a>
     </div>
 
@@ -614,7 +627,7 @@ td a:hover { text-decoration:underline !important; }
         <span class="header-label">Name of Parties</span>
         <select class="header-filter" id="partyFilter" aria-label="Filter Party">
             <option value="">All</option>
-            {% for case in cases %}<option value="{{ case.parties }}">{{ case.parties }}</option>{% endfor %}
+            {% for case in cases %}<option value="{{ case.parties|format_vs }}">{{ case.parties|format_vs }}</option>{% endfor %}
         </select>
     </th>
     <th>
@@ -658,10 +671,10 @@ td a:hover { text-decoration:underline !important; }
 </thead>
 <tbody>
 {% for case in cases %}
-<tr class="case-row"
+<tr class="case-row {% if case.highlighted %}highlighted-case{% endif %}"
     data-case-no="{{ case.case_no }}"
     data-court="Court {{ case.court_no }}"
-    data-party="{{ case.parties }}"
+    data-party="{{ case.parties|format_vs }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
@@ -669,7 +682,7 @@ td a:hover { text-decoration:underline !important; }
     <td>{{ case.id }}</td>
     <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
     <td>Court {{ case.court_no }}</td>
-    <td>{{ case.parties }}</td>
+    <td>{{ case.parties|format_vs }}</td>
     <td>
         {% if case.case_stage == "Other" and case.case_stage_other %}
             {{ case.case_stage_other }}
@@ -703,6 +716,9 @@ td a:hover { text-decoration:underline !important; }
     </td>
     <td class="action-cell">
         <div class="action-links">
+            <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
+                <button type="submit">{% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button>
+            </form>
             <a href="/case/{{ case.id }}">Open</a>
             <span>|</span>
             <a href="/edit-case/{{ case.id }}">Edit</a>
@@ -759,7 +775,7 @@ filterToggle.addEventListener('click', () => {
         : '⚙ Filters ▼';
 });
 
-const hasActiveFilter = {{ 'true' if court_no or case_stage or hearing_status or date_from or date_to else 'false' }};
+const hasActiveFilter = {{ 'true' if court_no or case_stage or hearing_status or highlighted_only or date_from or date_to else 'false' }};
 if (hasActiveFilter) {
     filtersPanel.classList.add('open');
     filterToggle.innerHTML = '⚙ Filters ▲';
