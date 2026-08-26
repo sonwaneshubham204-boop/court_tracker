@@ -201,7 +201,14 @@ th, td {
 }
 th:nth-child(3), td:nth-child(3),
 th:nth-child(4), td:nth-child(4),
-th:nth-child(9), td:nth-child(9) { white-space: normal; }
+th:nth-child(7), td:nth-child(7),
+th:nth-child(8), td:nth-child(8),
+th:nth-child(9), td:nth-child(9) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.5;
+}
 
 @media (max-width: 900px) {
     table { min-width: 1080px; }
