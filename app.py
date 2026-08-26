@@ -1,5 +1,6 @@
 import os
 import uuid
+import re
 
 from flask import (
     Flask,
@@ -20,6 +21,7 @@ from functools import wraps
 from datetime import datetime, date, timedelta
 from openpyxl import Workbook, load_workbook
 from io import BytesIO
+from markupsafe import Markup, escape
 
 
 app = Flask(__name__)
@@ -89,6 +91,23 @@ ALLOWED_EXTENSIONS = {
 
 
 db = SQLAlchemy(app)
+
+# =========================================================
+# PARTY NAME DISPLAY FILTER
+# Only "Vs" / "vs" is bold and chocolate coloured.
+# =========================================================
+
+@app.template_filter("format_vs")
+def format_vs(value):
+    text = str(value or "")
+    parts = re.split(r"((?<!\w)vs\.?(?!\w))", text, flags=re.IGNORECASE)
+    return Markup("".join(
+        '<span class="vs-highlight">' + str(escape(part)) + '</span>'
+        if re.fullmatch(r"vs\.?", part, flags=re.IGNORECASE)
+        else str(escape(part))
+        for part in parts
+    ))
+
 
 # =========================================================
 # USER MODEL
@@ -217,6 +236,12 @@ class Case(db.Model):
     today_serial_no = db.Column(
         db.Integer,
         nullable=True
+    )
+
+    highlighted = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
     )
 
 
@@ -676,6 +701,11 @@ def case_list():
         ""
     ).strip()
 
+    highlighted_only = request.args.get(
+        "highlighted",
+        ""
+    ).strip()
+
     date_from = request.args.get(
         "date_from",
         ""
@@ -789,6 +819,10 @@ def case_list():
         )
 
 
+    # HIGHLIGHTED CASES FILTER
+    if highlighted_only == "1":
+        query = query.filter(Case.highlighted.is_(True))
+
     # CASE DISPOSED FILTER
 
     if case_disposed in ["Yes", "No"]:
@@ -863,10 +897,25 @@ def case_list():
 
         case_disposed=case_disposed,
 
+        highlighted_only=highlighted_only,
+
         date_from=date_from,
 
         date_to=date_to
     )
+
+
+# =========================================================
+# TOGGLE CASE HIGHLIGHT
+# =========================================================
+
+@app.route("/case/<int:id>/toggle-highlight", methods=["POST"])
+@login_required
+def toggle_case_highlight(id):
+    case = Case.query.get_or_404(id)
+    case.highlighted = not bool(case.highlighted)
+    db.session.commit()
+    return redirect(request.referrer or url_for("case_list"))
 
 
 # =========================================================
@@ -904,6 +953,8 @@ def court_cases(court_no):
         case_stage="",
 
         hearing_status="",
+
+        highlighted_only="",
 
         date_from="",
 
@@ -2327,7 +2378,8 @@ def add_missing_case_columns():
         "case_disposed": "VARCHAR(20) DEFAULT 'No'",
         "case_stage_other": "VARCHAR(200)",
         "today_serial_no": "INTEGER",
-        "decision_date": "DATE"
+        "decision_date": "DATE",
+        "highlighted": "BOOLEAN DEFAULT FALSE"
     }
 
     for column_name, column_type in columns_to_add.items():
