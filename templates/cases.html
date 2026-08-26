@@ -282,6 +282,19 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
     line-height: 1.45 !important;
 }
 
+
+/* LOCKED: only align Filter, Search and Clear on the same line */
+.compact-row {
+    align-items: center !important;
+}
+.filter-toggle,
+.search-btn,
+.clear-btn {
+    height: 44px !important;
+    line-height: 1 !important;
+    align-self: center !important;
+}
+
 </style>
 </head>
 
@@ -415,10 +428,37 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
         <select class="header-filter" id="stageFilter" aria-label="Filter Case Stage">
             <option value="">All</option>
             {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+        
+{% for custom_stage in cases if custom_stage.case_stage == 'Other' and custom_stage.case_stage_other %}
+<option value="{{ custom_stage.case_stage_other }}">{{ custom_stage.case_stage_other }}</option>
+{% endfor %}</select>
+    </th>
+    <th class="next-date-head">
+        <span class="header-label">Next Hearing<br>Date</span>
+        <select class="header-filter" id="nextDateFilter">
+            <option value="">All</option>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="next7">Next 7 Days</option>
+            <option value="future">Future Dates</option>
+            <option value="past">Past / Overdue</option>
+            <option value="undated">Undated</option>
+            <option value="disposed">Disposed Cases</option>
         </select>
     </th>
-    <th class="next-date-head">Next Hearing<br>Date</th>
-    <th class="time-left-head">Time<br>Left</th>
+    <th class="time-left-head">
+        <span class="header-label">Time<br>Left</span>
+        <select class="header-filter" id="timeLeftFilter">
+            <option value="">All</option>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="next7">Next 7 Days</option>
+            <option value="next30">Next 30 Days</option>
+            <option value="future">More Than 30 Days</option>
+            <option value="overdue">Overdue</option>
+            <option value="undated">Undated</option>
+        </select>
+    </th>
     <th>Action</th>
 </tr>
 </thead>
@@ -428,7 +468,9 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
     data-case-no="{{ case.case_no }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
-    data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}">
+    data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
+    data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
+    data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
     <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
     <td>{{ case.id }}</td>
     <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
@@ -604,6 +646,68 @@ function applyHeaderFilters() {
 }
 headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFilters));
 
+</script>
+
+
+<script>
+(function () {
+    const nextDateFilter = document.getElementById('nextDateFilter');
+    const timeLeftFilter = document.getElementById('timeLeftFilter');
+    if (!nextDateFilter || !timeLeftFilter) return;
+
+    function startOfDay(d) {
+        d = new Date(d);
+        d.setHours(0,0,0,0);
+        return d;
+    }
+
+    function matches(row, value) {
+        if (!value) return true;
+        const disposed = row.dataset.disposed === 'true';
+        const raw = row.dataset.nextDate;
+
+        if (value === 'disposed') return disposed;
+        if (value === 'undated') return !raw && !disposed;
+        if (!raw) return false;
+
+        const today = startOfDay(new Date());
+        const hearing = startOfDay(raw + 'T00:00:00');
+        const diff = Math.round((hearing - today) / 86400000);
+
+        if (value === 'today') return diff === 0;
+        if (value === 'tomorrow') return diff === 1;
+        if (value === 'next7') return diff >= 0 && diff <= 7;
+        if (value === 'next30') return diff >= 0 && diff <= 30;
+        if (value === 'future') return diff > 30;
+        if (value === 'past' || value === 'overdue') return diff < 0;
+        return true;
+    }
+
+    function applyNewFilters() {
+        const baseFilters = [...document.querySelectorAll('.header-filter')]
+            .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
+
+        document.querySelectorAll('tbody .case-row').forEach(row => {
+            const baseHidden = baseFilters.some(f => {
+                if (!f.value) return false;
+                if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
+                if (f.id === 'courtFilter') return row.dataset.court !== f.value;
+                if (f.id === 'partyFilter') return row.dataset.party !== f.value;
+                if (f.id === 'stageFilter') return row.dataset.stage !== f.value;
+                return false;
+            });
+
+            const show = !baseHidden &&
+                         matches(row, nextDateFilter.value) &&
+                         matches(row, timeLeftFilter.value);
+
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    nextDateFilter.addEventListener('change', applyNewFilters);
+    timeLeftFilter.addEventListener('change', applyNewFilters);
+})();
 </script>
 
 </body>
