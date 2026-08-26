@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 * { box-sizing: border-box; }
@@ -295,7 +296,93 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
     align-self: center !important;
 }
 
+
+/* LOCKED: Clear button beside Search */
+.compact-row { display:flex !important; align-items:center !important; flex-wrap:nowrap !important; }
+.clear-btn {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    height:44px !important;
+    padding:0 18px !important;
+    margin:0 !important;
+    flex:0 0 auto !important;
+    white-space:nowrap !important;
+}
+
+
+/* LOCKED: exact single-row alignment for Search controls only */
+.search-card .compact-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+}
+.search-card .compact-search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+}
+.search-card .compact-search input,
+.search-card .filter-toggle,
+.search-card .search-btn,
+.search-card .clear-btn {
+    box-sizing: border-box !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+}
+.search-card .compact-search input {
+    width: 100% !important;
+}
+.search-card .filter-toggle,
+.search-card .search-btn,
+.search-card .clear-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: top !important;
+    line-height: normal !important;
+}
+
 </style>
+
+<style>
+/* Tailwind migration layer: UI only, existing functionality untouched */
+body { background:#f8fafc !important; color:#0f172a !important; }
+.container { max-width:none !important; }
+.cases-page { max-width:1440px !important; margin:0 auto !important; padding:24px !important; }
+.cases-page h1 { font-size:30px !important; font-weight:800 !important; margin-bottom:14px !important; }
+.top-links { display:flex !important; flex-wrap:wrap !important; gap:8px !important; align-items:center !important; }
+.top-links a { margin:0 !important; padding:8px 12px !important; border-radius:8px !important; background:#e2e8f0 !important; text-decoration:none !important; font-weight:600 !important; color:#334155 !important; }
+.search-card { max-width:none !important; border:1px solid #e2e8f0 !important; box-shadow:0 1px 3px rgba(15,23,42,.08) !important; border-radius:12px !important; }
+.compact-row { display:flex !important; align-items:stretch !important; gap:8px !important; flex-wrap:nowrap !important; }
+.compact-search { flex:1 1 auto !important; min-width:0 !important; display:flex !important; }
+.compact-search input, .filter-toggle, .search-btn, .clear-btn { height:44px !important; min-height:44px !important; margin:0 !important; box-sizing:border-box !important; border-radius:8px !important; }
+.compact-search input { border:1px solid #cbd5e1 !important; border-radius:8px !important; padding:0 12px !important; }
+.filter-toggle { background:#e2e8f0 !important; color:#334155 !important; }
+.search-btn { background:#2563eb !important; color:#fff !important; }
+.clear-btn { background:#64748b !important; color:#fff !important; padding:0 16px !important; }
+.filters-panel { border-color:#e2e8f0 !important; }
+.filter-field input,.filter-field select { border:1px solid #cbd5e1 !important; border-radius:8px !important; }
+.table-wrap { border:1px solid #e2e8f0 !important; border-radius:12px !important; box-shadow:0 1px 3px rgba(15,23,42,.08) !important; }
+th { background:#991b1b !important; }
+th,td { border-color:#e2e8f0 !important; }
+tbody tr:nth-child(even) { background:#f8fafc !important; }
+tbody tr:hover { background:#eff6ff !important; }
+td a { color:#2563eb !important; font-weight:600 !important; text-decoration:none !important; }
+td a:hover { text-decoration:underline !important; }
+.header-filter { border-radius:6px !important; }
+.bulkbar { border-color:#bfdbfe !important; background:#eff6ff !important; box-shadow:0 1px 2px rgba(15,23,42,.06) !important; }
+@media(max-width:700px){
+  .cases-page { padding:14px !important; }
+  .compact-row { flex-wrap:wrap !important; }
+  .compact-search { flex-basis:100% !important; }
+}
+</style>
+
 </head>
 
 <body>
