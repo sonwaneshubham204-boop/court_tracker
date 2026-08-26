@@ -689,3 +689,10 @@ td:nth-child(2) {
     .case-history-table th,.case-history-table td{padding:9px 8px !important;}
     .history-edit,.history-delete-form button{padding:4px 6px !important;font-size:11px !important;}
 }
+
+
+/* Party name: highlight only Vs */
+.vs-highlight {
+    font-weight: 800 !important;
+    color: #7b3f00 !important;
+}
