@@ -198,13 +198,13 @@ table { width: 100%; min-width: 0; table-layout: fixed; }
 /* Total = 100% */
 table col.col-check  { width: 4%; }
 table col.col-id     { width: 5%; }
-table col.col-case   { width: 16%; }
-table col.col-court  { width: 10%; }
-table col.col-parties{ width: 24%; }
-table col.col-stage  { width: 13%; }
+table col.col-case   { width: 15%; }
+table col.col-court  { width: 9%; }
+table col.col-parties{ width: 20%; }
+table col.col-stage  { width: 11%; }
 table col.col-date   { width: 13%; }
 table col.col-left   { width: 8%; }
-table col.col-action { width: 7%; }
+table col.col-action { width: 15%; }
 
 th, td {
     padding: 9px 10px;
@@ -274,7 +274,7 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
 .table-wrap table col.col-stage  { width: 12% !important; }
 .table-wrap table col.col-date   { width: 14% !important; }
 .table-wrap table col.col-left   { width: 8% !important; }
-.table-wrap table col.col-action { width: 7% !important; }
+.table-wrap table col.col-action { width: 15% !important; }
 
 .table-wrap th,
 .table-wrap td {
@@ -411,9 +411,9 @@ table {
 
 th:last-child,
 td.action-cell {
-    width: 230px !important;
-    min-width: 230px !important;
-    max-width: 230px !important;
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
     overflow: visible !important;
@@ -427,7 +427,7 @@ td.action-cell {
     flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
+    gap: 8px !important;
     overflow: visible !important;
 }
 
@@ -511,6 +511,19 @@ td a:hover { text-decoration:underline !important; }
     font-weight: 800 !important;
 }
 
+
+/* FINAL ACTION WIDTH FIX — only Action column */
+.table-wrap table col.col-action { width: 15% !important; }
+th:last-child, td.action-cell {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    overflow: visible !important;
+}
+td.action-cell .action-links {
+    min-width: 210px !important;
+    overflow: visible !important;
+}
 </style>
 
 </head>
