@@ -179,18 +179,33 @@ th {
 .results { margin: 12px 0 10px; }
 
 .table-wrap { overflow-x: auto; }
-table { width: 100%; min-width: 1080px; table-layout: fixed; }
-table col.col-check { width: 50px; }
-table col.col-id { width: 55px; }
-table col.col-case { width: 190px; }
-table col.col-court { width: 125px; }
-table col.col-parties { width: 285px; }
-table col.col-stage { width: 150px; }
-table col.col-date { width: 150px; }
-table col.col-left { width: 120px; }
-table col.col-action { width: 120px; }
+/* Fit the complete cases table inside the page on desktop */
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; min-width: 0; table-layout: fixed; }
 
-th, td { padding: 10px 12px; overflow-wrap: anywhere; }
+/* Total = 100% */
+table col.col-check  { width: 4%; }
+table col.col-id     { width: 5%; }
+table col.col-case   { width: 16%; }
+table col.col-court  { width: 10%; }
+table col.col-parties{ width: 24%; }
+table col.col-stage  { width: 13%; }
+table col.col-date   { width: 13%; }
+table col.col-left   { width: 8%; }
+table col.col-action { width: 7%; }
+
+th, td {
+    padding: 9px 10px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+th:nth-child(3), td:nth-child(3),
+th:nth-child(4), td:nth-child(4),
+th:nth-child(9), td:nth-child(9) { white-space: normal; }
+
+@media (max-width: 900px) {
+    table { min-width: 1080px; }
+}
 th { vertical-align: middle; }
 th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
 th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
