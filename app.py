@@ -15,7 +15,6 @@ from flask import (
 )
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_, and_
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -771,16 +770,11 @@ def case_list():
 
 
     # CASE STAGE FILTER
-    # Match every actual saved stage, including custom values stored under Other.
+
     if case_stage:
+
         query = query.filter(
-            or_(
-                Case.case_stage == case_stage,
-                and_(
-                    Case.case_stage == "Other",
-                    Case.case_stage_other == case_stage
-                )
-            )
+            Case.case_stage == case_stage
         )
 
 
@@ -883,23 +877,6 @@ def case_list():
     ).all()
 
 
-    # All unique stages saved in the database.  For Other, show its custom stage.
-    stage_options = []
-    seen_stages = set()
-    for saved_stage, other_stage in db.session.query(
-        Case.case_stage, Case.case_stage_other
-    ).all():
-        display_stage = (
-            other_stage.strip()
-            if saved_stage == "Other" and other_stage and other_stage.strip()
-            else (saved_stage.strip() if saved_stage and saved_stage.strip() else "")
-        )
-        if display_stage and display_stage not in seen_stages:
-            seen_stages.add(display_stage)
-            stage_options.append(display_stage)
-    stage_options.sort(key=str.lower)
-
-
     return render_template(
 
         "cases.html",
@@ -915,8 +892,6 @@ def case_list():
         court_no=court_no,
 
         case_stage=case_stage,
-
-        stage_options=stage_options,
 
         hearing_status=hearing_status,
 
