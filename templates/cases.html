@@ -564,6 +564,44 @@ td.action-cell .action-links button {
     word-break: normal !important;
 }
 </style>
+
+<style>
+/* ACTION BUTTON COLOR FIX ONLY */
+td.action-cell .action-links {
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:8px !important;
+}
+td.action-cell .action-links form,
+td.action-cell .action-links a {
+    display:block !important;
+    width:100% !important;
+    margin:0 !important;
+}
+td.action-cell .action-links span { display:none !important; }
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    box-sizing:border-box !important;
+    display:block !important;
+    width:100% !important;
+    background:#1f4f8a !important;
+    color:#ffffff !important;
+    border:0 !important;
+    border-radius:7px !important;
+    padding:10px 12px !important;
+    font-weight:700 !important;
+    text-align:left !important;
+    text-decoration:none !important;
+    cursor:pointer !important;
+}
+td.action-cell .action-links a:hover,
+td.action-cell .action-links button:hover {
+    background:#163d6b !important;
+    color:#ffffff !important;
+    text-decoration:none !important;
+}
+</style>
 </head>
 
 <body>
