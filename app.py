@@ -770,11 +770,18 @@ def case_list():
 
 
     # CASE STAGE FILTER
-
+    # Match the stage exactly as it is displayed to the user.
+    # This supports every saved stage, including custom values such as
+    # "Argument U-2/C-2" and values stored in case_stage_other.
     if case_stage:
-
         query = query.filter(
-            Case.case_stage == case_stage
+            db.or_(
+                Case.case_stage == case_stage,
+                db.and_(
+                    Case.case_stage == "Other",
+                    Case.case_stage_other == case_stage
+                )
+            )
         )
 
 
@@ -876,6 +883,27 @@ def case_list():
         Case.next_hearing_date
     ).all()
 
+    # Build the Case Stage filter from ALL stages saved in the database.
+    # Do not use a hard-coded list, so every existing and future stage appears.
+    stage_rows = db.session.query(
+        Case.case_stage,
+        Case.case_stage_other
+    ).all()
+
+    stage_options = []
+    seen_stages = set()
+    for saved_stage, other_stage in stage_rows:
+        display_stage = (
+            other_stage.strip()
+            if saved_stage == "Other" and other_stage and other_stage.strip()
+            else (saved_stage.strip() if saved_stage and saved_stage.strip() else "")
+        )
+        if display_stage and display_stage not in seen_stages:
+            seen_stages.add(display_stage)
+            stage_options.append(display_stage)
+
+    stage_options.sort(key=str.lower)
+
 
     return render_template(
 
@@ -892,6 +920,8 @@ def case_list():
         court_no=court_no,
 
         case_stage=case_stage,
+
+        stage_options=stage_options,
 
         hearing_status=hearing_status,
 
