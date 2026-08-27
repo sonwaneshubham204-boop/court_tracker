@@ -2537,7 +2537,7 @@ ENQUIRY_STATUSES = ["Pending for Report", "Report Drafting", "Report Given"]
 
 def _ensure_enquiry_tables():
     """Create Enquiry tables if this deployment database does not have them yet."""
-    db.create_all(tables=[Enquiry.__table__, EnquirySitting.__table__])
+    db.create_all()
 
 def _parse_date(value):
     return datetime.strptime(value, "%Y-%m-%d").date() if value else None
