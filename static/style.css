@@ -696,3 +696,142 @@ td:nth-child(2) {
     font-weight: 800 !important;
     color: #7b3f00 !important;
 }
+
+
+/* =========================================================
+   ENQUIRIES PAGE ONLY - FINAL LAYOUT OVERRIDE
+   This block is scoped to the existing enquiries page structure.
+   It is intentionally placed LAST so it wins over older global rules.
+   ========================================================= */
+
+/* Main enquiry container */
+body:has(.tablewrap) {
+    font-family: Cambria, Georgia, serif !important;
+    font-size: 16px !important;
+}
+
+/* Page width and readable scale */
+body:has(.tablewrap) .wrap {
+    width: min(1240px, calc(100% - 32px)) !important;
+    margin: 28px auto 50px !important;
+}
+
+/* Heading */
+body:has(.tablewrap) .head h1 {
+    font-size: 30px !important;
+    line-height: 1.2 !important;
+}
+
+/* Top buttons */
+body:has(.tablewrap) .btn {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+    padding: 10px 16px !important;
+}
+
+/* Search / filter area */
+body:has(.tablewrap) .bar {
+    padding: 16px !important;
+    gap: 10px !important;
+}
+
+body:has(.tablewrap) .bar input,
+body:has(.tablewrap) .bar select {
+    min-height: 42px !important;
+    font-size: 16px !important;
+    padding: 8px 11px !important;
+}
+
+/* Table wrapper */
+body:has(.tablewrap) .tablewrap {
+    width: 100% !important;
+    overflow-x: auto !important;
+}
+
+/* Table scale */
+body:has(.tablewrap) .tablewrap table {
+    width: 100% !important;
+    min-width: 1120px !important;
+    font-size: 16px !important;
+}
+
+/* Header */
+body:has(.tablewrap) .tablewrap th {
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    padding: 13px 9px !important;
+}
+
+/* Header status filter */
+body:has(.tablewrap) .tablewrap th .status-filter {
+    font-size: 14px !important;
+    min-height: 34px !important;
+    padding: 5px 7px !important;
+}
+
+/* Data rows */
+body:has(.tablewrap) .tablewrap td {
+    font-size: 16px !important;
+    line-height: 1.35 !important;
+    padding: 12px 9px !important;
+    vertical-align: middle !important;
+}
+
+/* Organisation column: allow wrapping, not huge width */
+body:has(.tablewrap) .tablewrap td:nth-child(2) {
+    min-width: 220px !important;
+    white-space: normal !important;
+}
+
+/* Action column must never collapse */
+body:has(.tablewrap) .tablewrap th:last-child,
+body:has(.tablewrap) .tablewrap td:last-child {
+    width: 170px !important;
+    min-width: 170px !important;
+}
+
+/* Keep action buttons neat and fully visible */
+body:has(.tablewrap) .actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    min-width: 150px !important;
+}
+
+body:has(.tablewrap) .actions a,
+body:has(.tablewrap) .actions button {
+    min-height: 38px !important;
+    padding: 7px 8px !important;
+    font-size: 15px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+}
+
+/* Status badges */
+body:has(.tablewrap) .badge {
+    font-size: 14px !important;
+    padding: 6px 8px !important;
+}
+
+/* Result count */
+body:has(.tablewrap) .tablewrap ~ * {
+    font-size: 16px;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    body:has(.tablewrap) .wrap {
+        width: calc(100% - 20px) !important;
+        margin-top: 18px !important;
+    }
+
+    body:has(.tablewrap) .head h1 {
+        font-size: 26px !important;
+    }
+
+    body:has(.tablewrap) .bar input,
+    body:has(.tablewrap) .bar select {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+}
