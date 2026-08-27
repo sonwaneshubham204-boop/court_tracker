@@ -10,33 +10,59 @@ body{font-family:Cambria,Georgia,serif;margin:0;background:#f3f6fa;color:#172033
 .tablewrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
 table{width:100%;min-width:1060px;border-collapse:collapse;font-size:14px}th{background:var(--red);color:#fff;padding:11px 8px;text-align:left;white-space:nowrap;font-size:13px}th .status-filter{display:block;width:100%;margin-top:6px;padding:4px 5px;border:1px solid rgba(255,255,255,.6);border-radius:5px;background:#fff;color:#172033;font:inherit;font-size:12px}td{padding:8px 8px;border-top:1px solid #e1e7ef;vertical-align:middle;white-space:nowrap}td:nth-child(2){white-space:normal;min-width:210px}tr.highlight td{background:#e0f2fe}.badge{display:inline-block;padding:5px 7px;border-radius:6px;font-weight:bold;white-space:nowrap}.pending{background:#dbeafe;color:#1e3a5f}.draft{background:#fef3c7;color:#7c5700}.given{background:#dcfce7;color:#166534}.actions{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:150px}.actions form{margin:0}.actions a,.actions button{width:100%;box-sizing:border-box;text-align:center;padding:6px 7px;border:0;border-radius:6px;background:var(--navy);color:#fff;font:inherit;font-size:14px;font-weight:bold;text-decoration:none;cursor:pointer}.empty{padding:30px;text-align:center}.count{font-weight:bold}
 @media(max-width:700px){.wrap{width:calc(100% - 20px);margin-top:18px}.head h1{font-size:24px}.head>div{display:flex;gap:7px;flex-wrap:wrap}.bar{padding:10px}.bar input,.bar select{flex:1 1 100%}}
-</style>
-<style>
-/* Layout repair: larger, readable and no clipped Action column */
-body{font-size:16px}
-.wrap{width:min(1240px,calc(100% - 40px));margin:28px auto 50px}
-.head h1{font-size:30px}
-.head .btn,.btn{font-size:15px;padding:11px 16px}
-.bar{padding:18px;gap:10px}
-.bar input,.bar select{font-size:15px;min-height:46px}
-.tablewrap{width:100%;overflow-x:auto}
-table{min-width:1120px;font-size:15px}
-th{font-size:14px;padding:14px 10px}
-td{font-size:15px;padding:14px 10px;line-height:1.45}
-td:nth-child(2){min-width:220px}
-.actions{display:flex;flex-direction:column;gap:6px;min-width:155px}
-.actions a,.actions button{font-size:15px;padding:10px 12px;min-height:42px}
-.badge{font-size:14px;padding:7px 10px}
-.count{font-size:16px}
-@media(max-width:700px){
-  body{font-size:15px}
-  .wrap{width:calc(100% - 20px)}
-  .head h1{font-size:25px}
-}
-</style>
 
-</head><body><div class="wrap"><div class="head"><h1>📋 Enquiries</h1><div><a class="btn" href="/">← Dashboard</a> <a class="btn green" href="{{ url_for('add_enquiry') }}">＋ Add New Enquiry</a></div></div>
-<form class="bar" method="get"><input name="search" value="{{ search }}" placeholder="Search organisation..."><select id="statusSelect" name="status"><option value="">All Status</option>{% for s in statuses %}<option value="{{s}}" {% if selected_status==s %}selected{% endif %}>{{s}}</option>{% endfor %}<option value="__other__">Other</option></select><input id="otherStatus" name="other_status" placeholder="Enter other status..." disabled style="display:none"><button class="btn" type="submit">Search</button><a class="btn green" href="{{ url_for('enquiry_list', highlighted=1) }}">⭐ Highlighted Enquiries Only</a><a class="btn" href="{{ url_for('enquiry_list') }}">Clear</a></form>
+/* ===== ENQUIRIES: ISOLATE THIS PAGE FROM GLOBAL style.css ===== */
+body{padding:0!important;background:#f3f6fa!important;color:#172033!important}
+.wrap{width:min(1180px,calc(100% - 32px));margin:28px auto 50px!important}
+.bar{max-width:none!important;width:100%!important;margin:18px 0!important;padding:14px!important;background:#fff!important;border:1px solid var(--line)!important;border-radius:10px!important;box-shadow:0 3px 10px rgba(0,0,0,.05)!important}
+.bar input,.bar select{width:auto!important;margin:0!important}
+.bar button,.bar .btn{min-height:38px!important;margin:0!important;padding:9px 15px!important;box-shadow:none!important}
+.tablewrap{max-width:100%!important;box-shadow:none!important}
+.tablewrap table{min-width:1060px!important;font-size:14px!important}
+.tablewrap th{position:static!important;padding:11px 8px!important;background:var(--red)!important;color:#fff!important}
+.tablewrap td{padding:8px!important;height:auto!important;min-height:0!important;line-height:1.35!important;color:#172033!important;font-weight:400!important;background:#fff!important}
+.tablewrap tbody tr:nth-child(even) td{background:#f7f9fc!important}
+.tablewrap tbody tr.highlight td{background:#e0f2fe!important}
+.tablewrap tbody tr:hover td{background:#fff3cd!important}
+
+/* CRITICAL FIX: action forms must NOT inherit the global card form styling */
+.tablewrap .actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:4px!important;min-width:150px!important}
+.tablewrap .actions form{
+    display:block!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+    background:transparent!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+}
+.tablewrap .actions a,
+.tablewrap .actions button{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:6px 7px!important;
+    border:0!important;
+    border-radius:6px!important;
+    box-shadow:none!important;
+    background:var(--navy)!important;
+    color:#fff!important;
+    font-family:inherit!important;
+    font-size:14px!important;
+    font-weight:bold!important;
+    line-height:1.2!important;
+    text-decoration:none!important;
+    cursor:pointer!important;
+}
+.tablewrap .actions a:hover,
+.tablewrap .actions button:hover{background:#24456b!important;transform:none!important}
+</style></head><body><div class="wrap"><div class="head"><h1>📋 Enquiries</h1><div><a class="btn" href="/">← Dashboard</a> <a class="btn green" href="{{ url_for('add_enquiry') }}">＋ Add New Enquiry</a></div></div>
+<form class="bar" method="get"><input name="search" value="{{ search }}" placeholder="Search organisation..."><select id="statusSelect" name="status"><option value="">All Status</option>{% for s in statuses %}<option value="{{s}}" {% if selected_status==s %}selected{% endif %}>{{s}}</option>{% endfor %}<option value="__other__">Other</option></select><input id="otherStatus" name="status" placeholder="Enter other status..." disabled style="display:none"><button class="btn" type="submit">Search</button><a class="btn green" href="{{ url_for('enquiry_list', highlighted=1) }}">⭐ Highlighted Enquiries Only</a><a class="btn" href="{{ url_for('enquiry_list') }}">Clear</a></form>
 <div>Total Results: <b>{{ enquiries|length }}</b></div><br><div class="tablewrap"><table><thead><tr><th>Sr.No.</th><th>Name of Organisation</th><th>Enquiry Start Date</th><th>Next Enquiry Date</th><th>Day</th><th>Time</th><th>Time Left</th><th>No. of Turn</th><th>Enq Status<select id="tableStatusFilter" class="status-filter"><option value="">All</option>{% for s in statuses %}<option value="{{s}}">{{s}}</option>{% endfor %}</select></th><th>Action</th></tr></thead><tbody>{% for e in enquiries %}<tr class="{% if e.highlighted %}highlight{% endif %}"><td><a href="{{ url_for('enquiry_detail',id=e.id) }}">{{ loop.index }}</a></td><td><a href="{{ url_for('enquiry_detail',id=e.id) }}">{{ e.organisation_name }}</a></td><td>{{ e.start_date.strftime('%d-%m-%Y') }}</td><td>{{ e.next_enquiry_date.strftime('%d-%m-%Y') if e.next_enquiry_date else '—' }}</td><td>{{ e.next_enquiry_date.strftime('%A') if e.next_enquiry_date else '—' }}</td><td>{{ e.next_enquiry_time.strftime('%I:%M %p') if e.next_enquiry_time else '—' }}</td><td>{% if e.next_enquiry_date %}{% set days=(e.next_enquiry_date-today).days %}{% if days==0 %}<b>Today</b>{% elif days==1 %}<b>Tomorrow</b>{% elif days>1 %}{{days}} days left{% else %}<b>Overdue</b>{% endif %}{% else %}—{% endif %}</td><td class="count">{{ e.total_turns }}</td><td>{% if e.status=='Pending for Report' %}<span class="badge pending">{{e.status}}</span>{% elif e.status=='Report Drafting' %}<span class="badge draft">{{e.status}}</span>{% else %}<span class="badge given">{{e.status}}</span>{% endif %}</td><td><div class="actions"><form action="{{url_for('toggle_enquiry_highlight',id=e.id)}}" method="post"><button>{% if e.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button></form><a href="{{url_for('enquiry_detail',id=e.id)}}">Open</a><a href="{{url_for('edit_enquiry',id=e.id)}}">Edit</a><form action="{{url_for('delete_enquiry',id=e.id)}}" method="post" onsubmit="return confirm('Delete this enquiry?')"><button>Delete</button></form></div></td></tr>{% else %}<tr><td colspan="10" class="empty">No enquiries found. Click <b>Add New Enquiry</b> to start.</td></tr>{% endfor %}</tbody></table></div></div><script>
 (function(){
  const sel=document.getElementById('statusSelect'), other=document.getElementById('otherStatus');
