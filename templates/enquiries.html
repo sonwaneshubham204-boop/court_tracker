@@ -1,22 +1,486 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Enquiries</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"><style>
-:root{--navy:#315989;--green:#198754;--red:#a61f1f;--line:#d7dee8}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Enquiries</title>
+<link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}">
+
+<style>
+:root{
+  --navy:#315989;
+  --navy-dark:#24466d;
+  --green:#198754;
+  --green-dark:#126b41;
+  --red:#a61f1f;
+  --line:#d7dee8;
+  --bg:#f3f6fa;
+  --text:#172033;
+}
 *{box-sizing:border-box}
-body{font-family:Cambria,Georgia,serif;margin:0;background:#f3f6fa;color:#172033}
-.wrap{width:min(1180px,calc(100% - 32px));margin:28px auto 50px}
-.head{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.head h1{margin:0;font-size:28px}
-.btn{display:inline-block;padding:9px 15px;border-radius:7px;border:0;text-decoration:none;font-weight:bold;background:var(--navy);color:#fff;font-family:inherit;cursor:pointer}.green{background:var(--green)}
-.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0;padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.05)}
-.bar input{flex:1 1 330px}.bar select{flex:0 1 230px}.bar input,.bar select{min-height:38px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:7px;font:inherit}
-.tablewrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
-table{width:100%;min-width:1060px;border-collapse:collapse;font-size:14px}th{background:var(--red);color:#fff;padding:11px 8px;text-align:left;white-space:nowrap;font-size:13px}th .status-filter{display:block;width:100%;margin-top:6px;padding:4px 5px;border:1px solid rgba(255,255,255,.6);border-radius:5px;background:#fff;color:#172033;font:inherit;font-size:12px}td{padding:8px 8px;border-top:1px solid #e1e7ef;vertical-align:middle;white-space:nowrap}td:nth-child(2){white-space:normal;min-width:210px}tr.highlight td{background:#e0f2fe}.badge{display:inline-block;padding:5px 7px;border-radius:6px;font-weight:bold;white-space:nowrap}.pending{background:#dbeafe;color:#1e3a5f}.draft{background:#fef3c7;color:#7c5700}.given{background:#dcfce7;color:#166534}.actions{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-width:150px}.actions form{margin:0}.actions a,.actions button{width:100%;box-sizing:border-box;text-align:center;padding:6px 7px;border:0;border-radius:6px;background:var(--navy);color:#fff;font:inherit;font-size:14px;font-weight:bold;text-decoration:none;cursor:pointer}.empty{padding:30px;text-align:center}.count{font-weight:bold}
-@media(max-width:700px){.wrap{width:calc(100% - 20px);margin-top:18px}.head h1{font-size:24px}.head>div{display:flex;gap:7px;flex-wrap:wrap}.bar{padding:10px}.bar input,.bar select{flex:1 1 100%}}
-</style></head><body><div class="wrap"><div class="head"><h1>📋 Enquiries</h1><div><a class="btn" href="/">← Dashboard</a> <a class="btn green" href="{{ url_for('add_enquiry') }}">＋ Add New Enquiry</a></div></div>
-<form class="bar" method="get"><input name="search" value="{{ search }}" placeholder="Search organisation..."><select id="statusSelect" name="status"><option value="">All Status</option>{% for s in statuses %}<option value="{{s}}" {% if selected_status==s %}selected{% endif %}>{{s}}</option>{% endfor %}<option value="__other__">Other</option></select><input id="otherStatus" name="status" placeholder="Enter other status..." disabled style="display:none"><button class="btn" type="submit">Search</button><a class="btn green" href="{{ url_for('enquiry_list', highlighted=1) }}">⭐ Highlighted Enquiries Only</a><a class="btn" href="{{ url_for('enquiry_list') }}">Clear</a></form>
-<div>Total Results: <b>{{ enquiries|length }}</b></div><br><div class="tablewrap"><table><thead><tr><th>Sr.No.</th><th>Name of Organisation</th><th>Enquiry Start Date</th><th>Next Enquiry Date</th><th>Day</th><th>Time</th><th>Time Left</th><th>No. of Turn</th><th>Enq Status<select id="tableStatusFilter" class="status-filter"><option value="">All</option>{% for s in statuses %}<option value="{{s}}">{{s}}</option>{% endfor %}</select></th><th>Action</th></tr></thead><tbody>{% for e in enquiries %}<tr class="{% if e.highlighted %}highlight{% endif %}"><td><a href="{{ url_for('enquiry_detail',id=e.id) }}">{{ loop.index }}</a></td><td><a href="{{ url_for('enquiry_detail',id=e.id) }}">{{ e.organisation_name }}</a></td><td>{{ e.start_date.strftime('%d-%m-%Y') }}</td><td>{{ e.next_enquiry_date.strftime('%d-%m-%Y') if e.next_enquiry_date else '—' }}</td><td>{{ e.next_enquiry_date.strftime('%A') if e.next_enquiry_date else '—' }}</td><td>{{ e.next_enquiry_time.strftime('%I:%M %p') if e.next_enquiry_time else '—' }}</td><td>{% if e.next_enquiry_date %}{% set days=(e.next_enquiry_date-today).days %}{% if days==0 %}<b>Today</b>{% elif days==1 %}<b>Tomorrow</b>{% elif days>1 %}{{days}} days left{% else %}<b>Overdue</b>{% endif %}{% else %}—{% endif %}</td><td class="count">{{ e.total_turns }}</td><td>{% if e.status=='Pending for Report' %}<span class="badge pending">{{e.status}}</span>{% elif e.status=='Report Drafting' %}<span class="badge draft">{{e.status}}</span>{% else %}<span class="badge given">{{e.status}}</span>{% endif %}</td><td><div class="actions"><form action="{{url_for('toggle_enquiry_highlight',id=e.id)}}" method="post"><button>{% if e.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button></form><a href="{{url_for('enquiry_detail',id=e.id)}}">Open</a><a href="{{url_for('edit_enquiry',id=e.id)}}">Edit</a><form action="{{url_for('delete_enquiry',id=e.id)}}" method="post" onsubmit="return confirm('Delete this enquiry?')"><button>Delete</button></form></div></td></tr>{% else %}<tr><td colspan="10" class="empty">No enquiries found. Click <b>Add New Enquiry</b> to start.</td></tr>{% endfor %}</tbody></table></div></div><script>
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Cambria,Georgia,serif;
+  font-size:16px;
+}
+
+.wrap{
+  width:min(1240px,calc(100% - 32px));
+  margin:28px auto 50px;
+}
+
+/* Header */
+.head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.head h1{
+  margin:0;
+  font-size:32px;
+  line-height:1.2;
+  letter-spacing:.2px;
+}
+.head-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:10px 18px;
+  border-radius:8px;
+  border:0;
+  text-decoration:none;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:700;
+  line-height:1;
+  background:var(--navy);
+  color:#fff;
+  cursor:pointer;
+  transition:.15s ease;
+}
+.btn:hover{background:var(--navy-dark)}
+.green{background:var(--green)}
+.green:hover{background:var(--green-dark)}
+
+/* Search */
+.bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:22px 0 16px;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 4px 16px rgba(25,40,65,.08);
+}
+.bar input{
+  flex:1 1 420px;
+}
+.bar select{
+  flex:0 1 220px;
+}
+.bar input,
+.bar select{
+  min-height:44px;
+  padding:9px 13px;
+  border:1px solid #bcc8d7;
+  border-radius:8px;
+  background:#fff;
+  color:var(--text);
+  font:inherit;
+  font-size:16px;
+}
+.bar input:focus,
+.bar select:focus{
+  outline:2px solid rgba(49,89,137,.22);
+  border-color:var(--navy);
+}
+
+.result-count{
+  margin:8px 0 14px;
+  font-size:16px;
+}
+.result-count b{
+  font-size:18px;
+}
+
+/* Table */
+.tablewrap{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 4px 16px rgba(25,40,65,.06);
+}
+
+table{
+  width:100%;
+  min-width:1180px;
+  border-collapse:collapse;
+  font-size:16px;
+}
+
+thead th{
+  background:var(--red);
+  color:#fff;
+  padding:15px 12px;
+  text-align:left;
+  white-space:nowrap;
+  font-size:15px;
+  font-weight:700;
+  vertical-align:top;
+}
+
+th:first-child,
+td:first-child{
+  width:70px;
+  text-align:center;
+}
+
+th:nth-child(2),
+td:nth-child(2){
+  min-width:220px;
+  white-space:normal;
+}
+
+td{
+  padding:18px 12px;
+  border-top:1px solid #e1e7ef;
+  vertical-align:middle;
+  white-space:nowrap;
+  font-size:16px;
+  line-height:1.35;
+}
+
+tbody tr{
+  transition:background .15s ease;
+}
+tbody tr:hover td{
+  background:#f7faff;
+}
+tr.highlight td{
+  background:#fff3d2;
+}
+tr.highlight:hover td{
+  background:#ffedb8;
+}
+
+td a{
+  color:#1d4f91;
+  font-weight:700;
+  text-decoration:none;
+}
+td a:hover{
+  text-decoration:underline;
+}
+
+th .status-filter{
+  display:block;
+  width:100%;
+  min-width:145px;
+  margin-top:9px;
+  min-height:36px;
+  padding:5px 8px;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:6px;
+  background:#fff;
+  color:#172033;
+  font:inherit;
+  font-size:14px;
+}
+
+.badge{
+  display:inline-block;
+  padding:7px 10px;
+  border-radius:7px;
+  font-weight:700;
+  white-space:nowrap;
+  font-size:14px;
+}
+.pending{background:#dbeafe;color:#1e3a5f}
+.draft{background:#fef3c7;color:#7c5700}
+.given{background:#dcfce7;color:#166534}
+
+.count{
+  font-weight:700;
+  text-align:center;
+}
+
+/* Action column */
+th:last-child,
+td:last-child{
+  min-width:190px;
+  width:190px;
+}
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:7px;
+  width:100%;
+  min-width:170px;
+}
+.actions form{
+  margin:0;
+}
+.actions a,
+.actions button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:40px;
+  padding:8px 12px;
+  border:0;
+  border-radius:7px;
+  background:var(--navy);
+  color:#fff;
+  font:inherit;
+  font-size:15px;
+  font-weight:700;
+  text-decoration:none;
+  cursor:pointer;
+}
+.actions a:hover,
+.actions button:hover{
+  background:var(--navy-dark);
+}
+
+.empty{
+  padding:40px !important;
+  text-align:center;
+  font-size:17px;
+  white-space:normal;
+}
+
+@media(max-width:700px){
+  body{font-size:15px}
+  .wrap{
+    width:calc(100% - 20px);
+    margin:18px auto 35px;
+  }
+  .head h1{font-size:27px}
+  .head-actions{width:100%}
+  .head-actions .btn{flex:1}
+  .bar{
+    padding:12px;
+    gap:9px;
+  }
+  .bar input,
+  .bar select,
+  .bar .btn{
+    flex:1 1 100%;
+    width:100%;
+  }
+  .btn{font-size:15px}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1>📋 Enquiries</h1>
+
+    <div class="head-actions">
+      <a class="btn" href="/">← Dashboard</a>
+      <a class="btn green" href="{{ url_for('add_enquiry') }}">＋ Add New Enquiry</a>
+    </div>
+  </div>
+
+  <form class="bar" method="get">
+    <input name="search" value="{{ search }}" placeholder="Search organisation...">
+
+    <select id="statusSelect" name="status">
+      <option value="">All Status</option>
+      {% for s in statuses %}
+      <option value="{{s}}" {% if selected_status==s %}selected{% endif %}>{{s}}</option>
+      {% endfor %}
+      <option value="__other__">Other</option>
+    </select>
+
+    <input id="otherStatus" name="status" placeholder="Enter other status..." disabled style="display:none">
+
+    <button class="btn" type="submit">Search</button>
+
+    <a class="btn green" href="{{ url_for('enquiry_list', highlighted=1) }}">
+      ⭐ Highlighted Enquiries Only
+    </a>
+
+    <a class="btn" href="{{ url_for('enquiry_list') }}">Clear</a>
+  </form>
+
+  <div class="result-count">
+    Total Results: <b>{{ enquiries|length }}</b>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Sr.No.</th>
+          <th>Name of Organisation</th>
+          <th>Enquiry Start Date</th>
+          <th>Next Enquiry Date</th>
+          <th>Day</th>
+          <th>Time</th>
+          <th>Time Left</th>
+          <th>No. of Turn</th>
+          <th>
+            Enq Status
+            <select id="tableStatusFilter" class="status-filter">
+              <option value="">All</option>
+              {% for s in statuses %}
+              <option value="{{s}}">{{s}}</option>
+              {% endfor %}
+            </select>
+          </th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for e in enquiries %}
+        <tr class="{% if e.highlighted %}highlight{% endif %}">
+
+          <td>
+            <a href="{{ url_for('enquiry_detail',id=e.id) }}">{{ loop.index }}</a>
+          </td>
+
+          <td>
+            <a href="{{ url_for('enquiry_detail',id=e.id) }}">{{ e.organisation_name }}</a>
+          </td>
+
+          <td>{{ e.start_date.strftime('%d-%m-%Y') }}</td>
+
+          <td>
+            {{ e.next_enquiry_date.strftime('%d-%m-%Y') if e.next_enquiry_date else '—' }}
+          </td>
+
+          <td>
+            {{ e.next_enquiry_date.strftime('%A') if e.next_enquiry_date else '—' }}
+          </td>
+
+          <td>
+            {{ e.next_enquiry_time.strftime('%I:%M %p') if e.next_enquiry_time else '—' }}
+          </td>
+
+          <td>
+            {% if e.next_enquiry_date %}
+              {% set days=(e.next_enquiry_date-today).days %}
+              {% if days==0 %}
+                <b>Today</b>
+              {% elif days==1 %}
+                <b>Tomorrow</b>
+              {% elif days>1 %}
+                {{days}} days left
+              {% else %}
+                <b>Overdue</b>
+              {% endif %}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+
+          <td class="count">{{ e.total_turns }}</td>
+
+          <td>
+            {% if e.status=='Pending for Report' %}
+              <span class="badge pending">{{e.status}}</span>
+            {% elif e.status=='Report Drafting' %}
+              <span class="badge draft">{{e.status}}</span>
+            {% else %}
+              <span class="badge given">{{e.status}}</span>
+            {% endif %}
+          </td>
+
+          <td>
+            <div class="actions">
+
+              <form action="{{url_for('toggle_enquiry_highlight',id=e.id)}}" method="post">
+                <button>
+                  {% if e.highlighted %}
+                    ⭐ Unhighlight
+                  {% else %}
+                    ☆ Highlight
+                  {% endif %}
+                </button>
+              </form>
+
+              <a href="{{url_for('enquiry_detail',id=e.id)}}">Open</a>
+
+              <a href="{{url_for('edit_enquiry',id=e.id)}}">Edit</a>
+
+              <form action="{{url_for('delete_enquiry',id=e.id)}}" method="post"
+                    onsubmit="return confirm('Delete this enquiry?')">
+                <button>Delete</button>
+              </form>
+
+            </div>
+          </td>
+        </tr>
+
+        {% else %}
+
+        <tr>
+          <td colspan="10" class="empty">
+            No enquiries found. Click <b>Add New Enquiry</b> to start.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
 (function(){
- const sel=document.getElementById('statusSelect'), other=document.getElementById('otherStatus');
- if(sel&&other){sel.addEventListener('change',function(){const on=this.value==='__other__';other.style.display=on?'block':'none';other.disabled=!on;if(on) other.focus();});}
- const f=document.getElementById('tableStatusFilter');
- if(f){f.addEventListener('change',function(){const v=this.value;document.querySelectorAll('tbody tr').forEach(function(r){if(r.querySelector('.empty')) return;const c=r.cells[8];r.style.display=(!v||!c||c.textContent.trim()===v)?'':'none';});});}
+  const sel=document.getElementById('statusSelect');
+  const other=document.getElementById('otherStatus');
+
+  if(sel && other){
+    sel.addEventListener('change',function(){
+      const on=this.value==='__other__';
+      other.style.display=on?'block':'none';
+      other.disabled=!on;
+      if(on) other.focus();
+    });
+  }
+
+  const f=document.getElementById('tableStatusFilter');
+
+  if(f){
+    f.addEventListener('change',function(){
+      const v=this.value;
+
+      document.querySelectorAll('tbody tr').forEach(function(r){
+        if(r.querySelector('.empty')) return;
+
+        const c=r.cells[8];
+        r.style.display=(!v || !c || c.textContent.trim()===v) ? '' : 'none';
+      });
+    });
+  }
 })();
-</script></body></html>
+</script>
+
+</body>
+</html>
