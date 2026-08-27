@@ -602,6 +602,20 @@ td.action-cell .action-links button:hover {
     text-decoration:none !important;
 }
 </style>
+
+<style>
+/* REQUESTED DISPLAY FIXES ONLY */
+.cases-page, .cases-page * {
+    font-family: Cambria, Georgia, serif !important;
+}
+.table-wrap table col.col-case { width: 13% !important; }
+.table-wrap table col.col-left { width: 9% !important; }
+.table-wrap td:nth-child(8) {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+}
+</style>
 </head>
 
 <body>
@@ -689,7 +703,7 @@ td.action-cell .action-links button:hover {
     </div>
 </form>
 
-<h2>Total Results: {{ cases|length }}</h2>
+<h2>Total Results: <strong>{{ cases|length }}</strong></h2>
 
 <div id="bulkbar" class="bulkbar">
     <b id="selcount">0</b> selected:
