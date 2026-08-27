@@ -616,6 +616,39 @@ td.action-cell .action-links button:hover {
     word-break: normal !important;
 }
 </style>
+
+
+<!-- LOCKED: compact Action spacing + slightly larger non-button content only -->
+<style>
+/* Only reduce spacing between Highlight / Open / Edit / Delete */
+td.action-cell .action-links {
+    gap: 3px !important;
+}
+
+/* Slightly larger text everywhere on this page, excluding buttons */
+.cases-page,
+.cases-page input,
+.cases-page select,
+.cases-page textarea,
+.cases-page table,
+.cases-page th,
+.cases-page td,
+.cases-page label,
+.cases-page .results,
+.cases-page .weekday {
+    font-size: 17px !important;
+}
+
+/* Keep all button text at its previous size */
+.cases-page button,
+.cases-page input[type="submit"],
+.cases-page input[type="button"],
+.cases-page .filter-toggle,
+.cases-page .search-btn,
+.cases-page .clear-btn {
+    font-size: 16px !important;
+}
+</style>
 </head>
 
 <body>
