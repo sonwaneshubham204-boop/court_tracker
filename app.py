@@ -495,7 +495,6 @@ def logout():
 @login_required
 def home():
 
-    _ensure_enquiry_tables()
     today = date.today()
 
     tomorrow = today + timedelta(
@@ -558,6 +557,19 @@ def home():
 
     disposed_cases = Case.query.filter_by(
         case_disposed="Yes"
+    ).count()
+
+    # =====================================================
+    # ENQUIRY DASHBOARD COUNTS
+    # =====================================================
+    _ensure_enquiry_tables()
+
+    todays_enquiries = Enquiry.query.filter(
+        Enquiry.next_enquiry_date == today
+    ).count()
+
+    next_enquiries = Enquiry.query.filter(
+        Enquiry.next_enquiry_date > today
     ).count()
 
 
@@ -640,19 +652,6 @@ def home():
 
 
     # =====================================================
-    # ENQUIRY COUNTS
-    # =====================================================
-
-    todays_enquiries = Enquiry.query.filter(
-        Enquiry.next_enquiry_date == today
-    ).count()
-
-    next_enquiries = Enquiry.query.filter(
-        Enquiry.next_enquiry_date > today
-    ).count()
-
-
-    # =====================================================
     # RECENT HEARING UPDATES
     # =====================================================
 
@@ -688,6 +687,9 @@ def home():
         undated_cases=undated_cases,
         disposed_cases=disposed_cases,
 
+        todays_enquiries=todays_enquiries,
+        next_enquiries=next_enquiries,
+
         notice_count=notice_count,
         admission_count=admission_count,
         hearing_count=hearing_count,
@@ -708,9 +710,7 @@ def home():
         recent_evidences=recent_evidences,
 
         today=today,
-        tomorrow=tomorrow,
-        todays_enquiries=todays_enquiries,
-        next_enquiries=next_enquiries
+        tomorrow=tomorrow
     )
 
 
@@ -2551,15 +2551,6 @@ def bulk_delete():
 
 ENQUIRY_STATUSES = ["Pending for Report", "Report Drafting", "Report Given"]
 
-def _get_enquiry_status(default="Pending for Report"):
-    """Return a built-in or custom enquiry status from the submitted form."""
-    selected = request.form.get("status", default).strip()
-    if selected == "__other__":
-        selected = request.form.get("custom_status", "").strip()
-    if not selected:
-        return default
-    return selected[:50]
-
 def _ensure_enquiry_tables():
     """Create Enquiry tables if this deployment database does not have them yet."""
     db.create_all()
@@ -2576,27 +2567,23 @@ def enquiry_list():
     _ensure_enquiry_tables()
     search = request.args.get("search", "").strip()
     status = request.args.get("status", "").strip()
-    custom_status = request.args.get("custom_status", "").strip()
-    if status == "__other__":
-        status = custom_status
-    schedule = request.args.get("schedule", "").strip()
     highlighted_only = request.args.get("highlighted", "") == "1"
+    schedule = request.args.get("schedule", "").strip()
     today = date.today()
     query = Enquiry.query
     if search:
         query = query.filter(Enquiry.organisation_name.ilike(f"%{search}%"))
     if status:
         query = query.filter(Enquiry.status == status)
+    if highlighted_only:
+        query = query.filter(Enquiry.highlighted.is_(True))
     if schedule == "today":
         query = query.filter(Enquiry.next_enquiry_date == today)
     elif schedule == "next":
         query = query.filter(Enquiry.next_enquiry_date > today)
-    if highlighted_only:
-        query = query.filter(Enquiry.highlighted.is_(True))
     enquiries = query.order_by(Enquiry.next_enquiry_date.is_(None), Enquiry.next_enquiry_date, Enquiry.id.desc()).all()
     return render_template("enquiries.html", enquiries=enquiries, statuses=ENQUIRY_STATUSES,
-                           selected_status=status, search=search, highlighted_only=highlighted_only,
-                           schedule=schedule, today=today)
+                           selected_status=status, search=search, highlighted_only=highlighted_only, today=date.today())
 
 @app.route("/enquiry/add", methods=["GET", "POST"])
 @login_required
@@ -2607,10 +2594,15 @@ def add_enquiry():
         start = _parse_date(request.form.get("start_date", ""))
         next_date = _parse_date(request.form.get("next_enquiry_date", ""))
         next_time = _parse_time(request.form.get("next_enquiry_time", ""))
-        status = _get_enquiry_status()
+        status = request.form.get("status", "Pending for Report").strip()
+        custom_status = request.form.get("custom_status", "").strip()
+        if status == "Other" and custom_status:
+            status = custom_status
         if not name or not start:
             flash("Organisation name and start date are required.", "warning")
             return redirect(url_for("add_enquiry"))
+        if not status or (status == "Other" and not custom_status):
+            status = "Pending for Report"
         enquiry = Enquiry(organisation_name=name, start_date=start, next_enquiry_date=next_date,
                           next_enquiry_time=next_time, status=status)
         db.session.add(enquiry)
@@ -2641,13 +2633,16 @@ def edit_enquiry(id):
         end = _parse_date(request.form.get("end_date", ""))
         next_date = _parse_date(request.form.get("next_enquiry_date", ""))
         next_time = _parse_time(request.form.get("next_enquiry_time", ""))
-        status = _get_enquiry_status(enquiry.status)
+        status = request.form.get("status", enquiry.status).strip()
+        custom_status = request.form.get("custom_status", "").strip()
+        if status == "Other" and custom_status:
+            status = custom_status
         if not name or not start:
             flash("Organisation name and start date are required.", "warning")
             return redirect(url_for("edit_enquiry", id=id))
         enquiry.organisation_name=name; enquiry.start_date=start; enquiry.end_date=end
         enquiry.next_enquiry_date=next_date; enquiry.next_enquiry_time=next_time
-        enquiry.status=status
+        enquiry.status = status if status else enquiry.status
         db.session.commit()
         flash("Enquiry updated successfully.", "success")
         return redirect(url_for("enquiry_detail", id=id))
