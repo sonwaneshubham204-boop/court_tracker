@@ -2551,6 +2551,16 @@ def bulk_delete():
 
 ENQUIRY_STATUSES = ["Pending for Report", "Report Drafting", "Report Given"]
 
+def _enquiry_status_options():
+    """Return fixed statuses plus every custom status already saved in the database."""
+    fixed = list(ENQUIRY_STATUSES)
+    custom = set()
+    for row in db.session.query(Enquiry.status).filter(Enquiry.status.isnot(None)).all():
+        value = (row[0] or "").strip()
+        if value and value not in fixed and value not in ("Other", "__other__"):
+            custom.add(value)
+    return fixed + sorted(custom, key=str.casefold)
+
 def _ensure_enquiry_tables():
     """Create Enquiry tables if this deployment database does not have them yet."""
     db.create_all()
@@ -2582,7 +2592,8 @@ def enquiry_list():
     elif schedule == "next":
         query = query.filter(Enquiry.next_enquiry_date > today)
     enquiries = query.order_by(Enquiry.next_enquiry_date.is_(None), Enquiry.next_enquiry_date, Enquiry.id.desc()).all()
-    return render_template("enquiries.html", enquiries=enquiries, statuses=ENQUIRY_STATUSES,
+    status_options = _enquiry_status_options()
+    return render_template("enquiries.html", enquiries=enquiries, statuses=status_options,
                            selected_status=status, search=search, highlighted_only=highlighted_only, today=date.today())
 
 @app.route("/enquiry/add", methods=["GET", "POST"])
@@ -2612,7 +2623,7 @@ def add_enquiry():
         db.session.commit()
         flash("Enquiry added successfully.", "success")
         return redirect(url_for("enquiry_list"))
-    return render_template("add_enquiry.html", statuses=ENQUIRY_STATUSES, today=date.today())
+    return render_template("add_enquiry.html", statuses=_enquiry_status_options(), today=date.today())
 
 @app.route("/enquiry/<int:id>")
 @login_required
@@ -2620,7 +2631,7 @@ def enquiry_detail(id):
     _ensure_enquiry_tables()
     enquiry = Enquiry.query.get_or_404(id)
     sittings = EnquirySitting.query.filter_by(enquiry_id=id).order_by(EnquirySitting.sitting_date.desc(), EnquirySitting.id.desc()).all()
-    return render_template("enquiry_detail.html", enquiry=enquiry, sittings=sittings, statuses=ENQUIRY_STATUSES, today=date.today())
+    return render_template("enquiry_detail.html", enquiry=enquiry, sittings=sittings, statuses=_enquiry_status_options(), today=date.today())
 
 @app.route("/enquiry/<int:id>/edit", methods=["GET", "POST"])
 @login_required
@@ -2646,7 +2657,7 @@ def edit_enquiry(id):
         db.session.commit()
         flash("Enquiry updated successfully.", "success")
         return redirect(url_for("enquiry_detail", id=id))
-    return render_template("add_enquiry.html", enquiry=enquiry, statuses=ENQUIRY_STATUSES, today=date.today(), edit_mode=True)
+    return render_template("add_enquiry.html", enquiry=enquiry, statuses=_enquiry_status_options(), today=date.today(), edit_mode=True)
 
 @app.route("/enquiry/<int:id>/add-sitting", methods=["POST"])
 @login_required
