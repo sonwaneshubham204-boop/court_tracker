@@ -770,11 +770,16 @@ def case_list():
 
 
     # CASE STAGE FILTER
-
+    # Match both normal stages and the actual custom stage saved under Other.
     if case_stage:
-
         query = query.filter(
-            Case.case_stage == case_stage
+            db.or_(
+                Case.case_stage == case_stage,
+                db.and_(
+                    Case.case_stage == "Other",
+                    Case.case_stage_other == case_stage
+                )
+            )
         )
 
 
@@ -876,6 +881,19 @@ def case_list():
         Case.next_hearing_date
     ).all()
 
+    # Build the Case Stage dropdown from every stage actually stored in the database.
+    # For "Other", show the custom value when one exists.
+    all_stage_options = set()
+    for stage_value, custom_stage_value in db.session.query(
+        Case.case_stage, Case.case_stage_other
+    ).all():
+        if stage_value == "Other" and custom_stage_value and custom_stage_value.strip():
+            all_stage_options.add(custom_stage_value.strip())
+        elif stage_value and stage_value.strip():
+            all_stage_options.add(stage_value.strip())
+
+    all_stage_options = sorted(all_stage_options, key=str.casefold)
+
 
     return render_template(
 
@@ -901,7 +919,9 @@ def case_list():
 
         date_from=date_from,
 
-        date_to=date_to
+        date_to=date_to,
+
+        all_stage_options=all_stage_options
     )
 
 
