@@ -1,837 +1,255 @@
-/* ========================================
-   COURT TRACKER - COMMON RESPONSIVE UI
-   Existing backend, routes and parameters untouched.
-======================================== */
-
-:root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --success: #15803d;
-    --danger: #dc2626;
-    --warning: #b45309;
-    --bg: #f4f6f8;
-    --surface: #ffffff;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --border: #d1d5db;
-    --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-    --radius: 10px;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-html {
-    -webkit-text-size-adjust: 100%;
-}
-
-body {
-    margin: 0;
-    padding: 20px;
-    min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-}
-
-.container {
-    width: min(100%, 1200px);
-    margin: 0 auto;
-}
-
-h1, h2, h3, p {
-    overflow-wrap: anywhere;
-}
-
-h1 {
-    margin: 0 0 22px;
-    font-size: clamp(24px, 4vw, 32px);
-}
-
-h2 {
-    margin-top: 28px;
-    font-size: clamp(20px, 3vw, 25px);
-}
-
-h3 {
-    font-size: 18px;
-}
-
-/* ========================================
-   FORMS
-======================================== */
-
-form {
-    width: 100%;
-    max-width: 900px;
-    background: var(--surface);
-    padding: 25px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-}
-
-label {
-    display: block;
-    margin: 15px 0 6px;
-    font-weight: 700;
-}
-
-input,
-select,
-textarea {
-    width: 100%;
-    min-width: 0;
-    padding: 12px 14px;
-    font: inherit;
-    font-size: 16px;
-    color: var(--text);
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
-textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-/* ========================================
-   BUTTONS + LINKS
-======================================== */
-
-button,
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    margin-top: 18px;
-    padding: 11px 18px;
-    font: inherit;
-    font-weight: 600;
-    border: none;
-    border-radius: 7px;
-    cursor: pointer;
-    background: var(--primary);
-    color: #fff;
-    text-decoration: none;
-    transition: background 0.2s ease, transform 0.1s ease;
-}
-
-button:hover,
-.btn:hover {
-    background: var(--primary-dark);
-}
-
-button:active,
-.btn:active {
-    transform: translateY(1px);
-}
-
-a {
-    color: var(--primary);
-}
-
-.back-link {
-    display: inline-block;
-    margin-bottom: 18px;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-/* ========================================
-   TABLES
-======================================== */
-
-.table-container {
-    width: 100%;
-    overflow-x: auto;
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    -webkit-overflow-scrolling: touch;
-}
-
-table {
-    width: 100%;
-    min-width: 680px;
-    border-collapse: collapse;
-    background: var(--surface);
-}
-
-th,
-td {
-    padding: 12px 14px;
-    border-bottom: 1px solid #e5e7eb;
-    text-align: left;
-    vertical-align: top;
-    white-space: normal;
-}
-
-th {
-    position: sticky;
-    top: 0;
-    background: var(--primary);
-    color: #fff;
-    white-space: nowrap;
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-tr:hover td {
-    background: #f8fafc;
-}
-
-/* ========================================
-   DASHBOARD / CARDS
-======================================== */
-
-.dashboard-grid,
-.cards,
-.card-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 16px;
-}
-
-.card {
-    min-width: 0;
-    padding: 20px;
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-}
-
-/* Useful common wrappers without changing backend */
-.actions,
-.button-group,
-.form-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-}
-
-.actions .btn,
-.button-group .btn,
-.form-actions button,
-.form-actions .btn {
-    margin-top: 0;
-}
-
-/* ========================================
-   MOBILE
-======================================== */
-
-@media (max-width: 768px) {
-
-    body {
-        padding: 12px;
-    }
-
-    .container {
-        width: 100%;
-    }
-
-    h1 {
-        margin-bottom: 18px;
-    }
-
-    form {
-        padding: 18px;
-        border-radius: 9px;
-    }
-
-    input,
-    select,
-    textarea {
-        padding: 12px;
-    }
-
-    button,
-    .btn {
-        min-height: 46px;
-    }
-
-    .dashboard-grid,
-    .cards,
-    .card-container {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    .card {
-        padding: 16px;
-    }
-
-    .actions,
-    .button-group,
-    .form-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .actions .btn,
-    .button-group .btn,
-    .form-actions button,
-    .form-actions .btn {
-        width: 100%;
-    }
-
-    table {
-        min-width: 620px;
-        font-size: 14px;
-    }
-
-    th,
-    td {
-        padding: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-
-    body {
-        padding: 10px;
-    }
-
-    form {
-        padding: 15px;
-    }
-
-    h2 {
-        margin-top: 22px;
-    }
-
-    .card {
-        padding: 14px;
-    }
-}
-
-/* ===== DASHBOARD TEXT & DATE FIX ===== */
-
-/* Navigation buttons */
-.nav a {
-    color: #172033 !important;
-    font-weight: 800 !important;
-}
-
-/* Dashboard cards */
-.stat-card {
-    color: #172033 !important;
-}
-
-.stat-card h3 {
-    color: #1e293b !important;
-    font-weight: 800 !important;
-}
-
-.number {
-    color: #1e4fa8 !important;
-}
-
-/* Section headings */
-.section h2 {
-    color: #172033 !important;
-    font-weight: 800 !important;
-}
-
-/* Table text */
-td {
-    color: #172033 !important;
-    font-weight: 600 !important;
-}
-
-/* Keep headings clear */
-th {
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    white-space: nowrap;
-}
-
-/* Date should stay on one line */
-th:nth-child(4),
-td:nth-child(4) {
-    white-space: nowrap !important;
-    min-width: 130px;
-    width: 130px;
-    text-align: center;
-}
-
-/* Court column */
-th:nth-child(3),
-td:nth-child(3) {
-    text-align: center;
-    white-space: nowrap;
-    min-width: 70px;
-}
-
-/* Parties column */
-td:nth-child(2) {
-    color: #172033 !important;
-    min-width: 450px;
-}
-
-/* Better table readability */
-tbody tr:nth-child(even) td {
-    background: #f3f6fa !important;
-}
-
-tbody tr:hover td {
-    background: #e8f0ff !important;
-}
 /* =========================================
-   COURT TRACKER – PROFESSIONAL GOVT THEME
-   ========================================= */
+   COURT TRACKER - CLEAN COMMON STYLES
+   Safe global CSS: page-specific table/action
+   styling stays inside each template.
+========================================= */
 
-/* Main page */
-body {
-    background: #eef1f5 !important;
-    color: #111827 !important;
-    font-family: Arial, Helvetica, sans-serif;
+:root{
+    --primary:#173b6c;
+    --primary-dark:#102c52;
+    --red:#a60f27;
+    --success:#197a58;
+    --danger:#b42318;
+    --warning:#a66b00;
+    --bg:#eef1f5;
+    --surface:#ffffff;
+    --text:#172033;
+    --muted:#667085;
+    --border:#cbd5e1;
+    --line:#dbe3ec;
+    --radius:10px;
+    --shadow:0 3px 12px rgba(15,23,42,.08);
 }
 
-/* Main dashboard width */
-.container {
-    background: transparent !important;
+*{box-sizing:border-box}
+
+html{-webkit-text-size-adjust:100%}
+
+body{
+    margin:0;
+    padding:20px;
+    min-height:100vh;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
 }
 
-/* ================= HEADER ================= */
-
-.topbar {
-    background: #173b6c !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    border-bottom: 5px solid #a60f27 !important;
+.container{
+    width:min(100%,1200px);
+    margin:0 auto;
 }
 
-.topbar h1 {
-    color: #ffffff !important;
-    font-weight: 800 !important;
+h1,h2,h3,p{overflow-wrap:anywhere}
+h1{margin:0 0 22px;font-size:clamp(24px,4vw,32px)}
+h2{margin-top:28px;font-size:clamp(20px,3vw,25px)}
+h3{font-size:18px}
+
+/* ===== NORMAL FORMS ONLY =====
+   Do NOT style every form as a card.
+   Templates that need a card already use their own wrappers/classes. */
+label{
+    display:block;
+    margin:15px 0 6px;
+    font-weight:700;
 }
 
-/* ================= NAVIGATION ================= */
-
-.nav {
-    background: #a60f27 !important;
-    padding: 0 !important;
-    gap: 0 !important;
+input,select,textarea{
+    width:100%;
+    min-width:0;
+    padding:12px 14px;
+    font:inherit;
+    color:var(--text);
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:7px;
 }
 
-.nav a {
-    background: #a60f27 !important;
-    color: #ffffff !important;
-    border-radius: 0 !important;
-    border: none !important;
-    border-right: 1px solid rgba(255,255,255,0.18) !important;
-    box-shadow: none !important;
-    font-weight: 700 !important;
-    min-height: 48px !important;
-    padding: 14px 20px !important;
+input:focus,select:focus,textarea:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(23,59,108,.12);
 }
 
-.nav a:hover {
-    background: #f5e5b8 !important;
-    color: #111111 !important;
-    transform: none !important;
+textarea{min-height:100px;resize:vertical}
+
+/* ===== BUTTONS =====
+   No global top margin: action buttons remain compact. */
+button,.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
+    margin:0;
+    padding:9px 16px;
+    font:inherit;
+    font-weight:600;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    background:var(--primary);
+    color:#fff;
+    text-decoration:none;
+    transition:background .2s ease,transform .1s ease;
 }
 
-/* ================= STAT CARDS ================= */
+button:hover,.btn:hover{background:var(--primary-dark)}
+button:active,.btn:active{transform:translateY(1px)}
 
-.stats-container {
-    gap: 16px !important;
+a{color:#1e4fa8}
+.back-link{display:inline-block;margin-bottom:18px;font-weight:600;text-decoration:none}
+
+/* ===== GENERIC TABLES =====
+   No nth-child rules here. Different pages have different columns. */
+.table-container{
+    width:100%;
+    overflow-x:auto;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    -webkit-overflow-scrolling:touch;
 }
 
-.stat-card {
-    background: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.10) !important;
-    color: #111111 !important;
+table{
+    width:100%;
+    min-width:680px;
+    border-collapse:collapse;
+    background:var(--surface);
 }
 
-.stat-card:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 5px 12px rgba(0,0,0,0.15) !important;
+th,td{
+    padding:12px 14px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+    vertical-align:middle;
+    color:var(--text);
 }
 
-/* Card headings DARK BLACK */
-.stat-card h3 {
-    color: #111111 !important;
-    font-weight: 800 !important;
+th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    white-space:nowrap;
 }
 
-/* Numbers */
-.number {
-    color: #173b6c !important;
-    font-weight: 800 !important;
+tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even) td{background:#f7f9fc}
+tbody tr:hover td{background:#fff8df}
+
+/* ===== COMMON LAYOUT ===== */
+.dashboard-grid,.cards,.card-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:16px;
 }
 
-/* ================= SECTIONS ================= */
-
-.section {
-    background: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
-    border-left: 5px solid #a60f27 !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+.card{
+    min-width:0;
+    padding:20px;
+    background:var(--surface);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
 }
 
-.section h2 {
-    color: #111111 !important;
-    font-weight: 800 !important;
+/* Keep generic action rows compact.
+   Individual pages may override this. */
+.button-group,.form-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
 }
 
-/* ================= TABLE ================= */
-
-.table-container {
-    border: 1px solid #b8c2cc !important;
-    border-radius: 0 !important;
+.button-group .btn,.form-actions button,.form-actions .btn{
+    margin:0;
 }
 
-/* Header */
-th {
-    background: #a60f27 !important;
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    padding: 15px !important;
-    white-space: nowrap !important;
+/* ===== DASHBOARD THEME ===== */
+.topbar{
+    background:#173b6c;
+    border-radius:0;
+    box-shadow:none;
+    border-bottom:5px solid #a60f27;
 }
 
-/* IMPORTANT – ALL LIST TEXT DARK BLACK */
-td {
-    color: #111111 !important;
-    background: #ffffff !important;
-    font-weight: 500 !important;
-    padding: 15px !important;
-    border-top: 1px solid #d1d5db !important;
+.topbar h1{color:#fff;font-weight:800}
+
+.nav{
+    background:#a60f27;
+    padding:0;
+    gap:0;
 }
 
-/* Alternate row */
-tbody tr:nth-child(even) td {
-    background: #f5f5f5 !important;
-    color: #111111 !important;
+.nav a{
+    background:#a60f27;
+    color:#fff;
+    border-radius:0;
+    border:none;
+    border-right:1px solid rgba(255,255,255,.18);
+    box-shadow:none;
+    font-weight:700;
+    min-height:48px;
+    padding:14px 20px;
 }
 
-/* Hover */
-tbody tr:hover td {
-    background: #fff3cd !important;
-    color: #000000 !important;
+.nav a:hover{
+    background:#f5e5b8;
+    color:#111;
+    transform:none;
 }
 
-/* ================= DATE ================= */
-
-/* Next Hearing Date */
-th:nth-child(4),
-td:nth-child(4) {
-    min-width: 140px !important;
-    width: 140px !important;
-    white-space: nowrap !important;
-    word-break: keep-all !important;
-    overflow-wrap: normal !important;
+.stat-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:6px;
+    box-shadow:0 2px 6px rgba(0,0,0,.10);
+    color:#111;
 }
 
-/* Court column */
-th:nth-child(3),
-td:nth-child(3) {
-    width: 80px !important;
-    text-align: center !important;
-    white-space: nowrap !important;
+.stat-card h3,.section h2{color:#172033;font-weight:800}
+.number{color:#173b6c;font-weight:800}
+
+.section{
+    background:#fff;
+    border:1px solid var(--border);
+    border-left:5px solid #a60f27;
+    border-radius:6px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
-/* Parties can wrap naturally */
-td:nth-child(2) {
-    color: #111111 !important;
-    white-space: normal !important;
-}
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+    body{padding:12px}
+    .container{width:100%}
+    h1{margin-bottom:18px}
 
-/* ================= BUTTONS ================= */
+    input,select,textarea{padding:12px}
 
-.open-btn {
-    background: #a60f27 !important;
-    color: #ffffff !important;
-    border-radius: 3px !important;
-    font-weight: 700 !important;
-}
+    button,.btn{min-height:42px}
 
-.open-btn:hover {
-    background: #7f0a1d !important;
-    color: #ffffff !important;
-}
-
-/* ================= EMPTY MESSAGE ================= */
-
-.empty-message {
-    color: #111111 !important;
-    background: #fff8e1 !important;
-    border: 1px solid #d6b656 !important;
-}
-
-/* ================= MOBILE ================= */
-
-@media (max-width: 768px) {
-
-    .topbar {
-        padding: 18px !important;
+    .dashboard-grid,.cards,.card-container{
+        grid-template-columns:1fr;
+        gap:12px;
     }
 
-    .nav {
-        display: flex !important;
-        flex-wrap: wrap !important;
+    .card{padding:16px}
+
+    .button-group,.form-actions{
+        flex-direction:column;
+        align-items:stretch;
     }
 
-    .nav a {
-        flex: 1 1 auto !important;
+    .button-group .btn,.form-actions button,.form-actions .btn{
+        width:100%;
     }
 
-    td {
-        font-size: 14px !important;
-    }
+    table{min-width:620px;font-size:14px}
+    th,td{padding:10px}
 }
 
-/* ================= COMPACT CASE HISTORY TABLE ================= */
-.case-history-table {
-    width: 100% !important;
-    min-width: 0 !important;
-    table-layout: fixed;
-}
-.case-history-table .history-date-col { width: 18%; }
-.case-history-table .history-next-col { width: 20%; }
-.case-history-table .history-purpose-col { width: 24%; }
-.case-history-table .history-notes-col { width: 24%; }
-.case-history-table .history-action-col { width: 16%; }
-.history-actions { display:flex; gap:8px; align-items:center; white-space:nowrap; }
-.history-edit { display:inline-flex; padding:7px 10px; border-radius:6px; background:#2563eb; color:#fff; text-decoration:none; font-weight:600; }
-.history-delete-form { display:inline; margin:0; padding:0; box-shadow:none; background:transparent; width:auto; }
-.history-delete-form button { display:inline-flex; width:auto; margin:0; padding:7px 10px; border-radius:6px; background:#dc2626; color:#fff; font-weight:600; }
-.case-history-table th,
-.case-history-table td {
-    padding: 12px 14px !important;
-    vertical-align: middle !important;
-    overflow-wrap: anywhere;
-}
-.business-date-link {
-    font-weight: 700;
-    text-decoration: underline;
-}
-@media (max-width: 700px) {
-    .case-history-table { min-width: 620px !important; }
-    .case-history-table .history-date-col { width: 22%; }
-    .case-history-table .history-next-col { width: 22%; }
-    .case-history-table .history-purpose-col { width: 28%; }
-    .case-history-table .history-notes-col { width: 22%; }
-    .case-history-table .history-action-col { width: 20%; }
-}
-
-
-/* ===== SIMPLE CASE HISTORY FIX ===== */
-.case-history-table{
-    width:100% !important;
-    min-width:0 !important;
-    table-layout:auto !important;
-    border-collapse:collapse !important;
-}
-.case-history-table th,
-.case-history-table td{
-    padding:12px 14px !important;
-    height:auto !important;
-    min-height:0 !important;
-    line-height:1.35 !important;
-    vertical-align:middle !important;
-    white-space:normal !important;
-}
-.case-history-table th:nth-child(1){width:18% !important;}
-.case-history-table th:nth-child(2){width:20% !important;}
-.case-history-table th:nth-child(3){width:26% !important;}
-.case-history-table th:nth-child(4){width:22% !important;}
-.case-history-table th:nth-child(5){width:14% !important;}
-.business-date-link{color:#216b3a !important;font-weight:700 !important;text-decoration:underline !important;}
-.history-action-cell{white-space:nowrap !important;}
-.history-delete-form{
-    display:inline-block !important;
-    width:auto !important;
-    max-width:none !important;
-    margin:0 0 0 6px !important;
-    padding:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-    border:0 !important;
-    border-radius:0 !important;
-}
-.history-edit,
-.history-delete-form button{
-    display:inline-block !important;
-    width:auto !important;
-    min-width:0 !important;
-    min-height:0 !important;
-    margin:0 !important;
-    padding:5px 9px !important;
-    font-size:13px !important;
-    line-height:1.2 !important;
-    border-radius:5px !important;
-}
-.history-edit{background:#2563eb !important;color:#fff !important;text-decoration:none !important;}
-.history-delete-form button{background:#dc2626 !important;color:#fff !important;border:0 !important;cursor:pointer !important;}
-@media(max-width:700px){
-    .case-history-table{font-size:13px !important;}
-    .case-history-table th,.case-history-table td{padding:9px 8px !important;}
-    .history-edit,.history-delete-form button{padding:4px 6px !important;font-size:11px !important;}
-}
-
-
-/* Party name: highlight only Vs */
-.vs-highlight {
-    font-weight: 800 !important;
-    color: #7b3f00 !important;
-}
-
-
-/* =========================================================
-   ENQUIRIES PAGE ONLY - FINAL LAYOUT OVERRIDE
-   This block is scoped to the existing enquiries page structure.
-   It is intentionally placed LAST so it wins over older global rules.
-   ========================================================= */
-
-/* Main enquiry container */
-body:has(.tablewrap) {
-    font-family: Cambria, Georgia, serif !important;
-    font-size: 16px !important;
-}
-
-/* Page width and readable scale */
-body:has(.tablewrap) .wrap {
-    width: min(1240px, calc(100% - 32px)) !important;
-    margin: 28px auto 50px !important;
-}
-
-/* Heading */
-body:has(.tablewrap) .head h1 {
-    font-size: 30px !important;
-    line-height: 1.2 !important;
-}
-
-/* Top buttons */
-body:has(.tablewrap) .btn {
-    font-size: 16px !important;
-    line-height: 1.2 !important;
-    padding: 10px 16px !important;
-}
-
-/* Search / filter area */
-body:has(.tablewrap) .bar {
-    padding: 16px !important;
-    gap: 10px !important;
-}
-
-body:has(.tablewrap) .bar input,
-body:has(.tablewrap) .bar select {
-    min-height: 42px !important;
-    font-size: 16px !important;
-    padding: 8px 11px !important;
-}
-
-/* Table wrapper */
-body:has(.tablewrap) .tablewrap {
-    width: 100% !important;
-    overflow-x: auto !important;
-}
-
-/* Table scale */
-body:has(.tablewrap) .tablewrap table {
-    width: 100% !important;
-    min-width: 1120px !important;
-    font-size: 16px !important;
-}
-
-/* Header */
-body:has(.tablewrap) .tablewrap th {
-    font-size: 15px !important;
-    line-height: 1.25 !important;
-    padding: 13px 9px !important;
-}
-
-/* Header status filter */
-body:has(.tablewrap) .tablewrap th .status-filter {
-    font-size: 14px !important;
-    min-height: 34px !important;
-    padding: 5px 7px !important;
-}
-
-/* Data rows */
-body:has(.tablewrap) .tablewrap td {
-    font-size: 16px !important;
-    line-height: 1.35 !important;
-    padding: 12px 9px !important;
-    vertical-align: middle !important;
-}
-
-/* Organisation column: allow wrapping, not huge width */
-body:has(.tablewrap) .tablewrap td:nth-child(2) {
-    min-width: 220px !important;
-    white-space: normal !important;
-}
-
-/* Action column must never collapse */
-body:has(.tablewrap) .tablewrap th:last-child,
-body:has(.tablewrap) .tablewrap td:last-child {
-    width: 170px !important;
-    min-width: 170px !important;
-}
-
-/* Keep action buttons neat and fully visible */
-body:has(.tablewrap) .actions {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
-    min-width: 150px !important;
-}
-
-body:has(.tablewrap) .actions a,
-body:has(.tablewrap) .actions button {
-    min-height: 38px !important;
-    padding: 7px 8px !important;
-    font-size: 15px !important;
-    line-height: 1.15 !important;
-    white-space: nowrap !important;
-}
-
-/* Status badges */
-body:has(.tablewrap) .badge {
-    font-size: 14px !important;
-    padding: 6px 8px !important;
-}
-
-/* Result count */
-body:has(.tablewrap) .tablewrap ~ * {
-    font-size: 16px;
-}
-
-/* Mobile */
-@media (max-width: 700px) {
-    body:has(.tablewrap) .wrap {
-        width: calc(100% - 20px) !important;
-        margin-top: 18px !important;
-    }
-
-    body:has(.tablewrap) .head h1 {
-        font-size: 26px !important;
-    }
-
-    body:has(.tablewrap) .bar input,
-    body:has(.tablewrap) .bar select {
-        flex: 1 1 100% !important;
-        width: 100% !important;
-    }
+@media(max-width:480px){
+    body{padding:10px}
+    h2{margin-top:22px}
+    .card{padding:14px}
 }
