@@ -2596,12 +2596,12 @@ def add_enquiry():
         next_time = _parse_time(request.form.get("next_enquiry_time", ""))
         status = request.form.get("status", "Pending for Report").strip()
         custom_status = request.form.get("custom_status", "").strip()
-        if status == "Other" and custom_status:
+        if status in ("Other", "__other__") and custom_status:
             status = custom_status
         if not name or not start:
             flash("Organisation name and start date are required.", "warning")
             return redirect(url_for("add_enquiry"))
-        if not status or (status == "Other" and not custom_status):
+        if not status or (status in ("Other", "__other__") and not custom_status):
             status = "Pending for Report"
         enquiry = Enquiry(organisation_name=name, start_date=start, next_enquiry_date=next_date,
                           next_enquiry_time=next_time, status=status)
@@ -2635,7 +2635,7 @@ def edit_enquiry(id):
         next_time = _parse_time(request.form.get("next_enquiry_time", ""))
         status = request.form.get("status", enquiry.status).strip()
         custom_status = request.form.get("custom_status", "").strip()
-        if status == "Other" and custom_status:
+        if status in ("Other", "__other__") and custom_status:
             status = custom_status
         if not name or not start:
             flash("Organisation name and start date are required.", "warning")
