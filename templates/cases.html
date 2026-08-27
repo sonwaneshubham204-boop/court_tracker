@@ -671,7 +671,7 @@ td.action-cell .action-links button:hover {
                 <label>Case Stage</label>
                 <select name="case_stage">
                     <option value="">All Stages</option>
-                    {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
+                    {% for s in all_stage_options %}
                     <option value="{{ s }}" {% if case_stage == s %}selected{% endif %}>{{ s }}</option>
                     {% endfor %}
                 </select>
@@ -748,11 +748,9 @@ td.action-cell .action-links button:hover {
         <span class="header-label">Case Stage</span>
         <select class="header-filter" id="stageFilter" aria-label="Filter Case Stage">
             <option value="">All</option>
-            {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
-        
-{% for custom_stage in cases if custom_stage.case_stage == 'Other' and custom_stage.case_stage_other %}
-<option value="{{ custom_stage.case_stage_other }}">{{ custom_stage.case_stage_other }}</option>
-{% endfor %}</select>
+            {% for s in all_stage_options %}
+            <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}</select>
     </th>
     <th class="next-date-head">
         <span class="header-label">Next Hearing<br>Date</span>
