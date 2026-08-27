@@ -4,983 +4,251 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<script src="https://cdn.tailwindcss.com"></script>
-
 <style>
-* { box-sizing: border-box; }
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; background:#f3f5f8; color:#1f2937; }
+    .page { max-width: 1450px; margin: 0 auto; padding: 24px; }
+    .nav { margin-bottom:18px; }
+    .nav a { margin-right:12px; color:#273c75; font-weight:600; text-decoration:none; }
+    .nav a:hover { text-decoration:underline; }
 
-.cases-page { max-width: 1400px; margin: 0 auto; }
-.top-links { margin: 12px 0 18px; }
-.top-links a { margin-right: 10px; }
+    .search-card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 16px rgba(0,0,0,.08); }
+    .search-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .search-main { flex:1 1 420px; min-width:240px; }
+    input, select, button { font:inherit; }
+    input[type=text], input[type=date], select {
+        width:100%; padding:11px 12px; border:1px solid #cbd5e1; border-radius:7px; background:white;
+    }
+    .btn { border:0; border-radius:7px; padding:11px 16px; cursor:pointer; font-weight:700; text-decoration:none; display:inline-block; }
+    .primary { background:#2454a6; color:white; }
+    .secondary { background:#e5e7eb; color:#111827; }
+    .danger { background:#b91c1c; color:white; }
+    .success { background:#15803d; color:white; }
+    .warning { background:#b45309; color:white; }
+    .toggle { margin-top:10px; border:0; background:none; color:#2454a6; cursor:pointer; font-weight:700; padding:4px 0; }
+    #moreFilters { display:none; margin-top:14px; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
+    #moreFilters.show { display:grid; }
 
-.search-card {
-    background: #fff;
-    padding: 14px;
-    border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    margin-bottom: 18px;
-}
+    .results { margin:24px 0 12px; font-size:27px; }
+    .bulkbar { display:none; background:#fff; padding:12px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:12px; gap:10px; align-items:center; flex-wrap:wrap; }
+    .bulkbar.show { display:flex; }
+    .selected-count { font-weight:700; margin-right:8px; }
 
-.compact-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.compact-search {
-    flex: 1 1 420px;
-    min-width: 220px;
-}
-
-.compact-search input {
-    width: 100%;
-    padding: 11px 12px;
-}
-
-.filter-toggle, .search-btn, .clear-btn {
-    padding: 11px 16px;
-    border: 0;
-    border-radius: 7px;
-    cursor: pointer;
-    font-weight: 700;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.filter-toggle { background: #e5e7eb; color: #111827; }
-.search-btn { background: #2563eb; color: #fff; }
-.clear-btn { background: #6b7280; color: #fff; }
-
-.filters-panel {
-    display: none;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid #ddd;
-}
-
-.filters-panel.open { display: block; }
-
-.filter-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(140px, 1fr));
-    gap: 12px;
-}
-
-.filter-field label {
-    display: block;
-    font-weight: 700;
-    font-size: 13px;
-    margin-bottom: 5px;
-}
-
-.filter-field input,
-.filter-field select {
-    width: 100%;
-    padding: 10px;
-}
-
-.bulkbar {
-    display: none;
-    position: sticky;
-    top: 8px;
-    z-index: 10;
-    background: #eef6ff;
-    border: 1px solid #bcd;
-    border-radius: 9px;
-    padding: 10px;
-    margin: 10px 0;
-}
-
-.bulkbar button {
-    padding: 8px 11px;
-    margin: 3px;
-    cursor: pointer;
-}
-
-.danger { background: #c62828; color: white; border: 0; }
-
-.table-wrap {
-    width: 100%;
-    overflow-x: auto;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
-}
-
-table {
-    width: 100%;
-    min-width: 1050px;
-    border-collapse: collapse;
-}
-
-th, td {
-    border: 1px solid #ccc;
-    padding: 9px;
-    text-align: left;
-    vertical-align: middle;
-}
-
-th {
-    background: #b3122b;
-    color: #fff;
-}
-
-/* LOCKED: only Name of Parties font slightly larger */
-td:nth-child(5) {
-    font-size: 17px !important;
-    line-height: 1.35 !important;
-}
-
-.weekday-dark {
-    color: #374151 !important;
-    font-weight: 700 !important;
-}
-
-.weekday {
-    display: block;
-    margin-top: 3px;
-    font-size: 12px;
-    color: #666;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-}
-
-.modal .box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: min(420px, 92vw);
-}
-
-.modal input, .modal select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-}
-
-@media (max-width: 900px) {
-    .filter-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-}
-
-@media (max-width: 600px) {
-    .filter-grid { grid-template-columns: 1fr; }
-    .compact-row { align-items: stretch; }
-    .compact-search { flex-basis: 100%; }
-}
-
-/* Final compact layout and header dropdown fixes */
-.cases-page { max-width: 1250px; margin: 0 auto; padding: 0 12px; }
-.top-links { margin: 6px 0 10px; }
-.search-card { padding: 10px 14px; margin-bottom: 12px; max-width: 900px; }
-.compact-row { gap: 8px; flex-wrap: nowrap; }
-.compact-search { flex: 1 1 auto; min-width: 260px; }
-.compact-search input { padding: 9px 11px; }
-.filter-toggle, .search-btn, .clear-btn { padding: 9px 14px; }
-.results { margin: 12px 0 10px; }
-
-.table-wrap { overflow-x: auto; }
-/* Fit the complete cases table inside the page on desktop */
-.table-wrap { width: 100%; overflow-x: auto; }
-table { width: 100%; min-width: 0; table-layout: fixed; }
-
-/* Total = 100% */
-table col.col-check  { width: 4%; }
-table col.col-id     { width: 5%; }
-table col.col-case   { width: 15%; }
-table col.col-court  { width: 9%; }
-table col.col-parties{ width: 20%; }
-table col.col-stage  { width: 11%; }
-table col.col-date   { width: 13%; }
-table col.col-left   { width: 8%; }
-table col.col-action { width: 15%; }
-
-th, td {
-    padding: 9px 10px;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-}
-th:nth-child(3), td:nth-child(3),
-th:nth-child(4), td:nth-child(4),
-th:nth-child(7), td:nth-child(7),
-th:nth-child(8), td:nth-child(8),
-th:nth-child(9), td:nth-child(9) {
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    line-height: 1.5;
-}
-
-@media (max-width: 900px) {
-    table { min-width: 1080px; }
-}
-th { vertical-align: middle; }
-th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
-th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
-
-.header-filter {
-    width: 100%;
-    margin-top: 6px;
-    padding: 4px 22px 4px 6px;
-    border: 1px solid rgba(255,255,255,.55);
-    border-radius: 4px;
-    background: rgba(255,255,255,.16);
-    color: #fff;
-    font: inherit;
-    font-size: 12px;
-    cursor: pointer;
-}
-.header-filter option { color: #111827; background: #fff; }
-.header-label { display:block; white-space:nowrap; }
-
-/* Keep Filter + Search + Clear on one line */
-.compact-row {
-    flex-wrap: nowrap !important;
-}
-.compact-search {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-}
-.filter-toggle, .search-btn, .clear-btn {
-    flex: 0 0 auto;
-    white-space: nowrap;
-}
-
-
-/* FINAL TABLE FIT FIX */
-.table-wrap { width: 100% !important; overflow-x: auto !important; }
-.table-wrap table {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    table-layout: fixed !important;
-}
-.table-wrap table col.col-check  { width: 4% !important; }
-.table-wrap table col.col-id     { width: 5% !important; }
-.table-wrap table col.col-case   { width: 16% !important; }
-.table-wrap table col.col-court  { width: 10% !important; }
-.table-wrap table col.col-parties{ width: 24% !important; }
-.table-wrap table col.col-stage  { width: 12% !important; }
-.table-wrap table col.col-date   { width: 14% !important; }
-.table-wrap table col.col-left   { width: 8% !important; }
-.table-wrap table col.col-action { width: 15% !important; }
-
-.table-wrap th,
-.table-wrap td {
-    padding: 8px 8px !important;
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-}
-
-.table-wrap th.next-date-head,
-.table-wrap th.time-left-head,
-.table-wrap td:nth-child(7),
-.table-wrap td:nth-child(8) {
-    white-space: normal !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
-    line-height: 1.45 !important;
-}
-
-
-/* LOCKED: only align Filter, Search and Clear on the same line */
-.compact-row {
-    align-items: center !important;
-}
-.filter-toggle,
-.search-btn,
-.clear-btn {
-    height: 44px !important;
-    line-height: 1 !important;
-    align-self: center !important;
-}
-
-
-/* LOCKED: Clear button beside Search */
-.compact-row { display:flex !important; align-items:center !important; flex-wrap:nowrap !important; }
-.clear-btn {
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    height:44px !important;
-    padding:0 18px !important;
-    margin:0 !important;
-    flex:0 0 auto !important;
-    white-space:nowrap !important;
-}
-
-
-/* LOCKED: exact single-row alignment for Search controls only */
-.search-card .compact-row {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    align-items: stretch !important;
-    gap: 8px !important;
-}
-.search-card .compact-search {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    display: flex !important;
-}
-.search-card .compact-search input,
-.search-card .filter-toggle,
-.search-card .search-btn,
-.search-card .clear-btn {
-    box-sizing: border-box !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    max-height: 46px !important;
-    margin: 0 !important;
-    align-self: stretch !important;
-}
-.search-card .compact-search input {
-    width: 100% !important;
-}
-.search-card .filter-toggle,
-.search-card .search-btn,
-.search-card .clear-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    vertical-align: top !important;
-    line-height: normal !important;
-}
-
-
-/* LOCKED FIX: Action column only */
-.action-cell {
-    width: 170px !important;
-    min-width: 170px !important;
-    white-space: nowrap !important;
-    vertical-align: middle !important;
-    overflow: visible !important;
-}
-.action-links {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 7px !important;
-    white-space: nowrap !important;
-}
-.action-links a,
-.action-links form,
-.action-links button {
-    display: inline-block !important;
-    white-space: nowrap !important;
-    margin: 0 !important;
-}
-.action-links form {
-    padding: 0 !important;
-}
-.action-links button {
-    border: 0 !important;
-    background: none !important;
-    padding: 0 !important;
-    color: #2563eb !important;
-    font: inherit !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-}
-.action-links a:hover,
-.action-links button:hover {
-    text-decoration: underline !important;
-}
-
-
-/* FINAL LOCKED FIX — ACTION COLUMN ONLY */
-.table-wrap {
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-}
-
-table {
-    min-width: 1240px !important;
-}
-
-th:last-child,
-td.action-cell {
-    width: 240px !important;
-    min-width: 240px !important;
-    max-width: 240px !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    overflow: visible !important;
-}
-
-.action-cell .action-links {
-    width: 100% !important;
-    min-width: 0 !important;
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    overflow: visible !important;
-}
-
-.action-cell .action-links a,
-.action-cell .action-links form,
-.action-cell .action-links button {
-    position: static !important;
-    float: none !important;
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-}
-
-
-/* ACTION CELL — vertical links only */
-td.action-cell .action-links {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    white-space: normal !important;
-}
-td.action-cell .action-links > span {
-    display: none !important;
-}
-td.action-cell .action-links form {
-    display: block !important;
-}
-td.action-cell .action-links a,
-td.action-cell .action-links button {
-    display: block !important;
-    width: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    white-space: nowrap !important;
-}
-
-</style>
-
-<style>
-/* Tailwind migration layer: UI only, existing functionality untouched */
-body { background:#f8fafc !important; color:#0f172a !important; }
-.container { max-width:none !important; }
-.cases-page { max-width:1440px !important; margin:0 auto !important; padding:24px !important; }
-.cases-page h1 { font-size:30px !important; font-weight:800 !important; margin-bottom:14px !important; }
-.top-links { display:flex !important; flex-wrap:wrap !important; gap:8px !important; align-items:center !important; }
-.top-links a { margin:0 !important; padding:8px 12px !important; border-radius:8px !important; background:#e2e8f0 !important; text-decoration:none !important; font-weight:600 !important; color:#334155 !important; }
-.search-card { max-width:none !important; border:1px solid #e2e8f0 !important; box-shadow:0 1px 3px rgba(15,23,42,.08) !important; border-radius:12px !important; }
-.compact-row { display:flex !important; align-items:stretch !important; gap:8px !important; flex-wrap:nowrap !important; }
-.compact-search { flex:1 1 auto !important; min-width:0 !important; display:flex !important; }
-.compact-search input, .filter-toggle, .search-btn, .clear-btn { height:44px !important; min-height:44px !important; margin:0 !important; box-sizing:border-box !important; border-radius:8px !important; }
-.compact-search input { border:1px solid #cbd5e1 !important; border-radius:8px !important; padding:0 12px !important; }
-.filter-toggle { background:#e2e8f0 !important; color:#334155 !important; }
-.search-btn { background:#2563eb !important; color:#fff !important; }
-.clear-btn { background:#64748b !important; color:#fff !important; padding:0 16px !important; }
-.filters-panel { border-color:#e2e8f0 !important; }
-.filter-field input,.filter-field select { border:1px solid #cbd5e1 !important; border-radius:8px !important; }
-.table-wrap { border:1px solid #e2e8f0 !important; border-radius:12px !important; box-shadow:0 1px 3px rgba(15,23,42,.08) !important; }
-th { background:#991b1b !important; }
-th,td { border-color:#e2e8f0 !important; }
-tbody tr:nth-child(even) { background:#f8fafc !important; }
-tbody tr:hover { background:#eff6ff !important; }
-td a { color:#2563eb !important; font-weight:600 !important; text-decoration:none !important; }
-td a:hover { text-decoration:underline !important; }
-.highlight-filter { background:#7c3f00 !important; color:#fff !important; padding:0 14px !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; height:44px !important; border-radius:8px !important; font-weight:700 !important; text-decoration:none !important; white-space:nowrap !important; }
-.highlight-filter.active { background:#4a2500 !important; }
-.case-row.highlighted-case td { background:#e0f7ff !important; }
-.case-row.highlighted-case:hover td { background:#c6efff !important; }
-.vs-highlight { font-weight:800 !important; color:#7b3f00 !important; }
-.header-filter { border-radius:6px !important; }
-.bulkbar { border-color:#bfdbfe !important; background:#eff6ff !important; box-shadow:0 1px 2px rgba(15,23,42,.06) !important; }
-@media(max-width:700px){
-  .cases-page { padding:14px !important; }
-  .compact-row { flex-wrap:wrap !important; }
-  .compact-search { flex-basis:100% !important; }
-}
-
-
-.action-links form:first-child button {
-    color: #87CEEB !important;
-    font-weight: 800 !important;
-}
-
-
-/* FINAL ACTION WIDTH FIX — only Action column */
-.table-wrap table col.col-action { width: 15% !important; }
-th:last-child, td.action-cell {
-    width: 240px !important;
-    min-width: 240px !important;
-    max-width: 240px !important;
-    overflow: visible !important;
-}
-td.action-cell .action-links {
-    min-width: 210px !important;
-    overflow: visible !important;
-}
-</style>
-
-
-<style>
-/* FINAL LOCK — Action column only, keep all other features unchanged */
-.table-wrap table {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    table-layout: fixed !important;
-}
-.table-wrap table col.col-check  { width: 4% !important; }
-.table-wrap table col.col-id     { width: 5% !important; }
-.table-wrap table col.col-case   { width: 15% !important; }
-.table-wrap table col.col-court  { width: 9% !important; }
-.table-wrap table col.col-parties{ width: 21% !important; }
-.table-wrap table col.col-stage  { width: 11% !important; }
-.table-wrap table col.col-date   { width: 12% !important; }
-.table-wrap table col.col-left   { width: 7% !important; }
-.table-wrap table col.col-action { width: 16% !important; }
-
-th:last-child, td.action-cell {
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    overflow: visible !important;
-}
-td.action-cell .action-links {
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow: visible !important;
-    align-items: flex-start !important;
-}
-td.action-cell .action-links a,
-td.action-cell .action-links button {
-    white-space: nowrap !important;
-    overflow: visible !important;
-    word-break: normal !important;
-}
+    .table-wrap { background:white; border-radius:12px; box-shadow:0 3px 16px rgba(0,0,0,.08); overflow:auto; }
+    table { width:100%; border-collapse:collapse; min-width:1050px; }
+    th, td { padding:13px 12px; border-bottom:1px solid #e5e7eb; text-align:left; vertical-align:middle; }
+    th { background:#b30f2d; color:white; white-space:nowrap; }
+    tr:hover td { background:#fafafa; }
+    a.case-link { font-weight:700; color:#234a91; }
+    .muted { color:#6b7280; }
+    .overdue { color:#b91c1c; font-weight:700; }
+    .today { color:#15803d; font-weight:700; }
+    .upcoming { color:#2454a6; font-weight:700; }
+    .row-actions a { margin-right:6px; }
+    .row-actions form { display:inline; }
+    .small-btn { padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; background:white; cursor:pointer; }
+    .flash { padding:12px 14px; margin-bottom:12px; border-radius:8px; background:#ecfdf5; color:#166534; }
+    @media(max-width:700px){ .page{padding:12px;} .results{font-size:23px;} }
 </style>
 </head>
-
 <body>
-<div class="container">
-<div class="cases-page">
+<div class="page">
 
-<h1>{{ title }}</h1>
+    <div class="nav">
+        <a href="/">Dashboard</a> |
+        <a href="/add-case">Add New Case</a> |
+        <a href="/export-excel">Export to Excel</a> |
+        <a href="/import-excel">Import from Excel</a> |
+        <a href="/analytics">Analytics</a>
+    </div>
 
-<div class="top-links">
-    <a href="/">Dashboard</a> |
-    <a href="/add-case">Add New Case</a> |
-    <a href="/analytics">📊 Analytics</a> |
-    <a href="/export-excel">Export to Excel</a>
-</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
-<form class="search-card" method="GET" action="/cases">
+    <form class="search-card" action="/cases" method="GET">
+        <div class="search-row">
+            <div class="search-main">
+                <input type="text" name="search" value="{{ search|default('') }}"
+                       placeholder="Search case number, party, CRN or advocate...">
+            </div>
 
-    <div class="compact-row">
-        <div class="compact-search">
-            <input
-                type="text"
-                name="search"
-                value="{{ search }}"
-                placeholder="Search Case No, CNR, Party, Advocate or Place...">
+            <select name="court_no" style="width:150px">
+                <option value="">All Courts</option>
+                <option value="1" {% if court_no == "1" %}selected{% endif %}>Court 1</option>
+                <option value="2" {% if court_no == "2" %}selected{% endif %}>Court 2</option>
+                <option value="3" {% if court_no == "3" %}selected{% endif %}>Court 3</option>
+            </select>
+
+            <select name="hearing_status" style="width:180px">
+                <option value="">All Cases</option>
+                <option value="past" {% if hearing_status == "past" %}selected{% endif %}>Past / Overdue</option>
+                <option value="today" {% if hearing_status == "today" %}selected{% endif %}>Today</option>
+                <option value="tomorrow" {% if hearing_status == "tomorrow" %}selected{% endif %}>Tomorrow</option>
+                <option value="upcoming" {% if hearing_status == "upcoming" %}selected{% endif %}>Upcoming</option>
+                <option value="undated" {% if hearing_status == "undated" %}selected{% endif %}>Undated</option>
+            </select>
+
+            <button class="btn primary" type="submit">Search</button>
+            <a class="btn secondary" href="/cases">Clear</a>
         </div>
 
-        <button type="button" class="filter-toggle" id="filterToggle">
-            ⚙ Filters ▼
+        <button class="toggle" type="button" onclick="document.getElementById('moreFilters').classList.toggle('show')">
+            ▼ More filters / Date range
         </button>
 
-        <button type="submit" class="search-btn">Search</button>
-        <a href="/cases?highlighted=1" class="highlight-filter {% if highlighted_only == '1' %}active{% endif %}">⭐ Highlighted Cases Only</a>
-        <a href="/cases" class="clear-btn">Clear</a>
+        <div id="moreFilters" {% if case_stage or date_from or date_to or case_disposed %}class="show"{% endif %}>
+            <select name="case_stage">
+                <option value="">All Stages</option>
+                {% set stages = ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
+                {% for stage in stages %}
+                <option value="{{ stage }}" {% if case_stage == stage %}selected{% endif %}>{{ stage }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="case_disposed">
+                <option value="">All Status</option>
+                <option value="No" {% if case_disposed == "No" %}selected{% endif %}>Active</option>
+                <option value="Yes" {% if case_disposed == "Yes" %}selected{% endif %}>Disposed</option>
+            </select>
+
+            <input type="date" name="date_from" value="{{ date_from|default('') }}" title="Hearing Date From">
+            <input type="date" name="date_to" value="{{ date_to|default('') }}" title="Hearing Date To">
+        </div>
+    </form>
+
+    <h2 class="results">Total Results: {{ cases|length }}</h2>
+
+    <div id="bulkbar" class="bulkbar">
+        <span class="selected-count"><span id="selectedCount">0</span> selected</span>
+        <button type="button" class="btn primary" onclick="bulkAction('date')">📅 Change Next Hearing Date</button>
+        <button type="button" class="btn warning" onclick="bulkAction('stage')">⚖️ Change Case Stage</button>
+        <button type="button" class="btn success" onclick="bulkAction('dispose')">✅ Dispose Selected</button>
+        <button type="button" class="btn danger" onclick="bulkAction('delete')">🗑️ Delete Selected</button>
     </div>
 
-    <div class="filters-panel" id="filtersPanel">
-
-        <div class="filter-grid">
-
-            <div class="filter-field">
-                <label>Court</label>
-                <select name="court_no">
-                    <option value="">All Courts</option>
-                    {% for n in [1,2,3] %}
-                    <option value="{{ n }}" {% if court_no == n|string %}selected{% endif %}>
-                        Court {{ n }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="filter-field">
-                <label>Case Stage</label>
-                <select name="case_stage">
-                    <option value="">All Stages</option>
-                    {% for s in stage_options %}
-                    <option value="{{ s }}" {% if case_stage == s %}selected{% endif %}>{{ s }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="filter-field">
-                <label>Hearing Status</label>
-                <select name="hearing_status">
-                    <option value="">All</option>
-                    <option value="past" {% if hearing_status == "past" %}selected{% endif %}>Past / Overdue</option>
-                    <option value="today" {% if hearing_status == "today" %}selected{% endif %}>Today</option>
-                    <option value="tomorrow" {% if hearing_status == "tomorrow" %}selected{% endif %}>Tomorrow</option>
-                    <option value="upcoming" {% if hearing_status == "upcoming" %}selected{% endif %}>Upcoming</option>
-                    <option value="undated" {% if hearing_status == "undated" %}selected{% endif %}>Undated</option>
-                </select>
-            </div>
-
-            <div class="filter-field">
-                <label>Hearing Date From</label>
-                <input type="date" name="date_from" value="{{ date_from }}">
-            </div>
-
-            <div class="filter-field">
-                <label>Hearing Date To</label>
-                <input type="date" name="date_to" value="{{ date_to }}">
-            </div>
-
-        </div>
-    </div>
-</form>
-
-<h2>Total Results: {{ cases|length }}</h2>
-
-<div id="bulkbar" class="bulkbar">
-    <b id="selcount">0</b> selected:
-    <button type="button" onclick="openModal('date')">📅 Change Next Hearing Date</button>
-    <button type="button" onclick="openModal('stage')">⚖️ Change Case Stage</button>
-    <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
-    <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
-</div>
-
-<div class="table-wrap">
-<table>
-<colgroup>
-    <col class="col-check"><col class="col-id"><col class="col-case"><col class="col-court">
-    <col class="col-parties"><col class="col-stage"><col class="col-date"><col class="col-left"><col class="col-action">
-</colgroup>
-<thead>
-<tr>
-    <th><input type="checkbox" id="all"></th>
-    <th>ID</th>
-    <th>
-        <span class="header-label">Case Number</span>
-        <select class="header-filter" id="caseNoFilter" aria-label="Filter Case Number">
-            <option value="">All</option>
-            {% for case in cases %}<option value="{{ case.case_no }}">{{ case.case_no }}</option>{% endfor %}
-        </select>
-    </th>
-    <th>
-        <span class="header-label">Court</span>
-        <select class="header-filter" id="courtFilter" aria-label="Filter Court">
-            <option value="">All</option>
-            <option value="Court 1">Court 1</option><option value="Court 2">Court 2</option><option value="Court 3">Court 3</option>
-        </select>
-    </th>
-    <th>
-        <span class="header-label">Name of Parties</span>
-        <select class="header-filter" id="partyFilter" aria-label="Filter Party">
-            <option value="">All</option>
-            {% for case in cases %}<option value="{{ case.parties|format_vs }}">{{ case.parties|format_vs }}</option>{% endfor %}
-        </select>
-    </th>
-    <th>
-        <span class="header-label">Case Stage</span>
-        <select class="header-filter" id="stageFilter" aria-label="Filter Case Stage">
-            <option value="">All</option>
-            {% for s in stage_options %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
-        </select>
-    </th>
-    <th class="next-date-head">
-        <span class="header-label">Next Hearing<br>Date</span>
-        <select class="header-filter" id="nextDateFilter">
-            <option value="">All</option>
-            <option value="today">Today</option>
-            <option value="tomorrow">Tomorrow</option>
-            <option value="next7">Next 7 Days</option>
-            <option value="future">Future Dates</option>
-            <option value="past">Past / Overdue</option>
-            <option value="undated">Undated</option>
-            <option value="disposed">Disposed Cases</option>
-        </select>
-    </th>
-    <th class="time-left-head">
-        <span class="header-label">Time<br>Left</span>
-        <select class="header-filter" id="timeLeftFilter">
-            <option value="">All</option>
-            <option value="today">Today</option>
-            <option value="tomorrow">Tomorrow</option>
-            <option value="next7">Next 7 Days</option>
-            <option value="next30">Next 30 Days</option>
-            <option value="future">More Than 30 Days</option>
-            <option value="overdue">Overdue</option>
-            <option value="undated">Undated</option>
-        </select>
-    </th>
-    <th>Action</th>
-</tr>
-</thead>
-<tbody>
-{% for case in cases %}
-<tr class="case-row {% if case.highlighted %}highlighted-case{% endif %}"
-    data-case-no="{{ case.case_no }}"
-    data-court="Court {{ case.court_no }}"
-    data-party="{{ case.parties }}"
-    data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
-    data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
-    data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
-    <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
-    <td>{{ case.id }}</td>
-    <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
-    <td>Court {{ case.court_no }}</td>
-    <td>{{ case.parties|format_vs }}</td>
-    <td>
-        {% if case.case_stage == "Other" and case.case_stage_other %}
-            {{ case.case_stage_other }}
-        {% else %}
-            {{ case.case_stage }}
-        {% endif %}
-    </td>
-    <td>
-        {% if case.next_hearing_date %}
-            {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
-            <small class="weekday {% if case.next_hearing_date.strftime('%A') in ['Sunday', 'Monday'] %}weekday-dark{% endif %}">{{ case.next_hearing_date.strftime("%A") }}</small>
-        {% else %}
-            Not Scheduled
-        {% endif %}
-    </td>
-    <td>
-        {% if case.next_hearing_date %}
-            {% set d = (case.next_hearing_date - today).days %}
-            {% if d < 0 %}
-                {{ d|abs }} days overdue
-            {% elif d == 0 %}
-                TODAY
-            {% elif d == 1 %}
-                Tomorrow
-            {% else %}
-                {{ d }} days left
-            {% endif %}
-        {% else %}
-            Undated
-        {% endif %}
-    </td>
-    <td class="action-cell">
-        <div class="action-links">
-            <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
-                <button type="submit">{% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button>
-            </form>
-            <a href="/case/{{ case.id }}">Open</a>
-            <span>|</span>
-            <a href="/edit-case/{{ case.id }}">Edit</a>
-            <span>|</span>
-            <form action="/delete-case/{{ case.id }}" method="POST">
-                <button type="submit"
-                        onclick="return confirm('Delete this case?')">Delete</button>
-            </form>
-        </div>
-    </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-
-<div id="modal" class="modal">
-<div class="box">
-<form id="modalForm" method="POST">
-
-    <h3 id="mtitle"></h3>
-
-    <input id="bulkdate" type="date" name="next_hearing_date" style="display:none">
-
-    <select id="bulkstage" name="case_stage" style="display:none">
-        <option value="">Select Stage</option>
-        {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
-        <option value="{{ s }}">{{ s }}</option>
+    <div class="table-wrap">
+    {% if cases %}
+    <table>
+        <thead>
+        <tr>
+            <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+            <th>ID</th>
+            <th>Case Number</th>
+            <th>Court</th>
+            <th>Name of Parties</th>
+            <th>Case Stage</th>
+            <th>Next Hearing Date</th>
+            <th>Time Left</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for case in cases %}
+        <tr>
+            <td><input class="case-check" type="checkbox" value="{{ case.id }}" onchange="updateBulkBar()"></td>
+            <td>{{ case.id }}</td>
+            <td><a class="case-link" href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
+            <td>Court {{ case.court_no }}</td>
+            <td>{{ case.parties }}</td>
+            <td>
+                {{ case.case_stage }}
+                {% if case.case_stage == "Other" and case.case_stage_other %}
+                    - {{ case.case_stage_other }}
+                {% endif %}
+            </td>
+            <td>
+                {% if case.next_hearing_date %}
+                    {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
+                    <div class="muted" style="font-size:12px">{{ case.next_hearing_date.strftime("%A") }}</div>
+                {% else %}
+                    <span class="muted">Not Scheduled</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if case.case_disposed == "Yes" %}
+                    <span class="muted">Disposed{% if case.decision_date %}<br>{{ case.decision_date.strftime("%d-%m-%Y") }}{% endif %}</span>
+                {% elif case.next_hearing_date %}
+                    {% set days_left = (case.next_hearing_date - today).days %}
+                    {% if days_left < 0 %}<span class="overdue">{{ days_left|abs }} days overdue</span>
+                    {% elif days_left == 0 %}<span class="today">🔴 TODAY</span>
+                    {% elif days_left == 1 %}<span class="upcoming">Tomorrow</span>
+                    {% else %}<span class="upcoming">{{ days_left }} days left</span>{% endif %}
+                {% else %}
+                    <span class="muted">Undated</span>
+                {% endif %}
+            </td>
+            <td class="row-actions">
+                <a href="/case/{{ case.id }}">Open</a> |
+                <a href="/edit-case/{{ case.id }}">Edit</a> |
+                <form action="/delete-case/{{ case.id }}" method="POST">
+                    <button class="small-btn" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
+                </form>
+            </td>
+        </tr>
         {% endfor %}
-    </select>
-
-    <input id="decision" type="date" name="decision_date" style="display:none">
-
-    <div>
-        <button type="submit">Confirm</button>
-        <button type="button" onclick="closeModal()">Cancel</button>
+        </tbody>
+    </table>
+    {% else %}
+        <div style="padding:25px"><h3>No cases found.</h3></div>
+    {% endif %}
     </div>
-
-</form>
-</div>
-</div>
-
-</div>
 </div>
 
 <script>
-const filterToggle = document.getElementById('filterToggle');
-const filtersPanel = document.getElementById('filtersPanel');
-
-filterToggle.addEventListener('click', () => {
-    filtersPanel.classList.toggle('open');
-    filterToggle.innerHTML = filtersPanel.classList.contains('open')
-        ? '⚙ Filters ▲'
-        : '⚙ Filters ▼';
-});
-
-const hasActiveFilter = {{ 'true' if court_no or case_stage or hearing_status or highlighted_only or date_from or date_to else 'false' }};
-if (hasActiveFilter) {
-    filtersPanel.classList.add('open');
-    filterToggle.innerHTML = '⚙ Filters ▲';
+function selectedIds() {
+    return Array.from(document.querySelectorAll('.case-check:checked')).map(x => x.value);
 }
-
-const boxes = () => document.querySelectorAll('.casebox');
-
-function selected() {
-    return [...boxes()].filter(x => x.checked).map(x => x.value);
+function toggleAll(master) {
+    document.querySelectorAll('.case-check').forEach(x => x.checked = master.checked);
+    updateBulkBar();
 }
-
-function refresh() {
-    const n = selected().length;
-    document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
-    document.getElementById('selcount').textContent = n;
+function updateBulkBar() {
+    const ids = selectedIds();
+    document.getElementById('selectedCount').textContent = ids.length;
+    document.getElementById('bulkbar').classList.toggle('show', ids.length > 0);
+    const all = document.querySelectorAll('.case-check').length;
+    document.getElementById('selectAll').checked = all > 0 && ids.length === all;
 }
-
-boxes().forEach(x => x.addEventListener('change', refresh));
-
-document.getElementById('all').addEventListener('change', e => {
-    boxes().forEach(x => x.checked = e.target.checked);
-    refresh();
-});
-
-function openModal(type) {
-    const ids = selected();
+function postBulk(url, fields) {
+    const ids = selectedIds();
     if (!ids.length) return;
-
-    const form = document.getElementById('modalForm');
-
-    document.getElementById('bulkdate').style.display = type === 'date' ? 'block' : 'none';
-    document.getElementById('bulkstage').style.display = type === 'stage' ? 'block' : 'none';
-    document.getElementById('decision').style.display = type === 'dispose' ? 'block' : 'none';
-
-    document.getElementById('mtitle').textContent =
-        type === 'date' ? 'Change Next Hearing Date' :
-        type === 'stage' ? 'Change Case Stage' :
-        'Dispose Selected — Select Decision Date';
-
-    form.action = '/bulk/' + type + '?ids=' + ids.join(',');
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-}
-
-function bulkDelete() {
-    const ids = selected();
-    if (ids.length && confirm('Delete selected cases?')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/bulk/delete?ids=' + ids.join(',');
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-// Simple dropdown filters in the red table header
-const headerFilters = [
-    document.getElementById('caseNoFilter'),
-    document.getElementById('courtFilter'),
-    document.getElementById('partyFilter'),
-    document.getElementById('stageFilter')
-];
-
-function applyHeaderFilters() {
-    const caseNo = document.getElementById('caseNoFilter').value;
-    const court = document.getElementById('courtFilter').value;
-    const party = document.getElementById('partyFilter').value;
-    const stage = document.getElementById('stageFilter').value;
-
-    document.querySelectorAll('tbody .case-row').forEach(row => {
-        const show =
-            (!caseNo || row.dataset.caseNo === caseNo) &&
-            (!court || row.dataset.court === court) &&
-            (!party || row.dataset.party === party) &&
-            (!stage || row.dataset.stage === stage);
-        row.style.display = show ? '' : 'none';
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url + '?ids=' + encodeURIComponent(ids.join(','));
+    Object.entries(fields || {}).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden'; input.name = name; input.value = value;
+        form.appendChild(input);
     });
+    document.body.appendChild(form);
+    form.submit();
 }
-headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFilters));
+function bulkAction(type) {
+    if (!selectedIds().length) return;
 
+    if (type === 'date') {
+        const value = prompt('Enter new next hearing date in YYYY-MM-DD format:');
+        if (value) postBulk('/bulk/date', {next_hearing_date:value});
+    }
+    if (type === 'stage') {
+        const value = prompt('Enter new case stage (e.g. Notice, Hearing, Arguments, Judgment, Other):');
+        if (value) postBulk('/bulk/stage', {case_stage:value});
+    }
+    if (type === 'dispose') {
+        const value = prompt('Enter Decision Date in YYYY-MM-DD format:');
+        if (value) postBulk('/bulk/dispose', {decision_date:value});
+    }
+    if (type === 'delete') {
+        if (confirm('Delete all selected cases? This cannot be undone.')) {
+            postBulk('/bulk/delete', {});
+        }
+    }
+}
 </script>
-
-
-<script>
-(function () {
-    const nextDateFilter = document.getElementById('nextDateFilter');
-    const timeLeftFilter = document.getElementById('timeLeftFilter');
-    if (!nextDateFilter || !timeLeftFilter) return;
-
-    function startOfDay(d) {
-        d = new Date(d);
-        d.setHours(0,0,0,0);
-        return d;
-    }
-
-    function matches(row, value) {
-        if (!value) return true;
-        const disposed = row.dataset.disposed === 'true';
-        const raw = row.dataset.nextDate;
-
-        if (value === 'disposed') return disposed;
-        if (value === 'undated') return !raw && !disposed;
-        if (!raw) return false;
-
-        const today = startOfDay(new Date());
-        const hearing = startOfDay(raw + 'T00:00:00');
-        const diff = Math.round((hearing - today) / 86400000);
-
-        if (value === 'today') return diff === 0;
-        if (value === 'tomorrow') return diff === 1;
-        if (value === 'next7') return diff >= 0 && diff <= 7;
-        if (value === 'next30') return diff >= 0 && diff <= 30;
-        if (value === 'future') return diff > 30;
-        if (value === 'past' || value === 'overdue') return diff < 0;
-        return true;
-    }
-
-    function applyNewFilters() {
-        const baseFilters = [...document.querySelectorAll('.header-filter')]
-            .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
-
-        document.querySelectorAll('tbody .case-row').forEach(row => {
-            const baseHidden = baseFilters.some(f => {
-                if (!f.value) return false;
-                if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
-                if (f.id === 'courtFilter') return row.dataset.court !== f.value;
-                if (f.id === 'partyFilter') return row.dataset.party !== f.value;
-                if (f.id === 'stageFilter') return row.dataset.stage !== f.value;
-                return false;
-            });
-
-            const show = !baseHidden &&
-                         matches(row, nextDateFilter.value) &&
-                         matches(row, timeLeftFilter.value);
-
-            row.style.display = show ? '' : 'none';
-        });
-    }
-
-    nextDateFilter.addEventListener('change', applyNewFilters);
-    timeLeftFilter.addEventListener('change', applyNewFilters);
-})();
-</script>
-
 </body>
 </html>
