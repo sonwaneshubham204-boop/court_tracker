@@ -19,7 +19,7 @@ body{margin:0;min-height:100vh;font-family:"Segoe UI",Arial,sans-serif;color:var
 .stats-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:24px}
 .stat-card{display:block;min-width:0;padding:18px 20px;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:0 7px 18px rgba(15,23,42,.08);color:#111827!important;text-decoration:none}
 .stat-card:before{content:"";display:block;width:42px;height:4px;margin-bottom:13px;border-radius:99px;background:var(--blue)}
-.stat-card:nth-child(2):before{background:#7c3aed}.stat-card:nth-child(3):before{background:#0f766e}.stat-card:nth-child(4):before{background:#059669}.stat-card:nth-child(5):before{background:#ea580c}.stat-card:nth-child(6):before{background:#ca8a04}.stat-card:nth-child(7):before{background:#16a34a}.stat-card:nth-child(8):before{background:#dc2626}
+.stat-card:nth-child(2):before{background:#7c3aed}.stat-card:nth-child(3):before{background:#0f766e}.stat-card:nth-child(4):before{background:#059669}.stat-card:nth-child(5):before{background:#ea580c}.stat-card:nth-child(6):before{background:#ca8a04}.stat-card:nth-child(7):before{background:#16a34a}.stat-card:nth-child(8):before{background:#dc2626}.stat-card:nth-child(9):before{background:#2563eb}.stat-card:nth-child(10):before{background:#315989}.stat-card:nth-child(11):before{background:#198754}.stat-card:nth-child(12):before{background:#7c3aed}
 .stat-card h3{margin:0 0 10px;color:#111827!important;font-size:16px;font-weight:800}
 .number{font-size:34px;line-height:1;font-weight:800;color:var(--navy)}
 .section{padding:22px;margin-top:20px;border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:16px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.07)}
@@ -51,7 +51,7 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
         <a href="/today-cases">🧺 Today's Case Basket</a>
         <a href="/import-excel">📥 Import Excel</a>
         <a href="/export-excel">📤 Export Excel</a>
-        <a href="/enquiries" style="background:#198754;color:#fff!important;border-color:#198754">📋 Enquiries</a>
+        <a href="/enquiries">📋 Enquiries</a>
         <a href="/logout">🚪 Logout</a>
     </nav>
 </header>
@@ -104,10 +104,22 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
         <div class="number">{{ undated_cases }}</div>
     </a>
 
-    <!-- NEW: Disposed Cases -->
+    <!-- Disposed Cases -->
     <a href="/cases?case_disposed=Yes" class="stat-card">
         <h3>Disposed Cases</h3>
         <div class="number">{{ disposed_cases }}</div>
+    </a>
+
+    <!-- Today's Enquiries -->
+    <a href="/enquiries?schedule=today" class="stat-card">
+        <h3>Today's Enquiries</h3>
+        <div class="number">{{ todays_enquiries }}</div>
+    </a>
+
+    <!-- Next Enquiries -->
+    <a href="/enquiries?schedule=next" class="stat-card">
+        <h3>Next Enquiries</h3>
+        <div class="number">{{ next_enquiries }}</div>
     </a>
 
 </div>
