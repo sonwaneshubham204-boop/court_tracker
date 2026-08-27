@@ -2535,6 +2535,10 @@ def bulk_delete():
 
 ENQUIRY_STATUSES = ["Pending for Report", "Report Drafting", "Report Given"]
 
+def _ensure_enquiry_tables():
+    """Create Enquiry tables if this deployment database does not have them yet."""
+    db.create_all(tables=[Enquiry.__table__, EnquirySitting.__table__])
+
 def _parse_date(value):
     return datetime.strptime(value, "%Y-%m-%d").date() if value else None
 
@@ -2544,6 +2548,7 @@ def _parse_time(value):
 @app.route("/enquiries")
 @login_required
 def enquiry_list():
+    _ensure_enquiry_tables()
     search = request.args.get("search", "").strip()
     status = request.args.get("status", "").strip()
     highlighted_only = request.args.get("highlighted", "") == "1"
@@ -2561,6 +2566,7 @@ def enquiry_list():
 @app.route("/enquiry/add", methods=["GET", "POST"])
 @login_required
 def add_enquiry():
+    _ensure_enquiry_tables()
     if request.method == "POST":
         name = request.form.get("organisation_name", "").strip()
         start = _parse_date(request.form.get("start_date", ""))
@@ -2586,6 +2592,7 @@ def add_enquiry():
 @app.route("/enquiry/<int:id>")
 @login_required
 def enquiry_detail(id):
+    _ensure_enquiry_tables()
     enquiry = Enquiry.query.get_or_404(id)
     sittings = EnquirySitting.query.filter_by(enquiry_id=id).order_by(EnquirySitting.sitting_date.desc(), EnquirySitting.id.desc()).all()
     return render_template("enquiry_detail.html", enquiry=enquiry, sittings=sittings, statuses=ENQUIRY_STATUSES, today=date.today())
@@ -2593,6 +2600,7 @@ def enquiry_detail(id):
 @app.route("/enquiry/<int:id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_enquiry(id):
+    _ensure_enquiry_tables()
     enquiry = Enquiry.query.get_or_404(id)
     if request.method == "POST":
         name = request.form.get("organisation_name", "").strip()
@@ -2615,6 +2623,7 @@ def edit_enquiry(id):
 @app.route("/enquiry/<int:id>/add-sitting", methods=["POST"])
 @login_required
 def add_enquiry_sitting(id):
+    _ensure_enquiry_tables()
     enquiry = Enquiry.query.get_or_404(id)
     sitting_date = _parse_date(request.form.get("sitting_date", ""))
     sitting_time = _parse_time(request.form.get("sitting_time", ""))
@@ -2633,6 +2642,7 @@ def add_enquiry_sitting(id):
 @app.route("/enquiry/<int:id>/toggle-highlight", methods=["POST"])
 @login_required
 def toggle_enquiry_highlight(id):
+    _ensure_enquiry_tables()
     enquiry=Enquiry.query.get_or_404(id)
     enquiry.highlighted=not bool(enquiry.highlighted)
     db.session.commit()
@@ -2641,6 +2651,7 @@ def toggle_enquiry_highlight(id):
 @app.route("/enquiry/<int:id>/delete", methods=["POST"])
 @login_required
 def delete_enquiry(id):
+    _ensure_enquiry_tables()
     enquiry=Enquiry.query.get_or_404(id)
     db.session.delete(enquiry); db.session.commit()
     flash("Enquiry deleted.", "success")
