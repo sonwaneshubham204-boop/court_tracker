@@ -262,6 +262,36 @@ class Case(db.Model):
 
 
 # =========================================================
+# INDEPENDENT ENQUIRY MODULE
+# =========================================================
+
+class Enquiry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    organisation_name = db.Column(db.String(250), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=True)
+    next_enquiry_date = db.Column(db.Date, nullable=True)
+    next_enquiry_time = db.Column(db.Time, nullable=True)
+    status = db.Column(db.String(50), nullable=False, default="Pending for Report")
+    highlighted = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    sittings = db.relationship("EnquirySitting", backref="enquiry", lazy=True, cascade="all, delete-orphan")
+
+    @property
+    def total_turns(self):
+        return len(self.sittings)
+
+
+class EnquirySitting(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    enquiry_id = db.Column(db.Integer, db.ForeignKey("enquiry.id"), nullable=False)
+    sitting_date = db.Column(db.Date, nullable=False)
+    sitting_time = db.Column(db.Time, nullable=True)
+    remark = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+
+# =========================================================
 # HEARING MODEL
 # =========================================================
 
@@ -2498,6 +2528,123 @@ def bulk_delete():
     for c in _bulk_cases(): db.session.delete(c)
     db.session.commit(); flash("Selected cases deleted.","success")
     return redirect(request.referrer or url_for("case_list"))
+
+# =========================================================
+# ENQUIRIES - INDEPENDENT FROM CASES
+# =========================================================
+
+ENQUIRY_STATUSES = ["Pending for Report", "Report Drafting", "Report Given"]
+
+def _parse_date(value):
+    return datetime.strptime(value, "%Y-%m-%d").date() if value else None
+
+def _parse_time(value):
+    return datetime.strptime(value, "%H:%M").time() if value else None
+
+@app.route("/enquiries")
+@login_required
+def enquiry_list():
+    search = request.args.get("search", "").strip()
+    status = request.args.get("status", "").strip()
+    highlighted_only = request.args.get("highlighted", "") == "1"
+    query = Enquiry.query
+    if search:
+        query = query.filter(Enquiry.organisation_name.ilike(f"%{search}%"))
+    if status:
+        query = query.filter(Enquiry.status == status)
+    if highlighted_only:
+        query = query.filter(Enquiry.highlighted.is_(True))
+    enquiries = query.order_by(Enquiry.next_enquiry_date.is_(None), Enquiry.next_enquiry_date, Enquiry.id.desc()).all()
+    return render_template("enquiries.html", enquiries=enquiries, statuses=ENQUIRY_STATUSES,
+                           selected_status=status, search=search, highlighted_only=highlighted_only, today=date.today())
+
+@app.route("/enquiry/add", methods=["GET", "POST"])
+@login_required
+def add_enquiry():
+    if request.method == "POST":
+        name = request.form.get("organisation_name", "").strip()
+        start = _parse_date(request.form.get("start_date", ""))
+        next_date = _parse_date(request.form.get("next_enquiry_date", ""))
+        next_time = _parse_time(request.form.get("next_enquiry_time", ""))
+        status = request.form.get("status", "Pending for Report")
+        if not name or not start:
+            flash("Organisation name and start date are required.", "warning")
+            return redirect(url_for("add_enquiry"))
+        if status not in ENQUIRY_STATUSES:
+            status = "Pending for Report"
+        enquiry = Enquiry(organisation_name=name, start_date=start, next_enquiry_date=next_date,
+                          next_enquiry_time=next_time, status=status)
+        db.session.add(enquiry)
+        db.session.flush()
+        # The opening date is counted as the first sitting/turn.
+        db.session.add(EnquirySitting(enquiry_id=enquiry.id, sitting_date=start, sitting_time=next_time, remark="Enquiry started"))
+        db.session.commit()
+        flash("Enquiry added successfully.", "success")
+        return redirect(url_for("enquiry_list"))
+    return render_template("add_enquiry.html", statuses=ENQUIRY_STATUSES, today=date.today())
+
+@app.route("/enquiry/<int:id>")
+@login_required
+def enquiry_detail(id):
+    enquiry = Enquiry.query.get_or_404(id)
+    sittings = EnquirySitting.query.filter_by(enquiry_id=id).order_by(EnquirySitting.sitting_date.desc(), EnquirySitting.id.desc()).all()
+    return render_template("enquiry_detail.html", enquiry=enquiry, sittings=sittings, statuses=ENQUIRY_STATUSES, today=date.today())
+
+@app.route("/enquiry/<int:id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_enquiry(id):
+    enquiry = Enquiry.query.get_or_404(id)
+    if request.method == "POST":
+        name = request.form.get("organisation_name", "").strip()
+        start = _parse_date(request.form.get("start_date", ""))
+        end = _parse_date(request.form.get("end_date", ""))
+        next_date = _parse_date(request.form.get("next_enquiry_date", ""))
+        next_time = _parse_time(request.form.get("next_enquiry_time", ""))
+        status = request.form.get("status", enquiry.status)
+        if not name or not start:
+            flash("Organisation name and start date are required.", "warning")
+            return redirect(url_for("edit_enquiry", id=id))
+        enquiry.organisation_name=name; enquiry.start_date=start; enquiry.end_date=end
+        enquiry.next_enquiry_date=next_date; enquiry.next_enquiry_time=next_time
+        enquiry.status=status if status in ENQUIRY_STATUSES else enquiry.status
+        db.session.commit()
+        flash("Enquiry updated successfully.", "success")
+        return redirect(url_for("enquiry_detail", id=id))
+    return render_template("add_enquiry.html", enquiry=enquiry, statuses=ENQUIRY_STATUSES, today=date.today(), edit_mode=True)
+
+@app.route("/enquiry/<int:id>/add-sitting", methods=["POST"])
+@login_required
+def add_enquiry_sitting(id):
+    enquiry = Enquiry.query.get_or_404(id)
+    sitting_date = _parse_date(request.form.get("sitting_date", ""))
+    sitting_time = _parse_time(request.form.get("sitting_time", ""))
+    remark = request.form.get("remark", "").strip()
+    next_date = _parse_date(request.form.get("next_enquiry_date", ""))
+    next_time = _parse_time(request.form.get("next_enquiry_time", ""))
+    if not sitting_date:
+        flash("Sitting date is required.", "warning")
+        return redirect(url_for("enquiry_detail", id=id))
+    db.session.add(EnquirySitting(enquiry_id=id, sitting_date=sitting_date, sitting_time=sitting_time, remark=remark))
+    enquiry.next_enquiry_date=next_date; enquiry.next_enquiry_time=next_time
+    db.session.commit()
+    flash("Enquiry sitting added. Total turns updated automatically.", "success")
+    return redirect(url_for("enquiry_detail", id=id))
+
+@app.route("/enquiry/<int:id>/toggle-highlight", methods=["POST"])
+@login_required
+def toggle_enquiry_highlight(id):
+    enquiry=Enquiry.query.get_or_404(id)
+    enquiry.highlighted=not bool(enquiry.highlighted)
+    db.session.commit()
+    return redirect(request.referrer or url_for("enquiry_list"))
+
+@app.route("/enquiry/<int:id>/delete", methods=["POST"])
+@login_required
+def delete_enquiry(id):
+    enquiry=Enquiry.query.get_or_404(id)
+    db.session.delete(enquiry); db.session.commit()
+    flash("Enquiry deleted.", "success")
+    return redirect(url_for("enquiry_list"))
 
 @app.route("/analytics")
 @login_required
