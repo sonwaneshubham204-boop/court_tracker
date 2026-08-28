@@ -465,34 +465,6 @@ td.action-cell .action-links button {
     padding: 0 !important;
     white-space: nowrap !important;
 }
-/* MOBILE: keep search bar + clear button visible and increase font */
-@media (max-width: 768px) {
-
-    .search-card {
-        padding: 14px;
-    }
-
-    .compact-row {
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .compact-row input {
-        width: 100% !important;
-        display: block !important;
-        font-size: 16px !important;
-    }
-
-    .compact-row button,
-    .compact-row a {
-        display: inline-block !important;
-        font-size: 16px !important;
-    }
-
-    body {
-        font-size: 17px;
-    }
-}
 
 </style>
 
@@ -957,6 +929,73 @@ td.action-cell .action-links {
     margin-left:0!important;
     margin-right:0!important;
   }
+}
+</style>
+
+
+<style id="locked-mobile-search-clear-only">
+/* LOCKED: ONLY mobile Search bar + Clear visibility. Nothing else. */
+@media (max-width: 767.98px) {
+
+    .search-card .compact-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 8px !important;
+        overflow: visible !important;
+    }
+
+    /* Search input gets its own full-width row */
+    .search-card .compact-row .compact-search {
+        display: flex !important;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        order: 1 !important;
+    }
+
+    .search-card .compact-row .compact-search input {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        box-sizing: border-box !important;
+    }
+
+    .search-card .compact-row .filter-toggle {
+        order: 2 !important;
+    }
+
+    .search-card .compact-row .search-btn {
+        order: 3 !important;
+    }
+
+    /* Keep the long Highlight button on its own row */
+    .search-card .compact-row .highlight-filter {
+        order: 4 !important;
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Clear must always have a visible place */
+    .search-card .compact-row .clear-btn {
+        order: 5 !important;
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 78px !important;
+        max-width: 100% !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        box-sizing: border-box !important;
+    }
 }
 </style>
 
