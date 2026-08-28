@@ -253,3 +253,13 @@ tbody tr:hover td{background:#fff8df}
     h2{margin-top:22px}
     .card{padding:14px}
 }
+
+
+/* ===== PHONE RESPONSIVE SAFETY FIX ONLY =====
+   Does not affect desktop layout or application logic. */
+@media (max-width: 900px){
+    html,body{max-width:100%;overflow-x:hidden}
+    body{min-width:0}
+    img{max-width:100%;height:auto}
+    .table-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
