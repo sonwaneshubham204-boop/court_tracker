@@ -465,91 +465,6 @@ td.action-cell .action-links button {
     white-space: nowrap !important;
 }
 
-
-
-/* ===== MOBILE FIX ONLY: CASES PAGE =====
-   Desktop layout remains unchanged. On phones, the existing table keeps
-   readable column widths and can be swiped horizontally instead of shrinking. */
-@media (max-width: 900px) {
-    .cases-page {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 10px !important;
-    }
-
-    .top-links {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 8px !important;
-    }
-
-    .top-links a {
-        margin-right: 0 !important;
-    }
-
-    .search-card {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-    }
-
-    .compact-row {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        width: 100% !important;
-    }
-
-    .compact-search {
-        flex: 1 1 100% !important;
-        min-width: 0 !important;
-    }
-
-    .filter-toggle,
-    .search-btn,
-    .clear-btn {
-        min-height: 46px !important;
-    }
-
-    .table-wrap {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
-
-    .table-wrap table,
-    table {
-        width: 1080px !important;
-        min-width: 1080px !important;
-        max-width: none !important;
-        table-layout: auto !important;
-    }
-
-    .table-wrap th,
-    .table-wrap td {
-        white-space: normal !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-    }
-
-    .action-links {
-        min-width: 115px !important;
-    }
-}
-
-@media (max-width: 600px) {
-    .filter-toggle,
-    .search-btn,
-    .clear-btn {
-        flex: 1 1 auto !important;
-    }
-
-    .table-wrap {
-        border-radius: 8px !important;
-    }
-}
-
 </style>
 
 <style>
@@ -734,6 +649,96 @@ td.action-cell .action-links {
     font-size: 16px !important;
 }
 </style>
+
+<style>
+/* ===== FINAL MOBILE-ONLY FIX =====
+   Existing desktop layout and functionality remain unchanged. */
+@media (max-width: 900px) {
+    html, body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    .cases-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 14px !important;
+    }
+
+    /* Navigation can wrap naturally on a phone */
+    .top-links {
+        flex-wrap: wrap !important;
+    }
+
+    /* Search controls remain usable */
+    .search-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+    }
+
+    .search-card .compact-row {
+        flex-wrap: wrap !important;
+    }
+
+    .search-card .compact-search {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+
+    .filter-toggle,
+    .search-btn,
+    .clear-btn,
+    .highlight-filter {
+        flex: 0 0 auto !important;
+        min-width: auto !important;
+    }
+
+    /* IMPORTANT: do NOT squeeze the desktop table into phone width.
+       Keep readable columns and allow left-right swipe inside this box. */
+    .table-wrap {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+    }
+
+    .table-wrap table {
+        width: 1240px !important;
+        min-width: 1240px !important;
+        max-width: none !important;
+        table-layout: fixed !important;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        font-size: 16px !important;
+        padding: 9px 10px !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    .table-wrap th:nth-child(1), .table-wrap td:nth-child(1) { width: 50px !important; }
+    .table-wrap th:nth-child(2), .table-wrap td:nth-child(2) { width: 60px !important; }
+    .table-wrap th:nth-child(3), .table-wrap td:nth-child(3) { width: 170px !important; }
+    .table-wrap th:nth-child(4), .table-wrap td:nth-child(4) { width: 95px !important; }
+    .table-wrap th:nth-child(5), .table-wrap td:nth-child(5) { width: 300px !important; }
+    .table-wrap th:nth-child(6), .table-wrap td:nth-child(6) { width: 150px !important; }
+    .table-wrap th:nth-child(7), .table-wrap td:nth-child(7) { width: 150px !important; }
+    .table-wrap th:nth-child(8), .table-wrap td:nth-child(8) { width: 120px !important; }
+    .table-wrap th:nth-child(9), .table-wrap td:nth-child(9),
+    .table-wrap td.action-cell { width: 180px !important; min-width: 180px !important; }
+
+    .table-wrap td:nth-child(8) {
+        white-space: nowrap !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
