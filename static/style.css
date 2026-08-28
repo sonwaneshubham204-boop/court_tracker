@@ -23,13 +23,14 @@
 
 *{box-sizing:border-box}
 
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;font-size:106.25%}
 
 body{
     margin:0;
     padding:20px;
     min-height:100vh;
-    font-family:Arial,Helvetica,sans-serif;
+    font-family:Cambria,Georgia,serif !important;
+    font-size:1rem;
     background:var(--bg);
     color:var(--text);
     line-height:1.5;
@@ -63,6 +64,10 @@ input,select,textarea{
     background:#fff;
     border:1px solid var(--border);
     border-radius:7px;
+}
+
+button,input,select,textarea,table{
+    font-family:Cambria,Georgia,serif !important;
 }
 
 input:focus,select:focus,textarea:focus{
