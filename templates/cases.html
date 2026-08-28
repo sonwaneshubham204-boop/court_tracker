@@ -465,6 +465,34 @@ td.action-cell .action-links button {
     padding: 0 !important;
     white-space: nowrap !important;
 }
+/* MOBILE: keep search bar + clear button visible and increase font */
+@media (max-width: 768px) {
+
+    .search-card {
+        padding: 14px;
+    }
+
+    .compact-row {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .compact-row input {
+        width: 100% !important;
+        display: block !important;
+        font-size: 16px !important;
+    }
+
+    .compact-row button,
+    .compact-row a {
+        display: inline-block !important;
+        font-size: 16px !important;
+    }
+
+    body {
+        font-size: 17px;
+    }
+}
 
 </style>
 
