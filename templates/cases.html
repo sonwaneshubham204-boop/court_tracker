@@ -1196,6 +1196,10 @@ td.action-cell .action-links {
 
 
 <!-- PHONE-ONLY SMART CASE CARDS -->
+<div class="mobile-card-toolbar">
+    <label><input type="checkbox" id="mobileAll"> Select All Cases</label>
+    <span>Swipe-free mobile view</span>
+</div>
 <div class="mobile-cases">
 {% for case in cases %}
 <div class="mobile-case-card {% if case.highlighted %}highlighted-case{% endif %}"
@@ -1598,6 +1602,190 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
     nextDateFilter.addEventListener('change', applyNewFilters);
     timeLeftFilter.addEventListener('change', applyNewFilters);
 })();
+</script>
+
+
+<style id="final-mobile-operations-fix">
+/* ===== FINAL PHONE OVERRIDE — KEEP ALL DESKTOP FEATURES, CHANGE ONLY PRESENTATION ===== */
+@media (max-width:700px) {
+    /* The desktop table must be completely hidden on phones.
+       It still exists in the DOM so existing desktop functionality/JS remains intact. */
+    .table-wrap {
+        display:none !important;
+        visibility:hidden !important;
+    }
+
+    .mobile-card-toolbar {
+        display:flex !important;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px;
+        margin:0 0 8px !important;
+        padding:8px 10px;
+        background:#f8fafc;
+        border:1px solid #dbe3ea;
+        border-radius:9px;
+        font-size:13px !important;
+    }
+    .mobile-card-toolbar label {
+        font-weight:700;
+        white-space:nowrap;
+    }
+    .mobile-card-toolbar span {
+        color:#64748b;
+        font-size:12px;
+        text-align:right;
+    }
+
+    /* Clean card header: case number stays INSIDE the card. */
+    .mobile-case-card {
+        width:100% !important;
+        max-width:100% !important;
+        box-sizing:border-box !important;
+        overflow:hidden !important;
+    }
+    .mobile-card-top {
+        display:flex !important;
+        align-items:center !important;
+        gap:10px !important;
+        width:100% !important;
+        box-sizing:border-box !important;
+        margin-bottom:10px !important;
+    }
+    .mobile-case-check {
+        flex:0 0 auto !important;
+        margin:0 !important;
+    }
+    .mobile-case-number {
+        display:block !important;
+        flex:1 1 auto !important;
+        min-width:0 !important;
+        max-width:100% !important;
+        white-space:normal !important;
+        overflow-wrap:anywhere !important;
+        word-break:normal !important;
+        color:#1f4f86 !important;
+        font-size:18px !important;
+        font-weight:700 !important;
+        line-height:1.3 !important;
+    }
+
+    .mobile-id-court,
+    .mobile-party,
+    .mobile-details {
+        margin-left:0 !important;
+    }
+
+    .mobile-id-court {
+        display:flex !important;
+        flex-wrap:wrap !important;
+        gap:7px !important;
+        margin-bottom:10px !important;
+    }
+
+    .mobile-party {
+        width:100% !important;
+        box-sizing:border-box !important;
+        overflow-wrap:anywhere !important;
+        word-break:normal !important;
+    }
+
+    /* Every piece of desktop row information remains visible on the card. */
+    .mobile-details {
+        display:grid !important;
+        grid-template-columns:1fr 1fr !important;
+        gap:7px !important;
+        width:100% !important;
+    }
+    .mobile-detail,
+    .mobile-detail.full {
+        min-width:0 !important;
+        box-sizing:border-box !important;
+    }
+    .mobile-detail.full {
+        grid-column:1 / -1 !important;
+    }
+
+    /* Keep all per-case desktop operations visible. */
+    .mobile-actions {
+        display:grid !important;
+        grid-template-columns:1fr 1fr !important;
+        gap:7px !important;
+        width:100% !important;
+        box-sizing:border-box !important;
+    }
+    .mobile-actions .mobile-highlight {
+        grid-column:1 / -1 !important;
+    }
+    .mobile-actions form,
+    .mobile-actions a,
+    .mobile-actions button {
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        width:100% !important;
+        min-width:0 !important;
+        box-sizing:border-box !important;
+    }
+
+    /* Bulk operations from desktop remain available after selecting cases. */
+    #bulkbar.bulkbar {
+        width:100% !important;
+        box-sizing:border-box !important;
+        margin:8px 0 10px !important;
+        padding:10px !important;
+    }
+    #bulkbar.bulkbar button {
+        width:100% !important;
+        margin:5px 0 0 !important;
+        min-height:40px !important;
+        box-sizing:border-box !important;
+        white-space:normal !important;
+    }
+}
+
+@media (min-width:701px) {
+    .mobile-cases,
+    .mobile-card-toolbar {
+        display:none !important;
+    }
+}
+</style>
+
+
+<script id="final-mobile-checkbox-sync">
+document.addEventListener('DOMContentLoaded', function () {
+    var mobileAll = document.getElementById('mobileAll');
+
+    function allBoxesFor(id) {
+        return Array.from(document.querySelectorAll('.casebox')).filter(function (b) {
+            return String(b.value) === String(id);
+        });
+    }
+
+    document.querySelectorAll('.casebox').forEach(function (box) {
+        box.addEventListener('change', function () {
+            allBoxesFor(box.value).forEach(function (other) {
+                if (other !== box) other.checked = box.checked;
+            });
+            if (typeof refresh === 'function') refresh();
+        });
+    });
+
+    if (mobileAll) {
+        mobileAll.addEventListener('change', function () {
+            document.querySelectorAll('.mobile-case-check').forEach(function (box) {
+                box.checked = mobileAll.checked;
+                allBoxesFor(box.value).forEach(function (other) {
+                    other.checked = mobileAll.checked;
+                });
+            });
+            var desktopAll = document.getElementById('all');
+            if (desktopAll) desktopAll.checked = mobileAll.checked;
+            if (typeof refresh === 'function') refresh();
+        });
+    }
+});
 </script>
 
 </body>
