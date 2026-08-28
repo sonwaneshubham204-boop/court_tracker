@@ -233,11 +233,6 @@ class Case(db.Model):
         nullable=True
     )
 
-    today_serial_no = db.Column(
-        db.Integer,
-        nullable=True
-    )
-
     highlighted = db.Column(
         db.Boolean,
         nullable=False,
@@ -1358,126 +1353,6 @@ def delete_hearing(case_id, hearing_id):
 
 
 # =========================================================
-# TODAY'S CASE BASKET
-# =========================================================
-
-@app.route("/today-cases")
-@login_required
-def today_cases():
-
-    today = date.today()
-
-    cases = Case.query.filter(
-        Case.next_hearing_date == today
-    ).order_by(
-        Case.court_no,
-        Case.today_serial_no.is_(None),
-        Case.today_serial_no,
-        Case.id
-    ).all()
-
-    court_1_cases = [case for case in cases if case.court_no == 1]
-    court_2_cases = [case for case in cases if case.court_no == 2]
-    court_3_cases = [case for case in cases if case.court_no == 3]
-
-    return render_template(
-        "today_cases.html",
-        cases=cases,
-        court_1_cases=court_1_cases,
-        court_2_cases=court_2_cases,
-        court_3_cases=court_3_cases,
-        court_1_count=len(court_1_cases),
-        court_2_count=len(court_2_cases),
-        court_3_count=len(court_3_cases),
-        today=today
-    )
-
-
-# =========================================================
-# UPDATE TODAY'S CASE BY SERIAL NUMBER
-# =========================================================
-
-@app.route(
-    "/case/<int:id>/update-today-case",
-    methods=["POST"]
-)
-@login_required
-def update_today_case(id):
-
-    case = Case.query.get_or_404(id)
-
-    serial_value = request.form.get(
-        "today_serial_no",
-        ""
-    ).strip()
-
-    # First step: only assign/change the temporary serial number.
-    if serial_value:
-        try:
-            case.today_serial_no = int(serial_value)
-        except ValueError:
-            return "Serial number must be a whole number.", 400
-    else:
-        case.today_serial_no = None
-
-    stage = request.form.get(
-        "case_stage",
-        ""
-    ).strip()
-
-    next_date_value = request.form.get(
-        "next_hearing_date",
-        ""
-    ).strip()
-
-    outcome = request.form.get(
-        "outcome",
-        ""
-    ).strip()
-
-    notes = request.form.get(
-        "notes",
-        ""
-    ).strip()
-
-    # Only create hearing history when an actual hearing update is entered.
-    if outcome or notes or stage or next_date_value:
-
-        if stage:
-            case.case_stage = stage
-
-        if next_date_value:
-            try:
-                next_hearing_date = datetime.strptime(
-                    next_date_value,
-                    "%Y-%m-%d"
-                ).date()
-            except ValueError:
-                return "Invalid next hearing date.", 400
-        else:
-            next_hearing_date = case.next_hearing_date
-
-        case.next_hearing_date = next_hearing_date
-
-        new_hearing = Hearing(
-            case_id=case.id,
-            hearing_date=date.today(),
-            outcome=outcome or "Updated from Today's Case Basket",
-            next_hearing_date=next_hearing_date,
-            notes=notes or None
-        )
-
-        db.session.add(new_hearing)
-
-        # Hearing is completed, so remove it from today's serial board.
-        case.today_serial_no = None
-
-    db.session.commit()
-
-    return redirect("/today-cases")
-
-
-# =========================================================
 # QUICK HEARING UPDATE
 # =========================================================
 
@@ -2437,7 +2312,6 @@ def add_missing_case_columns():
         "advocate_name": "VARCHAR(200)",
         "case_disposed": "VARCHAR(20) DEFAULT 'No'",
         "case_stage_other": "VARCHAR(200)",
-        "today_serial_no": "INTEGER",
         "decision_date": "DATE",
         "highlighted": "BOOLEAN DEFAULT FALSE"
     }
