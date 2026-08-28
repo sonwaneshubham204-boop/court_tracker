@@ -109,6 +109,18 @@ def format_vs(value):
     ))
 
 
+def natural_case_key(case):
+    """Sort case numbers by their text and numeric parts, not as plain strings."""
+    return tuple(
+        (0, int(part)) if part.isdigit() else (1, part.casefold())
+        for part in re.split(r"(\d+)", case.case_no or "")
+    )
+
+
+def sort_cases_naturally(cases):
+    return sorted(cases, key=natural_case_key)
+
+
 # =========================================================
 # USER MODEL
 # =========================================================
@@ -500,6 +512,16 @@ def home():
         days=7
     )
 
+    selected_matter_date = today
+    selected_matter_date_value = request.args.get("matter_date", "").strip()
+    if selected_matter_date_value:
+        try:
+            selected_matter_date = datetime.strptime(
+                selected_matter_date_value, "%Y-%m-%d"
+            ).date()
+        except ValueError:
+            pass
+
 
     total_cases = Case.query.count()
 
@@ -612,38 +634,57 @@ def home():
         case_stage="Order"
     ).count()
 
+    court_stage_counts = {court_no: {} for court_no in (1, 2, 3)}
+    for case in Case.query.all():
+        stage = (
+            case.case_stage_other.strip()
+            if case.case_stage == "Other" and case.case_stage_other
+            else (case.case_stage or "").strip()
+        )
+        if stage and case.court_no in court_stage_counts:
+            counts = court_stage_counts[case.court_no]
+            counts[stage] = counts.get(stage, 0) + 1
+
+    court_stage_counts = {
+        court_no: sorted(counts.items(), key=lambda item: item[0].casefold())
+        for court_no, counts in court_stage_counts.items()
+    }
+
+    selected_date_court_counts = {
+        court_no: Case.query.filter_by(
+            court_no=court_no,
+            next_hearing_date=selected_matter_date
+        ).count()
+        for court_no in (1, 2, 3)
+    }
+    selected_date_total = sum(selected_date_court_counts.values())
+
 
     # =====================================================
     # REMINDER LISTS
     # =====================================================
 
-    todays_hearings = Case.query.filter(
+    todays_hearings = sort_cases_naturally(Case.query.filter(
         Case.next_hearing_date == today
-    ).order_by(
-        Case.court_no
-    ).all()
+    ).all())
 
 
-    tomorrow_hearings = Case.query.filter(
+    tomorrow_hearings = sort_cases_naturally(Case.query.filter(
         Case.next_hearing_date == tomorrow
-    ).order_by(
-        Case.court_no
-    ).all()
+    ).all())
 
 
     upcoming_hearings = Case.query.filter(
         Case.next_hearing_date > tomorrow,
         Case.next_hearing_date <= next_7_days
-    ).order_by(
-        Case.next_hearing_date
     ).all()
+    upcoming_hearings = sort_cases_naturally(upcoming_hearings)
 
 
     overdue_hearings = Case.query.filter(
         Case.next_hearing_date < today
-    ).order_by(
-        Case.next_hearing_date
     ).all()
+    overdue_hearings = sort_cases_naturally(overdue_hearings)
 
 
     # =====================================================
@@ -695,6 +736,10 @@ def home():
         final_hearing_count=final_hearing_count,
         judgment_count=judgment_count,
         order_count=order_count,
+        court_stage_counts=court_stage_counts,
+        selected_matter_date=selected_matter_date,
+        selected_date_court_counts=selected_date_court_counts,
+        selected_date_total=selected_date_total,
 
         todays_hearings=todays_hearings,
         tomorrow_hearings=tomorrow_hearings,
@@ -912,9 +957,7 @@ def case_list():
             pass
 
 
-    cases = query.order_by(
-        Case.next_hearing_date
-    ).all()
+    cases = sort_cases_naturally(query.all())
 
     # Build the Case Stage dropdown from every stage actually stored in the database.
     # For "Other", show the custom value when one exists.
@@ -986,9 +1029,9 @@ def court_cases(court_no):
         return "Invalid Court Number"
 
 
-    cases = Case.query.filter_by(
+    cases = sort_cases_naturally(Case.query.filter_by(
         court_no=court_no
-    ).all()
+    ).all())
 
 
     return render_template(
@@ -2142,7 +2185,7 @@ def import_excel():
 @login_required
 def export_excel():
 
-    cases = Case.query.all()
+    cases = sort_cases_naturally(Case.query.all())
 
 
     workbook = Workbook()
