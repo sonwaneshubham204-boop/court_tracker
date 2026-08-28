@@ -880,75 +880,219 @@ td.action-cell .action-links {
 
 
 <style>
-/* ===== MOBILE CASE CARD VIEW ONLY ===== */
-.mobile-cases-list { display:none; }
+/* ===== CLEAN SMART MOBILE VIEW — PHONE ONLY =====
+   Desktop table, existing filters, bulk actions and all existing routes remain unchanged. */
+.mobile-cases { display:none; }
 
-@media (max-width:700px){
-    .table-wrap,
-    .table-responsive,
-    .cases-table-wrap { display:none !important; }
+@media (max-width:700px) {
+    .cases-page {
+        padding: 8px !important;
+    }
 
-    .mobile-cases-list{
+    .top-links {
+        display:flex !important;
+        flex-wrap:wrap !important;
+        gap:7px !important;
+    }
+
+    .top-links a {
+        padding:8px 11px !important;
+        font-size:15px !important;
+    }
+
+    .search-card {
+        padding:10px !important;
+    }
+
+    .search-card .compact-row {
+        gap:8px !important;
+    }
+
+    .search-card .compact-search {
+        flex:1 1 100% !important;
+    }
+
+    .filter-toggle,
+    .search-btn,
+    .clear-btn,
+    .highlight-filter {
+        min-height:40px !important;
+        padding:8px 11px !important;
+        font-size:14px !important;
+    }
+
+    /* Hide only the desktop table on phones. */
+    .table-wrap {
+        display:none !important;
+    }
+
+    .mobile-cases {
         display:block !important;
         width:100% !important;
-        margin-top:10px !important;
     }
 
-    .mobile-case-card{
-        background:#fff;
-        border:1px solid #d7dce5;
-        border-radius:12px;
-        padding:12px;
-        margin:0 0 10px;
-        box-shadow:0 2px 8px rgba(0,0,0,.06);
+    .mobile-case-card {
+        background:#fff !important;
+        border:1px solid #dbe3ea !important;
+        border-radius:12px !important;
+        padding:12px !important;
+        margin:0 0 10px !important;
+        box-shadow:0 1px 4px rgba(15,23,42,.08) !important;
     }
 
-    .mobile-case-card.highlighted-card{
-        background:inherit;
+    .mobile-case-card.highlighted-case {
+        background:#e0f7ff !important;
     }
 
-    .mobile-case-title{
-        font-size:17px !important;
-        font-weight:700;
-        line-height:1.35;
-        margin:0 0 8px;
-    }
-
-    .mobile-case-meta{
-        display:grid;
-        grid-template-columns:92px 1fr;
-        gap:6px 8px;
-        font-size:14px;
-        line-height:1.35;
+    .mobile-card-top {
+        display:flex;
+        align-items:flex-start;
+        gap:10px;
         margin-bottom:10px;
     }
 
-    .mobile-case-meta .label{
-        font-weight:700;
-        opacity:.78;
+    .mobile-case-check {
+        margin-top:4px;
+        flex:0 0 auto;
     }
 
-    .mobile-case-actions{
+    .mobile-case-number {
+        flex:1;
+        min-width:0;
+        font-size:18px !important;
+        font-weight:700 !important;
+        line-height:1.3 !important;
+        color:#1f4f86 !important;
+        text-decoration:none !important;
+    }
+
+    .mobile-id-court {
         display:flex;
+        gap:8px;
         flex-wrap:wrap;
-        gap:6px;
-        padding-top:9px;
-        border-top:1px solid #e5e7eb;
+        margin:0 0 10px 30px;
+        font-size:14px !important;
     }
 
-    .mobile-case-actions a,
-    .mobile-case-actions button{
-        min-height:34px !important;
-        padding:6px 10px !important;
-        font-size:13px !important;
+    .mobile-chip {
+        display:inline-block;
+        padding:4px 8px;
+        border-radius:999px;
+        background:#f1f5f9;
+        border:1px solid #dbe3ea;
+        white-space:nowrap;
+    }
+
+    .mobile-party {
+        margin:0 0 10px 30px;
+        padding:9px 10px;
+        border-left:3px solid #991b1b;
+        background:#f8fafc;
+        border-radius:7px;
+        line-height:1.45 !important;
+        font-size:16px !important;
+    }
+
+    .mobile-details {
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+        margin-left:30px;
+    }
+
+    .mobile-detail {
+        min-width:0;
+        padding:8px 9px;
+        background:#f8fafc;
+        border:1px solid #e2e8f0;
+        border-radius:8px;
+    }
+
+    .mobile-detail.full {
+        grid-column:1 / -1;
+    }
+
+    .mobile-label {
+        display:block;
+        margin-bottom:3px;
+        font-size:12px !important;
+        font-weight:700 !important;
+        color:#64748b;
+    }
+
+    .mobile-value {
+        font-size:14px !important;
+        line-height:1.35 !important;
+        overflow-wrap:anywhere;
+    }
+
+    .mobile-actions {
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:7px;
+        margin-top:11px;
+    }
+
+    .mobile-actions a,
+    .mobile-actions button {
+        width:100% !important;
+        min-height:38px !important;
         margin:0 !important;
-        width:auto !important;
+        padding:7px 8px !important;
+        box-sizing:border-box !important;
+        text-align:center !important;
+        border-radius:7px !important;
+        font-size:14px !important;
     }
 
-    .mobile-case-checkbox{
-        float:right;
-        transform:scale(1.05);
-        margin-left:8px;
+    .mobile-actions form {
+        margin:0 !important;
+        width:100% !important;
+    }
+
+    .mobile-actions .mobile-open,
+    .mobile-actions .mobile-edit,
+    .mobile-actions button {
+        background:#163d6b !important;
+        color:#fff !important;
+        text-decoration:none !important;
+        border:0 !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+    }
+
+    .mobile-actions .mobile-highlight {
+        grid-column:1 / -1;
+        background:#7c3f00 !important;
+    }
+
+    .mobile-actions .mobile-delete {
+        background:#163d6b !important;
+    }
+
+    .bulkbar {
+        font-size:14px !important;
+    }
+}
+
+@media (max-width:430px) {
+    .mobile-details {
+        grid-template-columns:1fr 1fr;
+        gap:6px;
+    }
+
+    .mobile-case-card {
+        padding:10px !important;
+    }
+
+    .mobile-case-number {
+        font-size:17px !important;
+    }
+
+    .mobile-party {
+        margin-left:28px;
+        font-size:15px !important;
     }
 }
 </style>
@@ -1049,6 +1193,90 @@ td.action-cell .action-links {
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
 </div>
+
+
+<!-- PHONE-ONLY SMART CASE CARDS -->
+<div class="mobile-cases">
+{% for case in cases %}
+<div class="mobile-case-card {% if case.highlighted %}highlighted-case{% endif %}"
+     data-case-no="{{ case.case_no }}"
+     data-court="Court {{ case.court_no }}"
+     data-party="{{ case.parties }}"
+     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
+     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
+     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
+
+    <div class="mobile-card-top">
+        <input class="casebox mobile-case-check" type="checkbox" value="{{ case.id }}">
+        <a class="mobile-case-number" href="/case/{{ case.id }}">{{ case.case_no }}</a>
+    </div>
+
+    <div class="mobile-id-court">
+        <span class="mobile-chip">ID: {{ case.id }}</span>
+        <span class="mobile-chip">Court {{ case.court_no }}</span>
+    </div>
+
+    <div class="mobile-party">{{ case.parties|format_vs }}</div>
+
+    <div class="mobile-details">
+        <div class="mobile-detail">
+            <span class="mobile-label">Case Stage</span>
+            <div class="mobile-value">
+                {% if case.case_stage == "Other" and case.case_stage_other %}
+                    {{ case.case_stage_other }}
+                {% else %}
+                    {{ case.case_stage }}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mobile-detail">
+            <span class="mobile-label">Time Left</span>
+            <div class="mobile-value">
+                {% if case.next_hearing_date %}
+                    {% set d = (case.next_hearing_date - today).days %}
+                    {% if d < 0 %}
+                        {{ d|abs }} days overdue
+                    {% elif d == 0 %}
+                        TODAY
+                    {% elif d == 1 %}
+                        Tomorrow
+                    {% else %}
+                        {{ d }} days left
+                    {% endif %}
+                {% else %}
+                    Undated
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mobile-detail full">
+            <span class="mobile-label">Next Hearing</span>
+            <div class="mobile-value">
+                {% if case.next_hearing_date %}
+                    {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
+                    — {{ case.next_hearing_date.strftime("%A") }}
+                {% else %}
+                    Not Scheduled
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-actions">
+        <form class="mobile-highlight" action="/case/{{ case.id }}/toggle-highlight" method="POST">
+            <button type="submit">{% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button>
+        </form>
+        <a class="mobile-open" href="/case/{{ case.id }}">Open</a>
+        <a class="mobile-edit" href="/edit-case/{{ case.id }}">Edit</a>
+        <form action="/delete-case/{{ case.id }}" method="POST">
+            <button class="mobile-delete" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+</div>
+
 
 <div class="table-wrap">
 <table>
@@ -1233,7 +1461,7 @@ if (hasActiveFilter) {
 const boxes = () => document.querySelectorAll('.casebox');
 
 function selected() {
-    return [...boxes()].filter(x => x.checked).map(x => x.value);
+    return [...new Set([...boxes()].filter(x => x.checked).map(x => x.value))];
 }
 
 function refresh() {
@@ -1297,7 +1525,7 @@ function applyHeaderFilters() {
     const party = document.getElementById('partyFilter').value;
     const stage = document.getElementById('stageFilter').value;
 
-    document.querySelectorAll('tbody .case-row').forEach(row => {
+    document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
         const show =
             (!caseNo || row.dataset.caseNo === caseNo) &&
             (!court || row.dataset.court === court) &&
@@ -1349,7 +1577,7 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
         const baseFilters = [...document.querySelectorAll('.header-filter')]
             .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
 
-        document.querySelectorAll('tbody .case-row').forEach(row => {
+        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
             const baseHidden = baseFilters.some(f => {
                 if (!f.value) return false;
                 if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
@@ -1369,108 +1597,6 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 
     nextDateFilter.addEventListener('change', applyNewFilters);
     timeLeftFilter.addEventListener('change', applyNewFilters);
-})();
-</script>
-
-
-<script>
-(function(){
-    function buildMobileCards(){
-        if (window.innerWidth > 700) return;
-
-        var table = document.querySelector('table');
-        if (!table || document.querySelector('.mobile-cases-list')) return;
-
-        var headers = Array.from(table.querySelectorAll('thead th')).map(function(th){
-            return th.innerText.trim().replace(/\s+/g,' ');
-        });
-
-        var rows = Array.from(table.querySelectorAll('tbody tr'));
-        var list = document.createElement('div');
-        list.className = 'mobile-cases-list';
-
-        rows.forEach(function(row){
-            var cells = Array.from(row.children);
-            if (!cells.length) return;
-
-            var card = document.createElement('div');
-            card.className = 'mobile-case-card';
-
-            // Preserve row background/highlight appearance when available.
-            var rowBg = getComputedStyle(row).backgroundColor;
-            if (rowBg && rowBg !== 'rgba(0, 0, 0, 0)' && rowBg !== 'transparent') {
-                card.style.backgroundColor = rowBg;
-            }
-
-            var checkbox = cells[0] ? cells[0].querySelector('input[type="checkbox"]') : null;
-            if (checkbox) {
-                var cb = checkbox.cloneNode(true);
-                cb.className = 'mobile-case-checkbox';
-                cb.addEventListener('change', function(){ checkbox.checked = cb.checked; });
-                card.appendChild(cb);
-            }
-
-            var title = document.createElement('div');
-            title.className = 'mobile-case-title';
-            // Prefer case number + party name as the mobile heading.
-            var caseNo = cells[2] ? cells[2].innerHTML.trim() : '';
-            var party = cells[4] ? cells[4].innerHTML.trim() : '';
-            title.innerHTML = caseNo || party || ('Case #' + (cells[1] ? cells[1].innerText.trim() : ''));
-            card.appendChild(title);
-
-            var meta = document.createElement('div');
-            meta.className = 'mobile-case-meta';
-
-            // Show all meaningful existing columns except checkbox and action.
-            cells.forEach(function(cell, index){
-                if (index === 0 || index === cells.length - 1) return;
-                var value = cell.innerText.trim().replace(/\s+/g,' ');
-                if (!value) return;
-
-                var label = headers[index] || 'Details';
-                var l = document.createElement('div');
-                l.className = 'label';
-                l.textContent = label;
-
-                var v = document.createElement('div');
-                v.innerHTML = cell.innerHTML;
-
-                // Do not duplicate heading if it is case number.
-                if (index === 2) return;
-
-                meta.appendChild(l);
-                meta.appendChild(v);
-            });
-
-            card.appendChild(meta);
-
-            var actionCell = cells[cells.length - 1];
-            if (actionCell) {
-                var actions = document.createElement('div');
-                actions.className = 'mobile-case-actions';
-                Array.from(actionCell.querySelectorAll('a, button')).forEach(function(el){
-                    var clone = el.cloneNode(true);
-                    if (clone.tagName === 'A' && el.href) clone.href = el.href;
-                    actions.appendChild(clone);
-                });
-                if (actions.children.length) card.appendChild(actions);
-            }
-
-            list.appendChild(card);
-        });
-
-        table.parentNode.parentNode.insertBefore(list, table.parentNode);
-    }
-
-    document.addEventListener('DOMContentLoaded', buildMobileCards);
-    window.addEventListener('resize', function(){
-        if (window.innerWidth > 700) {
-            var list = document.querySelector('.mobile-cases-list');
-            if (list) list.remove();
-        } else {
-            buildMobileCards();
-        }
-    });
 })();
 </script>
 
