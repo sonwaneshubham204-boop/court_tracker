@@ -878,6 +878,81 @@ td.action-cell .action-links {
 }
 </style>
 
+
+<style>
+/* ===== MOBILE CASE CARD VIEW ONLY ===== */
+.mobile-cases-list { display:none; }
+
+@media (max-width:700px){
+    .table-wrap,
+    .table-responsive,
+    .cases-table-wrap { display:none !important; }
+
+    .mobile-cases-list{
+        display:block !important;
+        width:100% !important;
+        margin-top:10px !important;
+    }
+
+    .mobile-case-card{
+        background:#fff;
+        border:1px solid #d7dce5;
+        border-radius:12px;
+        padding:12px;
+        margin:0 0 10px;
+        box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .mobile-case-card.highlighted-card{
+        background:inherit;
+    }
+
+    .mobile-case-title{
+        font-size:17px !important;
+        font-weight:700;
+        line-height:1.35;
+        margin:0 0 8px;
+    }
+
+    .mobile-case-meta{
+        display:grid;
+        grid-template-columns:92px 1fr;
+        gap:6px 8px;
+        font-size:14px;
+        line-height:1.35;
+        margin-bottom:10px;
+    }
+
+    .mobile-case-meta .label{
+        font-weight:700;
+        opacity:.78;
+    }
+
+    .mobile-case-actions{
+        display:flex;
+        flex-wrap:wrap;
+        gap:6px;
+        padding-top:9px;
+        border-top:1px solid #e5e7eb;
+    }
+
+    .mobile-case-actions a,
+    .mobile-case-actions button{
+        min-height:34px !important;
+        padding:6px 10px !important;
+        font-size:13px !important;
+        margin:0 !important;
+        width:auto !important;
+    }
+
+    .mobile-case-checkbox{
+        float:right;
+        transform:scale(1.05);
+        margin-left:8px;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -1294,6 +1369,108 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 
     nextDateFilter.addEventListener('change', applyNewFilters);
     timeLeftFilter.addEventListener('change', applyNewFilters);
+})();
+</script>
+
+
+<script>
+(function(){
+    function buildMobileCards(){
+        if (window.innerWidth > 700) return;
+
+        var table = document.querySelector('table');
+        if (!table || document.querySelector('.mobile-cases-list')) return;
+
+        var headers = Array.from(table.querySelectorAll('thead th')).map(function(th){
+            return th.innerText.trim().replace(/\s+/g,' ');
+        });
+
+        var rows = Array.from(table.querySelectorAll('tbody tr'));
+        var list = document.createElement('div');
+        list.className = 'mobile-cases-list';
+
+        rows.forEach(function(row){
+            var cells = Array.from(row.children);
+            if (!cells.length) return;
+
+            var card = document.createElement('div');
+            card.className = 'mobile-case-card';
+
+            // Preserve row background/highlight appearance when available.
+            var rowBg = getComputedStyle(row).backgroundColor;
+            if (rowBg && rowBg !== 'rgba(0, 0, 0, 0)' && rowBg !== 'transparent') {
+                card.style.backgroundColor = rowBg;
+            }
+
+            var checkbox = cells[0] ? cells[0].querySelector('input[type="checkbox"]') : null;
+            if (checkbox) {
+                var cb = checkbox.cloneNode(true);
+                cb.className = 'mobile-case-checkbox';
+                cb.addEventListener('change', function(){ checkbox.checked = cb.checked; });
+                card.appendChild(cb);
+            }
+
+            var title = document.createElement('div');
+            title.className = 'mobile-case-title';
+            // Prefer case number + party name as the mobile heading.
+            var caseNo = cells[2] ? cells[2].innerHTML.trim() : '';
+            var party = cells[4] ? cells[4].innerHTML.trim() : '';
+            title.innerHTML = caseNo || party || ('Case #' + (cells[1] ? cells[1].innerText.trim() : ''));
+            card.appendChild(title);
+
+            var meta = document.createElement('div');
+            meta.className = 'mobile-case-meta';
+
+            // Show all meaningful existing columns except checkbox and action.
+            cells.forEach(function(cell, index){
+                if (index === 0 || index === cells.length - 1) return;
+                var value = cell.innerText.trim().replace(/\s+/g,' ');
+                if (!value) return;
+
+                var label = headers[index] || 'Details';
+                var l = document.createElement('div');
+                l.className = 'label';
+                l.textContent = label;
+
+                var v = document.createElement('div');
+                v.innerHTML = cell.innerHTML;
+
+                // Do not duplicate heading if it is case number.
+                if (index === 2) return;
+
+                meta.appendChild(l);
+                meta.appendChild(v);
+            });
+
+            card.appendChild(meta);
+
+            var actionCell = cells[cells.length - 1];
+            if (actionCell) {
+                var actions = document.createElement('div');
+                actions.className = 'mobile-case-actions';
+                Array.from(actionCell.querySelectorAll('a, button')).forEach(function(el){
+                    var clone = el.cloneNode(true);
+                    if (clone.tagName === 'A' && el.href) clone.href = el.href;
+                    actions.appendChild(clone);
+                });
+                if (actions.children.length) card.appendChild(actions);
+            }
+
+            list.appendChild(card);
+        });
+
+        table.parentNode.parentNode.insertBefore(list, table.parentNode);
+    }
+
+    document.addEventListener('DOMContentLoaded', buildMobileCards);
+    window.addEventListener('resize', function(){
+        if (window.innerWidth > 700) {
+            var list = document.querySelector('.mobile-cases-list');
+            if (list) list.remove();
+        } else {
+            buildMobileCards();
+        }
+    });
 })();
 </script>
 
