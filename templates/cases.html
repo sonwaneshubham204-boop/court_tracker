@@ -999,6 +999,36 @@ td.action-cell .action-links {
 }
 </style>
 
+<style>
+/* Dynamic highlight for cases scheduled today. */
+.table-wrap tbody tr.case-row.today-hearing-case td{
+    background:#173b6c!important;
+    color:#fff!important;
+    border-color:rgba(255,255,255,.24)!important;
+}
+.table-wrap tbody tr.case-row.today-hearing-case a,
+.table-wrap tbody tr.case-row.today-hearing-case .weekday,
+.table-wrap tbody tr.case-row.today-hearing-case .action-links button{
+    color:#fff!important;
+}
+.mobile-case-card.today-hearing-case,
+.mobile-case-card.today-hearing-case .card-body,
+.mobile-case-card.today-hearing-case .mobile-detail-box{
+    background:#173b6c!important;
+    color:#fff!important;
+    border-color:rgba(255,255,255,.28)!important;
+}
+.mobile-case-card.today-hearing-case .mobile-case-number,
+.mobile-case-card.today-hearing-case .mobile-detail-label,
+.mobile-case-card.today-hearing-case .mobile-detail-value,
+.mobile-case-card.today-hearing-case .mobile-party-box{
+    color:#fff!important;
+}
+.mobile-case-card.today-hearing-case .badge{
+    background:#fff!important;
+    color:#173b6c!important;
+}
+</style>
 </head>
 
 <body>
@@ -1106,7 +1136,7 @@ td.action-cell .action-links {
     </div>
 
     {% for case in cases %}
-    <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %}"
+    <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
         data-case-no="{{ case.case_no }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
@@ -1255,7 +1285,7 @@ td.action-cell .action-links {
 </thead>
 <tbody>
 {% for case in cases %}
-<tr class="case-row {% if case.highlighted %}highlighted-case{% endif %}"
+<tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
     data-case-no="{{ case.case_no }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"

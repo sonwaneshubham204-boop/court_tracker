@@ -9,7 +9,7 @@
     <style>
 :root{--navy:#173b6c;--blue:#2563eb;--bg:#eef3f8;--card:#fff;--text:#111827;--line:#cbd5e1}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;font-family:"Segoe UI",Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#edf3fa 0%,#f8fafc 100%)}
+body{margin:0;min-height:100vh;font-family:Cambria,Georgia,serif;color:var(--text);background:linear-gradient(180deg,#edf3fa 0%,#f8fafc 100%)}
 .container{width:min(1180px,calc(100% - 32px));margin:28px auto 60px}
 .topbar{padding:26px 28px;margin-bottom:22px;border-radius:0 0 20px 20px;background:linear-gradient(135deg,#173b6c,#315fbb);box-shadow:0 12px 28px rgba(23,59,108,.22)}
 .topbar h1{margin:0 0 20px;color:#fff;font-size:clamp(26px,4vw,38px)}
@@ -32,6 +32,7 @@ td{padding:14px;border-top:1px solid #dbe3ec;color:#111827!important;background:
 tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef5ff}td:nth-child(4){white-space:nowrap}
 .stage-list{display:flex;flex-wrap:wrap;gap:10px}
 .stage-list a{display:inline-flex;padding:10px 14px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#111827!important;text-decoration:none;font-weight:700}
+.court-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.court-stage-card{min-width:0;padding:14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}.court-stage-card h3{margin:0 0 9px;color:#173b6c}.court-stage-card ul{margin:0;padding-left:20px}.court-stage-card li{margin:4px 0}.matter-date-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-bottom:14px}.matter-date-form label{display:grid;gap:5px;font-weight:700}.matter-date-form input{min-height:40px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.matter-summary{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}.matter-summary div{padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc}.matter-summary b{display:block;margin-bottom:4px}.section.today tbody tr.today-hearing-row td{background:#173b6c!important;color:#fff!important;border-color:rgba(255,255,255,.22)}.section.today tbody tr.today-hearing-row .open-btn{background:#fff;color:#173b6c!important}
 .open-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;border-radius:8px;background:linear-gradient(135deg,#173b6c,#2563eb);color:#fff!important;text-decoration:none;font-weight:800;white-space:nowrap}
 .empty-message{margin:0;padding:14px 16px;border:1px dashed #86efac;border-radius:10px;background:#f0fdf4;color:#166534!important;font-weight:700}
 @media(max-width:768px){.container{width:calc(100% - 20px);margin:16px auto 40px}.topbar,.section{padding:18px}.nav{display:grid;grid-template-columns:1fr 1fr}.nav a{width:100%}.stats-container{grid-template-columns:1fr 1fr}}
@@ -55,6 +56,9 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
     .table-container{width:100%!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
     table{min-width:620px!important}
     th,td{padding:10px!important}
+    .court-stage-grid{grid-template-columns:1fr}
+    .matter-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .matter-date-form .open-btn{width:auto}
 }
 @media (max-width: 480px){
     .nav{grid-template-columns:1fr!important}
@@ -151,6 +155,22 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
 
 </div>
 
+<section class="section">
+<h2>📅 Matters on a Specific Date</h2>
+<form class="matter-date-form" method="get">
+    <label>Selected Date
+        <input type="date" name="matter_date" value="{{ selected_matter_date.isoformat() }}">
+    </label>
+    <button class="open-btn" type="submit">Show Matters</button>
+</form>
+<div class="matter-summary">
+    <div><b>Court I</b>{{ selected_date_court_counts[1] }}</div>
+    <div><b>Court II</b>{{ selected_date_court_counts[2] }}</div>
+    <div><b>Court III</b>{{ selected_date_court_counts[3] }}</div>
+    <div><b>Total Matters</b>{{ selected_date_total }}</div>
+</div>
+</section>
+
 <section class="section overdue">
 <h2>🔴 Overdue Hearings</h2>
 
@@ -196,7 +216,7 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
 </tr>
 
 {% for case in todays_hearings %}
-<tr>
+<tr class="today-hearing-row">
     <td>{{ case.case_no }}</td>
     <td>{{ case.parties }}</td>
     <td>Court {{ case.court_no }}</td>
@@ -285,6 +305,17 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
     <a href="/stage/Final%20Hearing">Final Hearing: {{ final_hearing_count }}</a>
     <a href="/stage/Judgment">Judgment: {{ judgment_count }}</a>
     <a href="/stage/Order">Order: {{ order_count }}</a>
+</div>
+
+<div class="court-stage-grid">
+    {% for court_no in [1, 2, 3] %}
+    <div class="court-stage-card">
+        <h3>Court {{ ['I', 'II', 'III'][court_no - 1] }}</h3>
+        {% if court_stage_counts[court_no] %}
+        <ul>{% for stage, count in court_stage_counts[court_no] %}<li>{{ stage }}: <strong>{{ count }}</strong></li>{% endfor %}</ul>
+        {% else %}<p>No cases recorded.</p>{% endif %}
+    </div>
+    {% endfor %}
 </div>
 </section>
 
