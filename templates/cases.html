@@ -650,449 +650,174 @@ td.action-cell .action-links {
 }
 </style>
 
-<style>
-/* ===== FINAL MOBILE-ONLY FIX =====
-   Existing desktop layout and functionality remain unchanged. */
-@media (max-width: 900px) {
-    html, body {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-    }
-
-    .cases-page {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 14px !important;
-    }
-
-    /* Navigation can wrap naturally on a phone */
-    .top-links {
-        flex-wrap: wrap !important;
-    }
-
-    /* Search controls remain usable */
-    .search-card {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow: visible !important;
-    }
-
-    .search-card .compact-row {
-        flex-wrap: wrap !important;
-    }
-
-    .search-card .compact-search {
-        flex: 1 1 100% !important;
-        width: 100% !important;
-    }
-
-    .filter-toggle,
-    .search-btn,
-    .clear-btn,
-    .highlight-filter {
-        flex: 0 0 auto !important;
-        min-width: auto !important;
-    }
-
-    /* IMPORTANT: do NOT squeeze the desktop table into phone width.
-       Keep readable columns and allow left-right swipe inside this box. */
-    .table-wrap {
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-        touch-action: pan-x pan-y !important;
-    }
-
-    .table-wrap table {
-        width: 1240px !important;
-        min-width: 1240px !important;
-        max-width: none !important;
-        table-layout: fixed !important;
-    }
-
-    .table-wrap th,
-    .table-wrap td {
-        font-size: 16px !important;
-        padding: 9px 10px !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-    }
-
-    .table-wrap th:nth-child(1), .table-wrap td:nth-child(1) { width: 50px !important; }
-    .table-wrap th:nth-child(2), .table-wrap td:nth-child(2) { width: 60px !important; }
-    .table-wrap th:nth-child(3), .table-wrap td:nth-child(3) { width: 170px !important; }
-    .table-wrap th:nth-child(4), .table-wrap td:nth-child(4) { width: 95px !important; }
-    .table-wrap th:nth-child(5), .table-wrap td:nth-child(5) { width: 300px !important; }
-    .table-wrap th:nth-child(6), .table-wrap td:nth-child(6) { width: 150px !important; }
-    .table-wrap th:nth-child(7), .table-wrap td:nth-child(7) { width: 150px !important; }
-    .table-wrap th:nth-child(8), .table-wrap td:nth-child(8) { width: 120px !important; }
-    .table-wrap th:nth-child(9), .table-wrap td:nth-child(9),
-    .table-wrap td.action-cell { width: 180px !important; min-width: 180px !important; }
-
-    .table-wrap td:nth-child(8) {
-        white-space: nowrap !important;
-    }
-}
-</style>
-
 
 <style>
-/* ===== SMART COMPACT PHONE VIEW ONLY =====
-   Desktop and application functionality remain untouched. */
-@media (max-width: 900px) {
-    .cases-page {
-        padding: 8px !important;
-    }
-
-    .top-links {
-        gap: 6px !important;
-        margin-bottom: 10px !important;
-    }
-
-    .top-links a {
-        padding: 9px 12px !important;
-        font-size: 15px !important;
-    }
-
-    .search-card {
-        padding: 12px !important;
-        margin-bottom: 10px !important;
-    }
-
-    .search-card input,
-    .compact-search input {
-        min-height: 42px !important;
-        padding: 8px 12px !important;
-        font-size: 15px !important;
-    }
-
-    .filter-toggle,
-    .search-btn,
-    .clear-btn,
-    .highlight-filter {
-        min-height: 42px !important;
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-    }
-
-    .table-wrap {
-        border-radius: 8px !important;
-    }
-
-    .table-wrap table {
-        width: 940px !important;
-        min-width: 940px !important;
-    }
-
-    .table-wrap th,
-    .table-wrap td {
-        padding: 8px 8px !important;
-        font-size: 14px !important;
-        line-height: 1.3 !important;
-        vertical-align: middle !important;
-    }
-
-    /* Compact the first visible columns */
-    .table-wrap th:nth-child(1), .table-wrap td:nth-child(1) {
-        width: 42px !important;
-        min-width: 42px !important;
-    }
-
-    .table-wrap th:nth-child(2), .table-wrap td:nth-child(2) {
-        width: 58px !important;
-        min-width: 58px !important;
-    }
-
-    .table-wrap th:nth-child(3), .table-wrap td:nth-child(3) {
-        width: 160px !important;
-        min-width: 160px !important;
-    }
-
-    .table-wrap th:nth-child(4), .table-wrap td:nth-child(4) {
-        width: 90px !important;
-        min-width: 90px !important;
-        white-space: nowrap !important;
-    }
-
-    /* Give the party name the best readable space */
-    .table-wrap th:nth-child(5), .table-wrap td:nth-child(5) {
-        width: 250px !important;
-        min-width: 250px !important;
-    }
-
-    .table-wrap th:nth-child(6), .table-wrap td:nth-child(6) {
-        width: 120px !important;
-        min-width: 120px !important;
-    }
-
-    .table-wrap th:nth-child(7), .table-wrap td:nth-child(7) {
-        width: 125px !important;
-        min-width: 125px !important;
-    }
-
-    .table-wrap th:nth-child(8), .table-wrap td:nth-child(8) {
-        width: 100px !important;
-        min-width: 100px !important;
-        white-space: nowrap !important;
-    }
-
-    .table-wrap th:nth-child(9), .table-wrap td:nth-child(9),
-    .table-wrap td.action-cell {
-        width: 135px !important;
-        min-width: 135px !important;
-    }
-
-    /* Compact buttons inside the action column without changing functionality */
-    .table-wrap td a,
-    .table-wrap td button {
-        padding: 6px 8px !important;
-        margin: 2px 0 !important;
-        font-size: 13px !important;
-    }
-
-    /* Reduce excessive row height caused by wrapping */
-    .table-wrap tbody tr {
-        height: auto !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .cases-page {
-        padding: 6px !important;
-    }
-
-    .table-wrap th,
-    .table-wrap td {
-        font-size: 13px !important;
-        padding: 7px 7px !important;
-    }
-
-    .top-links a {
-        font-size: 14px !important;
-        padding: 8px 10px !important;
-    }
-}
-</style>
-
-
-<style>
-/* ===== CLEAN SMART MOBILE VIEW — PHONE ONLY =====
-   Desktop table, existing filters, bulk actions and all existing routes remain unchanged. */
-.mobile-cases { display:none; }
+/* ===== LOCKED CLEAN MOBILE VIEW — PHONE ONLY ===== */
+.mobile-cases,
+.mobile-card-toolbar { display:none; }
 
 @media (max-width:700px) {
-    .cases-page {
-        padding: 8px !important;
-    }
+    html, body { max-width:100%; overflow-x:hidden; }
+    .cases-page { width:100%; max-width:100%; padding:8px !important; }
 
-    .top-links {
+    /* Existing top navigation and search stay fully usable, just compact. */
+    .top-links { display:flex !important; flex-wrap:wrap !important; gap:7px !important; margin:8px 0 12px !important; }
+    .top-links a { margin:0 !important; padding:8px 11px !important; font-size:14px !important; }
+
+    .search-card { padding:10px !important; margin-bottom:10px !important; }
+    .compact-row { display:flex !important; flex-wrap:wrap !important; gap:7px !important; }
+    .compact-search { flex:1 1 100% !important; min-width:0 !important; }
+    .compact-search input { width:100% !important; }
+    .filter-toggle, .search-btn, .clear-btn, .highlight-filter {
+        min-height:40px !important; height:40px !important;
+        padding:7px 11px !important; font-size:14px !important;
+    }
+    .filters-panel { grid-template-columns:1fr !important; }
+
+    /* Hide only the desktop TABLE on phone. Desktop remains unchanged. */
+    .table-wrap { display:none !important; }
+
+    /* Mobile controls expose the same selection/bulk operations. */
+    .mobile-card-toolbar {
         display:flex !important;
-        flex-wrap:wrap !important;
-        gap:7px !important;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px;
+        margin:8px 0 !important;
+        padding:8px 10px;
+        background:#fff;
+        border:1px solid #dbe3ea;
+        border-radius:9px;
     }
+    .mobile-card-toolbar label { font-size:14px !important; font-weight:700; }
+    .mobile-card-toolbar small { color:#64748b; }
 
-    .top-links a {
-        padding:8px 11px !important;
-        font-size:15px !important;
-    }
-
-    .search-card {
-        padding:10px !important;
-    }
-
-    .search-card .compact-row {
-        gap:8px !important;
-    }
-
-    .search-card .compact-search {
-        flex:1 1 100% !important;
-    }
-
-    .filter-toggle,
-    .search-btn,
-    .clear-btn,
-    .highlight-filter {
-        min-height:40px !important;
-        padding:8px 11px !important;
-        font-size:14px !important;
-    }
-
-    /* Hide only the desktop table on phones. */
-    .table-wrap {
-        display:none !important;
-    }
-
-    .mobile-cases {
-        display:block !important;
-        width:100% !important;
-    }
+    .mobile-cases { display:block !important; width:100% !important; }
 
     .mobile-case-card {
-        background:#fff !important;
-        border:1px solid #dbe3ea !important;
-        border-radius:12px !important;
-        padding:12px !important;
-        margin:0 0 10px !important;
-        box-shadow:0 1px 4px rgba(15,23,42,.08) !important;
+        width:100% !important;
+        box-sizing:border-box !important;
+        background:#fff;
+        border:1px solid #d7dee8;
+        border-radius:12px;
+        padding:12px;
+        margin:0 0 10px;
+        box-shadow:0 2px 7px rgba(15,23,42,.07);
+        overflow:hidden;
     }
+    .mobile-case-card.highlighted-case { background:#e0f7ff; }
 
-    .mobile-case-card.highlighted-case {
-        background:#e0f7ff !important;
-    }
-
-    .mobile-card-top {
+    .mobile-card-head {
         display:flex;
         align-items:flex-start;
-        gap:10px;
-        margin-bottom:10px;
+        gap:9px;
+        margin-bottom:9px;
     }
-
-    .mobile-case-check {
-        margin-top:4px;
-        flex:0 0 auto;
-    }
-
+    .mobile-case-check { flex:0 0 auto; margin-top:4px; width:18px; height:18px; }
     .mobile-case-number {
-        flex:1;
+        flex:1 1 auto;
         min-width:0;
         font-size:18px !important;
-        font-weight:700 !important;
         line-height:1.3 !important;
+        font-weight:800 !important;
         color:#1f4f86 !important;
         text-decoration:none !important;
+        overflow-wrap:anywhere;
     }
 
-    .mobile-id-court {
+    .mobile-meta {
         display:flex;
-        gap:8px;
         flex-wrap:wrap;
-        margin:0 0 10px 30px;
-        font-size:14px !important;
+        gap:7px;
+        margin-bottom:10px;
     }
-
     .mobile-chip {
-        display:inline-block;
-        padding:4px 8px;
+        padding:4px 9px;
+        border:1px solid #d8e0e8;
         border-radius:999px;
-        background:#f1f5f9;
-        border:1px solid #dbe3ea;
-        white-space:nowrap;
+        background:#f5f7fa;
+        font-size:14px !important;
     }
 
     .mobile-party {
-        margin:0 0 10px 30px;
         padding:9px 10px;
+        margin-bottom:9px;
         border-left:3px solid #991b1b;
         background:#f8fafc;
         border-radius:7px;
-        line-height:1.45 !important;
         font-size:16px !important;
+        line-height:1.4 !important;
+        overflow-wrap:anywhere;
     }
 
-    .mobile-details {
+    .mobile-info {
         display:grid;
         grid-template-columns:1fr 1fr;
-        gap:8px;
-        margin-left:30px;
+        gap:7px;
     }
-
-    .mobile-detail {
+    .mobile-info-box {
         min-width:0;
         padding:8px 9px;
         background:#f8fafc;
-        border:1px solid #e2e8f0;
+        border:1px solid #e1e7ee;
         border-radius:8px;
     }
-
-    .mobile-detail.full {
-        grid-column:1 / -1;
-    }
-
+    .mobile-info-box.full { grid-column:1 / -1; }
     .mobile-label {
         display:block;
         margin-bottom:3px;
-        font-size:12px !important;
-        font-weight:700 !important;
         color:#64748b;
+        font-size:12px !important;
+        font-weight:800 !important;
     }
-
     .mobile-value {
         font-size:14px !important;
         line-height:1.35 !important;
         overflow-wrap:anywhere;
     }
 
+    /* ALL existing per-case operations are visible. */
     .mobile-actions {
         display:grid;
         grid-template-columns:1fr 1fr;
         gap:7px;
-        margin-top:11px;
+        margin-top:10px;
     }
-
+    .mobile-actions form,
     .mobile-actions a,
     .mobile-actions button {
         width:100% !important;
-        min-height:38px !important;
-        margin:0 !important;
-        padding:7px 8px !important;
+        min-width:0 !important;
         box-sizing:border-box !important;
-        text-align:center !important;
-        border-radius:7px !important;
-        font-size:14px !important;
-    }
-
-    .mobile-actions form {
         margin:0 !important;
-        width:100% !important;
     }
-
-    .mobile-actions .mobile-open,
-    .mobile-actions .mobile-edit,
+    .mobile-actions form { display:block !important; }
+    .mobile-actions a,
     .mobile-actions button {
-        background:#163d6b !important;
-        color:#fff !important;
-        text-decoration:none !important;
-        border:0 !important;
+        min-height:40px !important;
+        padding:8px !important;
         display:flex !important;
         align-items:center !important;
         justify-content:center !important;
+        text-decoration:none !important;
+        border-radius:7px !important;
     }
+    .mobile-actions .mobile-highlight { grid-column:1 / -1; }
+    .mobile-actions .mobile-highlight button { background:#7c3f00 !important; color:#fff !important; border:0 !important; }
+    .mobile-actions .mobile-open,
+    .mobile-actions .mobile-edit,
+    .mobile-actions .mobile-delete { background:#163d6b !important; color:#fff !important; border:0 !important; }
 
-    .mobile-actions .mobile-highlight {
-        grid-column:1 / -1;
-        background:#7c3f00 !important;
-    }
-
-    .mobile-actions .mobile-delete {
-        background:#163d6b !important;
-    }
-
-    .bulkbar {
-        font-size:14px !important;
-    }
-}
-
-@media (max-width:430px) {
-    .mobile-details {
-        grid-template-columns:1fr 1fr;
-        gap:6px;
-    }
-
-    .mobile-case-card {
+    /* Existing bulk operations appear immediately after cases are selected. */
+    #bulkbar {
+        margin:8px 0 !important;
         padding:10px !important;
     }
-
-    .mobile-case-number {
-        font-size:17px !important;
-    }
-
-    .mobile-party {
-        margin-left:28px;
-        font-size:15px !important;
+    #bulkbar button {
+        width:100% !important;
+        margin:5px 0 0 !important;
+        min-height:40px !important;
+        white-space:normal !important;
     }
 }
 </style>
@@ -1195,11 +920,13 @@ td.action-cell .action-links {
 </div>
 
 
-<!-- PHONE-ONLY SMART CASE CARDS -->
+
+<!-- PHONE-ONLY: SAME CASE DATA + SAME OPERATIONS, SMART PRESENTATION -->
 <div class="mobile-card-toolbar">
     <label><input type="checkbox" id="mobileAll"> Select All Cases</label>
-    <span>Swipe-free mobile view</span>
+    <small>All case operations available below</small>
 </div>
+
 <div class="mobile-cases">
 {% for case in cases %}
 <div class="mobile-case-card {% if case.highlighted %}highlighted-case{% endif %}"
@@ -1210,20 +937,20 @@ td.action-cell .action-links {
      data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
      data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
 
-    <div class="mobile-card-top">
-        <input class="casebox mobile-case-check" type="checkbox" value="{{ case.id }}">
+    <div class="mobile-card-head">
+        <input class="mobile-case-check" type="checkbox" value="{{ case.id }}">
         <a class="mobile-case-number" href="/case/{{ case.id }}">{{ case.case_no }}</a>
     </div>
 
-    <div class="mobile-id-court">
+    <div class="mobile-meta">
         <span class="mobile-chip">ID: {{ case.id }}</span>
         <span class="mobile-chip">Court {{ case.court_no }}</span>
     </div>
 
     <div class="mobile-party">{{ case.parties|format_vs }}</div>
 
-    <div class="mobile-details">
-        <div class="mobile-detail">
+    <div class="mobile-info">
+        <div class="mobile-info-box">
             <span class="mobile-label">Case Stage</span>
             <div class="mobile-value">
                 {% if case.case_stage == "Other" and case.case_stage_other %}
@@ -1234,28 +961,25 @@ td.action-cell .action-links {
             </div>
         </div>
 
-        <div class="mobile-detail">
+        <div class="mobile-info-box">
             <span class="mobile-label">Time Left</span>
             <div class="mobile-value">
-                {% if case.next_hearing_date %}
+                {% if case.case_disposed == "Yes" %}
+                    Disposed{% if case.decision_date %} — {{ case.decision_date.strftime("%d-%m-%Y") }}{% endif %}
+                {% elif case.next_hearing_date %}
                     {% set d = (case.next_hearing_date - today).days %}
-                    {% if d < 0 %}
-                        {{ d|abs }} days overdue
-                    {% elif d == 0 %}
-                        TODAY
-                    {% elif d == 1 %}
-                        Tomorrow
-                    {% else %}
-                        {{ d }} days left
-                    {% endif %}
+                    {% if d < 0 %}{{ d|abs }} days overdue
+                    {% elif d == 0 %}TODAY
+                    {% elif d == 1 %}Tomorrow
+                    {% else %}{{ d }} days left{% endif %}
                 {% else %}
                     Undated
                 {% endif %}
             </div>
         </div>
 
-        <div class="mobile-detail full">
-            <span class="mobile-label">Next Hearing</span>
+        <div class="mobile-info-box full">
+            <span class="mobile-label">Next Hearing Date</span>
             <div class="mobile-value">
                 {% if case.next_hearing_date %}
                     {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
@@ -1280,7 +1004,6 @@ td.action-cell .action-links {
 </div>
 {% endfor %}
 </div>
-
 
 <div class="table-wrap">
 <table>
@@ -1462,7 +1185,7 @@ if (hasActiveFilter) {
     filterToggle.innerHTML = '⚙ Filters ▲';
 }
 
-const boxes = () => document.querySelectorAll('.casebox');
+const boxes = () => document.querySelectorAll('.casebox, .mobile-case-check');
 
 function selected() {
     return [...new Set([...boxes()].filter(x => x.checked).map(x => x.value))];
@@ -1474,12 +1197,28 @@ function refresh() {
     document.getElementById('selcount').textContent = n;
 }
 
-boxes().forEach(x => x.addEventListener('change', refresh));
+boxes().forEach(x => x.addEventListener('change', function () {
+    const id = x.value;
+    document.querySelectorAll('.casebox, .mobile-case-check').forEach(other => {
+        if (other !== x && other.value === id) other.checked = x.checked;
+    });
+    refresh();
+}));
 
 document.getElementById('all').addEventListener('change', e => {
     boxes().forEach(x => x.checked = e.target.checked);
     refresh();
 });
+
+const mobileAll = document.getElementById('mobileAll');
+if (mobileAll) {
+    mobileAll.addEventListener('change', e => {
+        boxes().forEach(x => x.checked = e.target.checked);
+        const desktopAll = document.getElementById('all');
+        if (desktopAll) desktopAll.checked = e.target.checked;
+        refresh();
+    });
+}
 
 function openModal(type) {
     const ids = selected();
@@ -1605,188 +1344,10 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 </script>
 
 
-<style id="final-mobile-operations-fix">
-/* ===== FINAL PHONE OVERRIDE — KEEP ALL DESKTOP FEATURES, CHANGE ONLY PRESENTATION ===== */
-@media (max-width:700px) {
-    /* The desktop table must be completely hidden on phones.
-       It still exists in the DOM so existing desktop functionality/JS remains intact. */
-    .table-wrap {
-        display:none !important;
-        visibility:hidden !important;
-    }
-
-    .mobile-card-toolbar {
-        display:flex !important;
-        align-items:center;
-        justify-content:space-between;
-        gap:8px;
-        margin:0 0 8px !important;
-        padding:8px 10px;
-        background:#f8fafc;
-        border:1px solid #dbe3ea;
-        border-radius:9px;
-        font-size:13px !important;
-    }
-    .mobile-card-toolbar label {
-        font-weight:700;
-        white-space:nowrap;
-    }
-    .mobile-card-toolbar span {
-        color:#64748b;
-        font-size:12px;
-        text-align:right;
-    }
-
-    /* Clean card header: case number stays INSIDE the card. */
-    .mobile-case-card {
-        width:100% !important;
-        max-width:100% !important;
-        box-sizing:border-box !important;
-        overflow:hidden !important;
-    }
-    .mobile-card-top {
-        display:flex !important;
-        align-items:center !important;
-        gap:10px !important;
-        width:100% !important;
-        box-sizing:border-box !important;
-        margin-bottom:10px !important;
-    }
-    .mobile-case-check {
-        flex:0 0 auto !important;
-        margin:0 !important;
-    }
-    .mobile-case-number {
-        display:block !important;
-        flex:1 1 auto !important;
-        min-width:0 !important;
-        max-width:100% !important;
-        white-space:normal !important;
-        overflow-wrap:anywhere !important;
-        word-break:normal !important;
-        color:#1f4f86 !important;
-        font-size:18px !important;
-        font-weight:700 !important;
-        line-height:1.3 !important;
-    }
-
-    .mobile-id-court,
-    .mobile-party,
-    .mobile-details {
-        margin-left:0 !important;
-    }
-
-    .mobile-id-court {
-        display:flex !important;
-        flex-wrap:wrap !important;
-        gap:7px !important;
-        margin-bottom:10px !important;
-    }
-
-    .mobile-party {
-        width:100% !important;
-        box-sizing:border-box !important;
-        overflow-wrap:anywhere !important;
-        word-break:normal !important;
-    }
-
-    /* Every piece of desktop row information remains visible on the card. */
-    .mobile-details {
-        display:grid !important;
-        grid-template-columns:1fr 1fr !important;
-        gap:7px !important;
-        width:100% !important;
-    }
-    .mobile-detail,
-    .mobile-detail.full {
-        min-width:0 !important;
-        box-sizing:border-box !important;
-    }
-    .mobile-detail.full {
-        grid-column:1 / -1 !important;
-    }
-
-    /* Keep all per-case desktop operations visible. */
-    .mobile-actions {
-        display:grid !important;
-        grid-template-columns:1fr 1fr !important;
-        gap:7px !important;
-        width:100% !important;
-        box-sizing:border-box !important;
-    }
-    .mobile-actions .mobile-highlight {
-        grid-column:1 / -1 !important;
-    }
-    .mobile-actions form,
-    .mobile-actions a,
-    .mobile-actions button {
-        display:flex !important;
-        align-items:center !important;
-        justify-content:center !important;
-        width:100% !important;
-        min-width:0 !important;
-        box-sizing:border-box !important;
-    }
-
-    /* Bulk operations from desktop remain available after selecting cases. */
-    #bulkbar.bulkbar {
-        width:100% !important;
-        box-sizing:border-box !important;
-        margin:8px 0 10px !important;
-        padding:10px !important;
-    }
-    #bulkbar.bulkbar button {
-        width:100% !important;
-        margin:5px 0 0 !important;
-        min-height:40px !important;
-        box-sizing:border-box !important;
-        white-space:normal !important;
-    }
-}
-
-@media (min-width:701px) {
-    .mobile-cases,
-    .mobile-card-toolbar {
-        display:none !important;
-    }
-}
-</style>
 
 
-<script id="final-mobile-checkbox-sync">
-document.addEventListener('DOMContentLoaded', function () {
-    var mobileAll = document.getElementById('mobileAll');
 
-    function allBoxesFor(id) {
-        return Array.from(document.querySelectorAll('.casebox')).filter(function (b) {
-            return String(b.value) === String(id);
-        });
-    }
 
-    document.querySelectorAll('.casebox').forEach(function (box) {
-        box.addEventListener('change', function () {
-            allBoxesFor(box.value).forEach(function (other) {
-                if (other !== box) other.checked = box.checked;
-            });
-            if (typeof refresh === 'function') refresh();
-        });
-    });
-
-    if (mobileAll) {
-        mobileAll.addEventListener('change', function () {
-            document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                box.checked = mobileAll.checked;
-                allBoxesFor(box.value).forEach(function (other) {
-                    other.checked = mobileAll.checked;
-                });
-            });
-            var desktopAll = document.getElementById('all');
-            if (desktopAll) desktopAll.checked = mobileAll.checked;
-            if (typeof refresh === 'function') refresh();
-        });
-    }
-});
-</script>
 
 </body>
 </html>
