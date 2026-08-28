@@ -6,6 +6,7 @@
 <title>{{ title }}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
 * { box-sizing: border-box; }
@@ -651,174 +652,189 @@ td.action-cell .action-links {
 </style>
 
 
-<style>
-/* ===== LOCKED CLEAN MOBILE VIEW — PHONE ONLY ===== */
-.mobile-cases,
-.mobile-card-toolbar { display:none; }
 
-@media (max-width:700px) {
-    html, body { max-width:100%; overflow-x:hidden; }
-    .cases-page { width:100%; max-width:100%; padding:8px !important; }
 
-    /* Existing top navigation and search stay fully usable, just compact. */
-    .top-links { display:flex !important; flex-wrap:wrap !important; gap:7px !important; margin:8px 0 12px !important; }
-    .top-links a { margin:0 !important; padding:8px 11px !important; font-size:14px !important; }
 
-    .search-card { padding:10px !important; margin-bottom:10px !important; }
-    .compact-row { display:flex !important; flex-wrap:wrap !important; gap:7px !important; }
-    .compact-search { flex:1 1 100% !important; min-width:0 !important; }
-    .compact-search input { width:100% !important; }
-    .filter-toggle, .search-btn, .clear-btn, .highlight-filter {
-        min-height:40px !important; height:40px !important;
-        padding:7px 11px !important; font-size:14px !important;
-    }
-    .filters-panel { grid-template-columns:1fr !important; }
 
-    /* Hide only the desktop TABLE on phone. Desktop remains unchanged. */
-    .table-wrap { display:none !important; }
 
-    /* Mobile controls expose the same selection/bulk operations. */
-    .mobile-card-toolbar {
-        display:flex !important;
-        align-items:center;
-        justify-content:space-between;
-        gap:8px;
-        margin:8px 0 !important;
-        padding:8px 10px;
-        background:#fff;
-        border:1px solid #dbe3ea;
-        border-radius:9px;
-    }
-    .mobile-card-toolbar label { font-size:14px !important; font-weight:700; }
-    .mobile-card-toolbar small { color:#64748b; }
 
-    .mobile-cases { display:block !important; width:100% !important; }
 
-    .mobile-case-card {
+
+<style id="bootstrap-mobile-cases">
+/* Bootstrap-based responsive presentation: desktop remains unchanged */
+.mobile-cases-bootstrap { display:none; }
+
+@media (max-width: 767.98px) {
+    .cases-page {
         width:100% !important;
-        box-sizing:border-box !important;
-        background:#fff;
-        border:1px solid #d7dee8;
-        border-radius:12px;
-        padding:12px;
-        margin:0 0 10px;
-        box-shadow:0 2px 7px rgba(15,23,42,.07);
-        overflow:hidden;
-    }
-    .mobile-case-card.highlighted-case { background:#e0f7ff; }
-
-    .mobile-card-head {
-        display:flex;
-        align-items:flex-start;
-        gap:9px;
-        margin-bottom:9px;
-    }
-    .mobile-case-check { flex:0 0 auto; margin-top:4px; width:18px; height:18px; }
-    .mobile-case-number {
-        flex:1 1 auto;
-        min-width:0;
-        font-size:18px !important;
-        line-height:1.3 !important;
-        font-weight:800 !important;
-        color:#1f4f86 !important;
-        text-decoration:none !important;
-        overflow-wrap:anywhere;
-    }
-
-    .mobile-meta {
-        display:flex;
-        flex-wrap:wrap;
-        gap:7px;
-        margin-bottom:10px;
-    }
-    .mobile-chip {
-        padding:4px 9px;
-        border:1px solid #d8e0e8;
-        border-radius:999px;
-        background:#f5f7fa;
-        font-size:14px !important;
-    }
-
-    .mobile-party {
-        padding:9px 10px;
-        margin-bottom:9px;
-        border-left:3px solid #991b1b;
-        background:#f8fafc;
-        border-radius:7px;
-        font-size:16px !important;
-        line-height:1.4 !important;
-        overflow-wrap:anywhere;
-    }
-
-    .mobile-info {
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:7px;
-    }
-    .mobile-info-box {
-        min-width:0;
-        padding:8px 9px;
-        background:#f8fafc;
-        border:1px solid #e1e7ee;
-        border-radius:8px;
-    }
-    .mobile-info-box.full { grid-column:1 / -1; }
-    .mobile-label {
-        display:block;
-        margin-bottom:3px;
-        color:#64748b;
-        font-size:12px !important;
-        font-weight:800 !important;
-    }
-    .mobile-value {
-        font-size:14px !important;
-        line-height:1.35 !important;
-        overflow-wrap:anywhere;
-    }
-
-    /* ALL existing per-case operations are visible. */
-    .mobile-actions {
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:7px;
-        margin-top:10px;
-    }
-    .mobile-actions form,
-    .mobile-actions a,
-    .mobile-actions button {
-        width:100% !important;
-        min-width:0 !important;
-        box-sizing:border-box !important;
+        max-width:100% !important;
         margin:0 !important;
-    }
-    .mobile-actions form { display:block !important; }
-    .mobile-actions a,
-    .mobile-actions button {
-        min-height:40px !important;
-        padding:8px !important;
-        display:flex !important;
-        align-items:center !important;
-        justify-content:center !important;
-        text-decoration:none !important;
-        border-radius:7px !important;
-    }
-    .mobile-actions .mobile-highlight { grid-column:1 / -1; }
-    .mobile-actions .mobile-highlight button { background:#7c3f00 !important; color:#fff !important; border:0 !important; }
-    .mobile-actions .mobile-open,
-    .mobile-actions .mobile-edit,
-    .mobile-actions .mobile-delete { background:#163d6b !important; color:#fff !important; border:0 !important; }
-
-    /* Existing bulk operations appear immediately after cases are selected. */
-    #bulkbar {
-        margin:8px 0 !important;
         padding:10px !important;
     }
-    #bulkbar button {
+
+    /* Keep existing desktop table out of the mobile viewport only */
+    .table-wrap { display:none !important; }
+
+    .top-links {
+        display:flex !important;
+        flex-wrap:wrap !important;
+        gap:8px !important;
+        margin:8px 0 12px !important;
+    }
+    .top-links a {
+        margin:0 !important;
+        padding:8px 11px !important;
+        font-size:15px !important;
+    }
+
+    .search-card { padding:11px !important; margin-bottom:12px !important; }
+    .compact-row { gap:8px !important; }
+    .compact-search { flex:1 1 100% !important; min-width:0 !important; }
+    .compact-search input { min-height:44px !important; }
+    .filter-toggle, .search-btn, .clear-btn, .highlight-filter {
+        min-height:42px !important;
+        padding:8px 12px !important;
+    }
+
+    .mobile-cases-bootstrap {
+        display:block !important;
         width:100% !important;
-        margin:5px 0 0 !important;
+    }
+
+    .mobile-select-row {
+        display:flex !important;
+        align-items:center !important;
+        justify-content:space-between !important;
+        gap:10px !important;
+        padding:8px 10px !important;
+        margin-bottom:10px !important;
+        border:1px solid #dbe3ea !important;
+        border-radius:10px !important;
+        background:#fff !important;
+    }
+
+    .mobile-case-card {
+        border:1px solid #d7dde5 !important;
+        border-radius:12px !important;
+        margin-bottom:11px !important;
+        overflow:hidden !important;
+        background:#fff !important;
+        box-shadow:0 2px 8px rgba(0,0,0,.06) !important;
+    }
+
+    .mobile-case-card.highlighted-case {
+        border-left:5px solid #b8860b !important;
+        background:#fffdf1 !important;
+    }
+
+    .mobile-case-card .card-body {
+        padding:12px !important;
+    }
+
+    .mobile-case-head {
+        display:flex !important;
+        align-items:flex-start !important;
+        gap:10px !important;
+        margin-bottom:10px !important;
+    }
+
+    .mobile-case-check {
+        margin-top:5px !important;
+        flex:0 0 auto !important;
+    }
+
+    .mobile-case-number {
+        flex:1 1 auto !important;
+        min-width:0 !important;
+        color:#1f4f8a !important;
+        font-weight:700 !important;
+        font-size:18px !important;
+        line-height:1.28 !important;
+        overflow-wrap:anywhere !important;
+        text-decoration:none !important;
+    }
+
+    .mobile-case-meta .badge {
+        font-size:13px !important;
+        font-weight:600 !important;
+    }
+
+    .mobile-party-box {
+        border-left:4px solid #b3122b !important;
+        background:#f8fafc !important;
+        padding:9px 10px !important;
+        border-radius:7px !important;
+        font-size:16px !important;
+        line-height:1.42 !important;
+        overflow-wrap:anywhere !important;
+    }
+
+    .mobile-detail-box {
+        height:100% !important;
+        border:1px solid #e1e6ed !important;
+        border-radius:8px !important;
+        background:#fafbfd !important;
+        padding:8px 9px !important;
+    }
+
+    .mobile-detail-label {
+        display:block !important;
+        font-size:12px !important;
+        font-weight:700 !important;
+        color:#64748b !important;
+        margin-bottom:3px !important;
+    }
+
+    .mobile-detail-value {
+        font-size:14px !important;
+        line-height:1.35 !important;
+        overflow-wrap:anywhere !important;
+    }
+
+    .mobile-actions {
+        display:grid !important;
+        grid-template-columns:1fr 1fr !important;
+        gap:7px !important;
+        margin-top:11px !important;
+    }
+
+    .mobile-actions .btn,
+    .mobile-actions form {
+        width:100% !important;
+        margin:0 !important;
+    }
+
+    .mobile-actions .btn,
+    .mobile-actions button {
+        min-height:40px !important;
+        font-size:14px !important;
+        font-weight:700 !important;
+    }
+
+    .mobile-actions .highlight-form {
+        grid-column:1 / -1 !important;
+    }
+
+    /* Existing bulk operations remain available and stack cleanly on phone */
+    #bulkbar.bulkbar {
+        width:100% !important;
+        padding:10px !important;
+        margin:8px 0 12px !important;
+    }
+
+    #bulkbar.bulkbar button {
+        display:block !important;
+        width:100% !important;
+        margin:6px 0 0 !important;
         min-height:40px !important;
         white-space:normal !important;
     }
+
+    h2 { font-size:22px !important; margin:10px 0 !important; }
+}
+
+@media (min-width:768px) {
+    .mobile-cases-bootstrap { display:none !important; }
 }
 </style>
 
@@ -921,88 +937,91 @@ td.action-cell .action-links {
 
 
 
-<!-- PHONE-ONLY: SAME CASE DATA + SAME OPERATIONS, SMART PRESENTATION -->
-<div class="mobile-card-toolbar">
-    <label><input type="checkbox" id="mobileAll"> Select All Cases</label>
-    <small>All case operations available below</small>
-</div>
-
-<div class="mobile-cases">
-{% for case in cases %}
-<div class="mobile-case-card {% if case.highlighted %}highlighted-case{% endif %}"
-     data-case-no="{{ case.case_no }}"
-     data-court="Court {{ case.court_no }}"
-     data-party="{{ case.parties }}"
-     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
-     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
-     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
-
-    <div class="mobile-card-head">
-        <input class="mobile-case-check" type="checkbox" value="{{ case.id }}">
-        <a class="mobile-case-number" href="/case/{{ case.id }}">{{ case.case_no }}</a>
+<!-- Bootstrap phone layout: same server-side case data and same routes -->
+<div class="mobile-cases-bootstrap d-md-none">
+    <div class="mobile-select-row">
+        <label class="m-0 fw-bold"><input type="checkbox" id="mobileAll"> Select All Cases</label>
+        <span class="text-muted small">All case operations available</span>
     </div>
 
-    <div class="mobile-meta">
-        <span class="mobile-chip">ID: {{ case.id }}</span>
-        <span class="mobile-chip">Court {{ case.court_no }}</span>
-    </div>
+    {% for case in cases %}
+    <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %}"
+        data-case-no="{{ case.case_no }}"
+        data-court="Court {{ case.court_no }}"
+        data-party="{{ case.parties }}"
+        data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
+        data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
+        data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
 
-    <div class="mobile-party">{{ case.parties|format_vs }}</div>
+        <div class="card-body">
+            <div class="mobile-case-head">
+                <input class="casebox mobile-case-check" type="checkbox" value="{{ case.id }}">
+                <a class="mobile-case-number" href="/case/{{ case.id }}">{{ case.case_no }}</a>
+            </div>
 
-    <div class="mobile-info">
-        <div class="mobile-info-box">
-            <span class="mobile-label">Case Stage</span>
-            <div class="mobile-value">
-                {% if case.case_stage == "Other" and case.case_stage_other %}
-                    {{ case.case_stage_other }}
-                {% else %}
-                    {{ case.case_stage }}
-                {% endif %}
+            <div class="mobile-case-meta d-flex flex-wrap gap-2 mb-3">
+                <span class="badge rounded-pill text-bg-light border text-dark">ID: {{ case.id }}</span>
+                <span class="badge rounded-pill text-bg-light border text-dark">Court {{ case.court_no }}</span>
+            </div>
+
+            <div class="mobile-party-box mb-3">{{ case.parties|format_vs }}</div>
+
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="mobile-detail-box">
+                        <span class="mobile-detail-label">Case Stage</span>
+                        <div class="mobile-detail-value">
+                            {% if case.case_stage == "Other" and case.case_stage_other %}
+                                {{ case.case_stage_other }}
+                            {% else %}
+                                {{ case.case_stage }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="mobile-detail-box">
+                        <span class="mobile-detail-label">Time Left</span>
+                        <div class="mobile-detail-value">
+                            {% if case.next_hearing_date %}
+                                {% set d = (case.next_hearing_date - today).days %}
+                                {% if d < 0 %}{{ d|abs }} days overdue
+                                {% elif d == 0 %}TODAY
+                                {% elif d == 1 %}Tomorrow
+                                {% else %}{{ d }} days left{% endif %}
+                            {% else %}Undated{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="mobile-detail-box">
+                        <span class="mobile-detail-label">Next Hearing</span>
+                        <div class="mobile-detail-value">
+                            {% if case.next_hearing_date %}
+                                {{ case.next_hearing_date.strftime("%d-%m-%Y") }} — {{ case.next_hearing_date.strftime("%A") }}
+                            {% else %}Not Scheduled{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mobile-actions">
+                <form class="highlight-form" action="/case/{{ case.id }}/toggle-highlight" method="POST">
+                    <button class="btn btn-warning" type="submit">
+                        {% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}
+                    </button>
+                </form>
+                <a class="btn btn-primary" href="/case/{{ case.id }}">Open</a>
+                <a class="btn btn-outline-primary" href="/edit-case/{{ case.id }}">Edit</a>
+                <form action="/delete-case/{{ case.id }}" method="POST">
+                    <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
+                </form>
             </div>
         </div>
-
-        <div class="mobile-info-box">
-            <span class="mobile-label">Time Left</span>
-            <div class="mobile-value">
-                {% if case.case_disposed == "Yes" %}
-                    Disposed{% if case.decision_date %} — {{ case.decision_date.strftime("%d-%m-%Y") }}{% endif %}
-                {% elif case.next_hearing_date %}
-                    {% set d = (case.next_hearing_date - today).days %}
-                    {% if d < 0 %}{{ d|abs }} days overdue
-                    {% elif d == 0 %}TODAY
-                    {% elif d == 1 %}Tomorrow
-                    {% else %}{{ d }} days left{% endif %}
-                {% else %}
-                    Undated
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="mobile-info-box full">
-            <span class="mobile-label">Next Hearing Date</span>
-            <div class="mobile-value">
-                {% if case.next_hearing_date %}
-                    {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
-                    — {{ case.next_hearing_date.strftime("%A") }}
-                {% else %}
-                    Not Scheduled
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <div class="mobile-actions">
-        <form class="mobile-highlight" action="/case/{{ case.id }}/toggle-highlight" method="POST">
-            <button type="submit">{% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button>
-        </form>
-        <a class="mobile-open" href="/case/{{ case.id }}">Open</a>
-        <a class="mobile-edit" href="/edit-case/{{ case.id }}">Edit</a>
-        <form action="/delete-case/{{ case.id }}" method="POST">
-            <button class="mobile-delete" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
-        </form>
-    </div>
-</div>
-{% endfor %}
+    </article>
+    {% endfor %}
 </div>
 
 <div class="table-wrap">
@@ -1185,7 +1204,7 @@ if (hasActiveFilter) {
     filterToggle.innerHTML = '⚙ Filters ▲';
 }
 
-const boxes = () => document.querySelectorAll('.casebox, .mobile-case-check');
+const boxes = () => document.querySelectorAll('.casebox');
 
 function selected() {
     return [...new Set([...boxes()].filter(x => x.checked).map(x => x.value))];
@@ -1197,28 +1216,12 @@ function refresh() {
     document.getElementById('selcount').textContent = n;
 }
 
-boxes().forEach(x => x.addEventListener('change', function () {
-    const id = x.value;
-    document.querySelectorAll('.casebox, .mobile-case-check').forEach(other => {
-        if (other !== x && other.value === id) other.checked = x.checked;
-    });
-    refresh();
-}));
+boxes().forEach(x => x.addEventListener('change', refresh));
 
 document.getElementById('all').addEventListener('change', e => {
     boxes().forEach(x => x.checked = e.target.checked);
     refresh();
 });
-
-const mobileAll = document.getElementById('mobileAll');
-if (mobileAll) {
-    mobileAll.addEventListener('change', e => {
-        boxes().forEach(x => x.checked = e.target.checked);
-        const desktopAll = document.getElementById('all');
-        if (desktopAll) desktopAll.checked = e.target.checked;
-        refresh();
-    });
-}
 
 function openModal(type) {
     const ids = selected();
@@ -1348,6 +1351,40 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 
 
 
+
+
+<script id="bootstrap-mobile-case-sync">
+document.addEventListener('DOMContentLoaded', function () {
+    function sameCaseBoxes(value) {
+        return Array.from(document.querySelectorAll('.casebox'))
+            .filter(function (box) { return String(box.value) === String(value); });
+    }
+
+    document.querySelectorAll('.casebox').forEach(function (box) {
+        box.addEventListener('change', function () {
+            sameCaseBoxes(box.value).forEach(function (other) {
+                if (other !== box) other.checked = box.checked;
+            });
+            if (typeof refresh === 'function') refresh();
+        });
+    });
+
+    var mobileAll = document.getElementById('mobileAll');
+    if (mobileAll) {
+        mobileAll.addEventListener('change', function () {
+            document.querySelectorAll('.mobile-case-check').forEach(function (box) {
+                box.checked = mobileAll.checked;
+                sameCaseBoxes(box.value).forEach(function (other) {
+                    other.checked = mobileAll.checked;
+                });
+            });
+            var desktopAll = document.getElementById('all');
+            if (desktopAll) desktopAll.checked = mobileAll.checked;
+            if (typeof refresh === 'function') refresh();
+        });
+    }
+});
+</script>
 
 </body>
 </html>
