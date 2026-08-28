@@ -770,35 +770,29 @@ def case_list():
 
 
     # SEARCH CASE NUMBER / PARTY NAME
-
+    # Numeric search must return only the case whose CASE NUMBER contains
+    # that complete numeric segment; it must not search hidden CNR/party/advocate fields.
     if search:
-
-        query = query.filter(
-
-            db.or_(
-
-                Case.case_no.ilike(
-                    f"%{search}%"
-                ),
-
-                Case.parties.ilike(
-                    f"%{search}%"
-                ),
-
-                Case.crn_no.ilike(
-                    f"%{search}%"
-                ),
-
-                Case.advocate_name.ilike(
-                    f"%{search}%"
+        if search.strip().isdigit():
+            term = search.strip()
+            query = query.filter(
+                db.or_(
+                    Case.case_no == term,
+                    Case.case_no.ilike(f"%/{term}/%"),
+                    Case.case_no.ilike(f"% {term} %"),
+                    Case.case_no.ilike(f"% {term}/%"),
+                    Case.case_no.ilike(f"%/{term} %")
                 )
-
             )
-
-        )
-
-
-    # COURT FILTER
+        else:
+            query = query.filter(
+                db.or_(
+                    Case.case_no.ilike(f"%{search}%"),
+                    Case.parties.ilike(f"%{search}%"),
+                    Case.crn_no.ilike(f"%{search}%"),
+                    Case.advocate_name.ilike(f"%{search}%")
+                )
+            )
 
     if court_no:
 
