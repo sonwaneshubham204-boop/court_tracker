@@ -465,6 +465,91 @@ td.action-cell .action-links button {
     white-space: nowrap !important;
 }
 
+
+
+/* ===== MOBILE FIX ONLY: CASES PAGE =====
+   Desktop layout remains unchanged. On phones, the existing table keeps
+   readable column widths and can be swiped horizontally instead of shrinking. */
+@media (max-width: 900px) {
+    .cases-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 10px !important;
+    }
+
+    .top-links {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .top-links a {
+        margin-right: 0 !important;
+    }
+
+    .search-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .compact-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+    }
+
+    .compact-search {
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+    }
+
+    .filter-toggle,
+    .search-btn,
+    .clear-btn {
+        min-height: 46px !important;
+    }
+
+    .table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .table-wrap table,
+    table {
+        width: 1080px !important;
+        min-width: 1080px !important;
+        max-width: none !important;
+        table-layout: auto !important;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    .action-links {
+        min-width: 115px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .filter-toggle,
+    .search-btn,
+    .clear-btn {
+        flex: 1 1 auto !important;
+    }
+
+    .table-wrap {
+        border-radius: 8px !important;
+    }
+}
+
 </style>
 
 <style>
