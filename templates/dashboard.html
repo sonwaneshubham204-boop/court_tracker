@@ -36,6 +36,34 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
 .empty-message{margin:0;padding:14px 16px;border:1px dashed #86efac;border-radius:10px;background:#f0fdf4;color:#166534!important;font-weight:700}
 @media(max-width:768px){.container{width:calc(100% - 20px);margin:16px auto 40px}.topbar,.section{padding:18px}.nav{display:grid;grid-template-columns:1fr 1fr}.nav a{width:100%}.stats-container{grid-template-columns:1fr 1fr}}
 @media(max-width:430px){.nav,.stats-container{grid-template-columns:1fr}}
+
+/* ===== PHONE VIEW FIX ONLY — desktop layout unchanged ===== */
+@media (max-width: 900px){
+    html,body{width:100%;max-width:100%;overflow-x:hidden}
+    body{min-width:0}
+    .container{width:calc(100% - 16px)!important;margin:8px auto 28px!important}
+    .topbar{padding:16px!important;margin-bottom:14px!important}
+    .topbar h1{font-size:24px!important;line-height:1.25}
+    .nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+    .nav a{width:100%!important;min-width:0!important;padding:11px 8px!important;font-size:14px!important;text-align:center}
+    .stats-container{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-bottom:16px!important}
+    .stat-card{padding:14px!important}
+    .stat-card h3{font-size:14px!important;margin-bottom:8px!important}
+    .number{font-size:28px!important}
+    .section{padding:14px!important;margin-top:14px!important}
+    .section h2{font-size:19px!important;margin-bottom:12px!important}
+    .table-container{width:100%!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+    table{min-width:620px!important}
+    th,td{padding:10px!important}
+}
+@media (max-width: 480px){
+    .nav{grid-template-columns:1fr!important}
+    .stats-container{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    .topbar h1{font-size:22px!important}
+    .nav a{font-size:15px!important}
+    .section{padding:12px!important}
+}
+
 </style>
 </head>
 
