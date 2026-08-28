@@ -838,6 +838,100 @@ td.action-cell .action-links {
 }
 </style>
 
+
+<style id="mobile-card-conflict-killer">
+@media (max-width:767.98px){
+  .mobile-cases-bootstrap,
+  .mobile-cases-bootstrap * { box-sizing:border-box!important; }
+
+  .mobile-case-card{
+    display:block!important;
+    position:static!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0 0 11px 0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+
+  .mobile-case-card .card-body{
+    display:block!important;
+    position:static!important;
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:12px!important;
+    overflow:visible!important;
+  }
+
+  .mobile-case-card .mobile-case-head{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
+    min-height:32px!important;
+    margin:0 0 10px!important;
+    padding:0!important;
+    position:static!important;
+    overflow:visible!important;
+  }
+
+  .mobile-case-card .mobile-case-check{
+    display:block!important;
+    position:static!important;
+    flex:0 0 20px!important;
+    width:20px!important;
+    height:20px!important;
+    margin:0 10px 0 0!important;
+    padding:0!important;
+    transform:none!important;
+  }
+
+  .mobile-case-card .mobile-case-number{
+    display:block!important;
+    position:static!important;
+    float:none!important;
+    clear:none!important;
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    writing-mode:horizontal-tb!important;
+    text-orientation:mixed!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:anywhere!important;
+    transform:none!important;
+    line-height:1.3!important;
+    text-indent:0!important;
+  }
+
+  .mobile-case-card .mobile-case-meta,
+  .mobile-case-card .mobile-party-box,
+  .mobile-case-card .row,
+  .mobile-case-card .mobile-actions{
+    position:static!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -954,9 +1048,9 @@ td.action-cell .action-links {
         data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
 
         <div class="card-body">
-            <div class="mobile-case-head">
-                <input class="casebox mobile-case-check" type="checkbox" value="{{ case.id }}">
-                <a class="mobile-case-number" href="/case/{{ case.id }}">{{ case.case_no }}</a>
+            <div class="mobile-case-head" style="display:flex!important; flex-direction:row!important; align-items:center!important; width:100%!important; min-height:32px!important; height:auto!important; margin:0 0 10px 0!important; padding:0!important; position:static!important;">
+                <input class="casebox mobile-case-check" type="checkbox" value="{{ case.id }}" style="display:block!important; flex:0 0 20px!important; width:20px!important; height:20px!important; margin:0 10px 0 0!important; position:static!important;">
+                <a class="mobile-case-number" href="/case/{{ case.id }}" style="display:block!important; flex:1 1 auto!important; width:auto!important; min-width:0!important; max-width:calc(100% - 30px)!important; height:auto!important; min-height:0!important; margin:0!important; padding:0!important; position:static!important; writing-mode:horizontal-tb!important; white-space:normal!important; word-break:normal!important; overflow-wrap:anywhere!important; transform:none!important; text-indent:0!important;">{{ case.case_no }}</a>
             </div>
 
             <div class="mobile-case-meta d-flex flex-wrap gap-2 mb-3">
