@@ -22,6 +22,7 @@ body{margin:0;min-height:100vh;font-family:Cambria,Georgia,serif;color:var(--tex
 .stat-card:nth-child(2):before{background:#7c3aed}.stat-card:nth-child(3):before{background:#0f766e}.stat-card:nth-child(4):before{background:#059669}.stat-card:nth-child(5):before{background:#ea580c}.stat-card:nth-child(6):before{background:#ca8a04}.stat-card:nth-child(7):before{background:#16a34a}.stat-card:nth-child(8):before{background:#dc2626}.stat-card:nth-child(9):before{background:#2563eb}.stat-card:nth-child(10):before{background:#315989}.stat-card:nth-child(11):before{background:#198754}.stat-card:nth-child(12):before{background:#7c3aed}
 .stat-card h3{margin:0 0 10px;color:#111827!important;font-size:16px;font-weight:800}
 .number{font-size:34px;line-height:1;font-weight:800;color:var(--navy)}
+.dashboard-group{margin:0 0 20px}.dashboard-group>h2{margin:0 0 10px;color:#173b6c;font-size:21px}.dashboard-group .stats-container{margin-bottom:0}.dashboard-group.all-cases .stat-card:nth-child(1):before{background:#ea580c}.dashboard-group.all-cases .stat-card:nth-child(2):before{background:#ca8a04}.dashboard-group.all-cases .stat-card:nth-child(3):before{background:#16a34a}.dashboard-group.all-cases .stat-card:nth-child(4):before{background:#dc2626}.dashboard-group.all-cases .stat-card:nth-child(5):before{background:#2563eb}.dashboard-group.all-cases .stat-card:nth-child(6):before{background:#315989}.dashboard-group.enquiries .stat-card:nth-child(1):before{background:#198754}.dashboard-group.enquiries .stat-card:nth-child(2):before{background:#7c3aed}
 .section{padding:22px;margin-top:20px;border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:16px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.07)}
 .section.overdue{border-left-color:#dc2626}.section.today{border-left-color:#ea580c}.section.tomorrow{border-left-color:#ca8a04}.section.upcoming{border-left-color:#16a34a}
 .section h2{margin:0 0 18px;color:#111827!important}
@@ -32,7 +33,7 @@ td{padding:14px;border-top:1px solid #dbe3ec;color:#111827!important;background:
 tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef5ff}td:nth-child(4){white-space:nowrap}
 .stage-list{display:flex;flex-wrap:wrap;gap:10px}
 .stage-list a{display:inline-flex;padding:10px 14px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#111827!important;text-decoration:none;font-weight:700}
-.court-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.court-stage-card{min-width:0;padding:14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}.court-stage-card h3{margin:0 0 9px;color:#173b6c}.court-stage-card ul{margin:0;padding-left:20px}.court-stage-card li{margin:4px 0}.matter-date-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-bottom:14px}.matter-date-form label{display:grid;gap:5px;font-weight:700}.matter-date-form input{min-height:40px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.matter-summary{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}.matter-summary div{padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc}.matter-summary b{display:block;margin-bottom:4px}.section.today tbody tr.today-hearing-row td{background:#173b6c!important;color:#fff!important;border-color:rgba(255,255,255,.22)}.section.today tbody tr.today-hearing-row .open-btn{background:#fff;color:#173b6c!important}
+.court-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.court-stage-card{min-width:0;padding:14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}.court-stage-card h3{margin:0 0 9px;color:#173b6c}.court-stage-card ul{margin:0;padding-left:20px}.court-stage-card li{margin:4px 0}.court-stage-card li a{display:block;padding:5px 2px;color:#173b6c!important;font-weight:700;text-decoration:none;overflow-wrap:anywhere}.court-stage-card li a:hover,.court-stage-card li a:focus{text-decoration:underline}.matter-date-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-bottom:14px}.matter-date-form label{display:grid;gap:5px;font-weight:700}.matter-date-form input{min-height:40px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.matter-summary{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}.matter-summary div{padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc}.matter-summary b{display:block;margin-bottom:4px}.section.today tbody tr.today-hearing-row td{background:#173b6c!important;color:#fff!important;border-color:rgba(255,255,255,.22)}.section.today tbody tr.today-hearing-row .open-btn{background:#fff;color:#173b6c!important}
 .open-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;border-radius:8px;background:linear-gradient(135deg,#173b6c,#2563eb);color:#fff!important;text-decoration:none;font-weight:800;white-space:nowrap}
 .empty-message{margin:0;padding:14px 16px;border:1px dashed #86efac;border-radius:10px;background:#f0fdf4;color:#166534!important;font-weight:700}
 @media(max-width:768px){.container{width:calc(100% - 20px);margin:16px auto 40px}.topbar,.section{padding:18px}.nav{display:grid;grid-template-columns:1fr 1fr}.nav a{width:100%}.stats-container{grid-template-columns:1fr 1fr}}
@@ -87,6 +88,8 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
     </nav>
 </header>
 
+<section class="dashboard-group all-courts">
+<h2>All Courts</h2>
 <div class="stats-container">
 
     <a href="/cases?court_no=1" class="stat-card">
@@ -109,7 +112,12 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
         <h3>Total Cases</h3>
         <div class="number">{{ total_cases }}</div>
     </a>
+</div>
+</section>
 
+<section class="dashboard-group all-cases">
+<h2>All Cases</h2>
+<div class="stats-container">
     <a href="/cases?hearing_status=today" class="stat-card">
         <h3>Today's Hearings</h3>
         <div class="number">{{ todays_cases }}</div>
@@ -140,34 +148,21 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
         <h3>Disposed Cases</h3>
         <div class="number">{{ disposed_cases }}</div>
     </a>
+</div>
+</section>
 
-    <!-- Today's Enquiries -->
+<section class="dashboard-group enquiries">
+<h2>Enquiries</h2>
+<div class="stats-container">
     <a href="/enquiries?schedule=today" class="stat-card">
         <h3>Today's Enquiries</h3>
         <div class="number">{{ todays_enquiries }}</div>
     </a>
 
-    <!-- Next Enquiries -->
     <a href="/enquiries?schedule=next" class="stat-card">
         <h3>Next Enquiries</h3>
         <div class="number">{{ next_enquiries }}</div>
     </a>
-
-</div>
-
-<section class="section">
-<h2>📅 Matters on a Specific Date</h2>
-<form class="matter-date-form" method="get">
-    <label>Selected Date
-        <input type="date" name="matter_date" value="{{ selected_matter_date.isoformat() }}">
-    </label>
-    <button class="open-btn" type="submit">Show Matters</button>
-</form>
-<div class="matter-summary">
-    <div><b>Court I</b>{{ selected_date_court_counts[1] }}</div>
-    <div><b>Court II</b>{{ selected_date_court_counts[2] }}</div>
-    <div><b>Court III</b>{{ selected_date_court_counts[3] }}</div>
-    <div><b>Total Matters</b>{{ selected_date_total }}</div>
 </div>
 </section>
 
@@ -294,17 +289,18 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
 <section class="section">
 <h2>⚖ Case Stage</h2>
 
-<div class="stage-list">
-    <a href="/stage/Notice">Notice: {{ notice_count }}</a>
-    <a href="/stage/Admission">Admission: {{ admission_count }}</a>
-    <a href="/stage/Hearing">Hearing: {{ hearing_count }}</a>
-    <a href="/stage/Evidence">Evidence: {{ evidence_count }}</a>
-    <a href="/stage/Cross%20Examination">Cross Examination: {{ cross_examination_count }}</a>
-    <a href="/stage/Arguments">Arguments: {{ arguments_count }}</a>
-    <a href="/stage/Final%20Arguments">Final Arguments: {{ final_arguments_count }}</a>
-    <a href="/stage/Final%20Hearing">Final Hearing: {{ final_hearing_count }}</a>
-    <a href="/stage/Judgment">Judgment: {{ judgment_count }}</a>
-    <a href="/stage/Order">Order: {{ order_count }}</a>
+<h3>📅 Matters on a Specific Date</h3>
+<form class="matter-date-form" method="get">
+    <label>Selected Date
+        <input type="date" name="matter_date" value="{{ selected_matter_date.isoformat() }}">
+    </label>
+    <button class="open-btn" type="submit">Show Matters</button>
+</form>
+<div class="matter-summary">
+    <div><b>Court I</b>{{ selected_date_court_counts[1] }}</div>
+    <div><b>Court II</b>{{ selected_date_court_counts[2] }}</div>
+    <div><b>Court III</b>{{ selected_date_court_counts[3] }}</div>
+    <div><b>Total Matters</b>{{ selected_date_total }}</div>
 </div>
 
 <div class="court-stage-grid">
@@ -312,7 +308,7 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
     <div class="court-stage-card">
         <h3>Court {{ ['I', 'II', 'III'][court_no - 1] }}</h3>
         {% if court_stage_counts[court_no] %}
-        <ul>{% for stage, count in court_stage_counts[court_no] %}<li>{{ stage }}: <strong>{{ count }}</strong></li>{% endfor %}</ul>
+        <ul>{% for stage, count in court_stage_counts[court_no] %}<li><a href="{{ url_for('case_list', court_no=court_no, case_stage=stage) }}">{{ stage }}: <strong>{{ count }}</strong></a></li>{% endfor %}</ul>
         {% else %}<p>No cases recorded.</p>{% endif %}
     </div>
     {% endfor %}
