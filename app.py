@@ -659,6 +659,27 @@ def home():
     }
     selected_date_total = sum(selected_date_court_counts.values())
 
+    # Case stages represented by matters scheduled on the selected date,
+    # grouped by court. This is used only for the dashboard visual highlight.
+    selected_date_stage_counts = {court_no: {} for court_no in (1, 2, 3)}
+    selected_date_cases = Case.query.filter(
+        Case.next_hearing_date == selected_matter_date
+    ).all()
+    for case in selected_date_cases:
+        stage = (
+            case.case_stage_other.strip()
+            if case.case_stage == "Other" and case.case_stage_other
+            else (case.case_stage or "").strip()
+        )
+        if stage and case.court_no in selected_date_stage_counts:
+            counts = selected_date_stage_counts[case.court_no]
+            counts[stage] = counts.get(stage, 0) + 1
+
+    selected_date_stage_counts = {
+        court_no: set(counts.keys())
+        for court_no, counts in selected_date_stage_counts.items()
+    }
+
 
     # =====================================================
     # REMINDER LISTS
@@ -737,6 +758,7 @@ def home():
         judgment_count=judgment_count,
         order_count=order_count,
         court_stage_counts=court_stage_counts,
+        selected_date_stage_counts=selected_date_stage_counts,
         selected_matter_date=selected_matter_date,
         selected_date_court_counts=selected_date_court_counts,
         selected_date_total=selected_date_total,
