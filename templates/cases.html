@@ -1120,12 +1120,11 @@ td.action-cell .action-links {
     </div>
 </form>
 
-<h2>Total Results: <strong>{{ cases|length }}</strong></h2>
+<h2>Total Results: <strong id="totalresults">{{ cases|length }}</strong></h2>
 
 <div id="bulkbar" class="bulkbar">
     <b id="selcount">0</b> selected:
-    <button type="button" onclick="openModal('date')">📅 Change Next Hearing Date</button>
-    <button type="button" onclick="openModal('stage')">⚖️ Change Case Stage</button>
+    <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
 </div>
@@ -1359,8 +1358,10 @@ td.action-cell .action-links {
 
     <h3 id="mtitle"></h3>
 
+    <label id="bulkdateLabel" style="display:none">Next Hearing Date</label>
     <input id="bulkdate" type="date" name="next_hearing_date" style="display:none">
 
+    <label id="bulkstageLabel" style="display:none">Case Stage</label>
     <select id="bulkstage" name="case_stage" style="display:none">
         <option value="">Select Stage</option>
         {% for s in all_stage_options %}
@@ -1451,6 +1452,10 @@ function refresh() {
     const n = selected().length;
     document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
     document.getElementById('selcount').textContent = n;
+    // When selections are held across searches, show the held operation total.
+    // With no held selections, keep showing the current search result count.
+    const totalResults = document.getElementById('totalresults');
+    if (totalResults) totalResults.textContent = n ? n : {{ cases|length }};
 }
 
 function restoreStoredSelections() {
@@ -1506,16 +1511,18 @@ function openModal(type) {
 
     const form = document.getElementById('modalForm');
 
-    document.getElementById('bulkdate').style.display = type === 'date' ? 'block' : 'none';
-    document.getElementById('bulkstage').style.display = type === 'stage' ? 'block' : 'none';
+    const isUpdate = type === 'update';
+    document.getElementById('bulkdate').style.display = isUpdate ? 'block' : 'none';
+    document.getElementById('bulkdateLabel').style.display = isUpdate ? 'block' : 'none';
+    document.getElementById('bulkstage').style.display = isUpdate ? 'block' : 'none';
+    document.getElementById('bulkstageLabel').style.display = isUpdate ? 'block' : 'none';
     document.getElementById('decision').style.display = type === 'dispose' ? 'block' : 'none';
 
     document.getElementById('mtitle').textContent =
-        type === 'date' ? 'Change Next Hearing Date' :
-        type === 'stage' ? 'Change Case Stage' :
+        type === 'update' ? 'Change Next Hearing Date / Case Stage' :
         'Dispose Selected — Select Decision Date';
 
-    form.action = '/bulk/' + type + '?ids=' + ids.join(',');
+    form.action = type === 'update' ? '/bulk/update?ids=' + ids.join(',') : '/bulk/' + type + '?ids=' + ids.join(',');
     document.getElementById('modal').style.display = 'flex';
 }
 
@@ -1538,7 +1545,16 @@ function bulkDelete() {
 // A completed bulk operation consumes the current selection.
 const modalForm = document.getElementById('modalForm');
 if (modalForm) {
-    modalForm.addEventListener('submit', function () {
+    modalForm.addEventListener('submit', function (e) {
+        if (document.getElementById('mtitle').textContent === 'Change Next Hearing Date / Case Stage') {
+            const dateValue = document.getElementById('bulkdate').value.trim();
+            const stageValue = document.getElementById('bulkstage').value.trim();
+            if (!dateValue && !stageValue) {
+                e.preventDefault();
+                alert('Please enter a Next Hearing Date or select a Case Stage.');
+                return;
+            }
+        }
         clearBulkSelection();
     });
 }
