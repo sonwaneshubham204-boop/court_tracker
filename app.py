@@ -634,22 +634,6 @@ def home():
         case_stage="Order"
     ).count()
 
-    court_stage_counts = {court_no: {} for court_no in (1, 2, 3)}
-    for case in Case.query.all():
-        stage = (
-            case.case_stage_other.strip()
-            if case.case_stage == "Other" and case.case_stage_other
-            else (case.case_stage or "").strip()
-        )
-        if stage and case.court_no in court_stage_counts:
-            counts = court_stage_counts[case.court_no]
-            counts[stage] = counts.get(stage, 0) + 1
-
-    court_stage_counts = {
-        court_no: sorted(counts.items(), key=lambda item: item[0].casefold())
-        for court_no, counts in court_stage_counts.items()
-    }
-
     selected_date_court_counts = {
         court_no: Case.query.filter_by(
             court_no=court_no,
@@ -659,8 +643,7 @@ def home():
     }
     selected_date_total = sum(selected_date_court_counts.values())
 
-    # Case stages represented by matters scheduled on the selected date,
-    # grouped by court. This is used only for the dashboard visual highlight.
+    # Stage counts in this section are ONLY for matters on the selected date.
     selected_date_stage_counts = {court_no: {} for court_no in (1, 2, 3)}
     selected_date_cases = Case.query.filter(
         Case.next_hearing_date == selected_matter_date
@@ -674,6 +657,11 @@ def home():
         if stage and case.court_no in selected_date_stage_counts:
             counts = selected_date_stage_counts[case.court_no]
             counts[stage] = counts.get(stage, 0) + 1
+
+    court_stage_counts = {
+        court_no: sorted(counts.items(), key=lambda item: item[0].casefold())
+        for court_no, counts in selected_date_stage_counts.items()
+    }
 
     selected_date_stage_counts = {
         court_no: set(counts.keys())
@@ -799,6 +787,11 @@ def case_list():
         ""
     ).strip()
 
+    matter_date = request.args.get(
+        "matter_date",
+        ""
+    ).strip()
+
     hearing_status = request.args.get(
         "hearing_status",
         ""
@@ -883,6 +876,15 @@ def case_list():
                 )
             )
         )
+
+
+    # Preserve the dashboard selected date when opening a stage count.
+    if matter_date:
+        try:
+            selected_case_date = datetime.strptime(matter_date, "%Y-%m-%d").date()
+            query = query.filter(Case.next_hearing_date == selected_case_date)
+        except ValueError:
+            pass
 
 
     # HEARING STATUS FILTER
@@ -1012,6 +1014,8 @@ def case_list():
         case_stage=case_stage,
 
         hearing_status=hearing_status,
+
+        matter_date=matter_date,
 
         case_disposed=case_disposed,
 
