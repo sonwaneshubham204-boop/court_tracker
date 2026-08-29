@@ -1363,7 +1363,7 @@ td.action-cell .action-links {
 
     <select id="bulkstage" name="case_stage" style="display:none">
         <option value="">Select Stage</option>
-        {% for s in ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
+        {% for s in all_stage_options %}
         <option value="{{ s }}">{{ s }}</option>
         {% endfor %}
     </select>
