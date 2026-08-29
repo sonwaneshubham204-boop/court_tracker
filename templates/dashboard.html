@@ -308,7 +308,7 @@ tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef
     <div class="court-stage-card">
         <h3>Court {{ ['I', 'II', 'III'][court_no - 1] }}</h3>
         {% if court_stage_counts[court_no] %}
-        <ul>{% for stage, count in court_stage_counts[court_no] %}<li><a class="{% if stage in selected_date_stage_counts[court_no] %}selected-date-stage-highlight{% endif %}" href="{{ url_for('case_list', court_no=court_no, case_stage=stage) }}">{{ stage }}: <strong>{{ count }}</strong></a></li>{% endfor %}</ul>
+        <ul>{% for stage, count in court_stage_counts[court_no] %}<li><a class="{% if stage in selected_date_stage_counts[court_no] %}selected-date-stage-highlight{% endif %}" href="{{ url_for('case_list', court_no=court_no, case_stage=stage, matter_date=selected_matter_date.isoformat()) }}">{{ stage }}: <strong>{{ count }}</strong></a></li>{% endfor %}</ul>
         {% else %}<p>No cases recorded.</p>{% endif %}
     </div>
     {% endfor %}
