@@ -1399,10 +1399,52 @@ if (hasActiveFilter) {
     filterToggle.innerHTML = '⚙ Filters ▲';
 }
 
+/*
+ * Bulk-selection persistence:
+ * Keep checked case IDs in localStorage so a user can search for one case,
+ * tick it, search for another case, tick it, and still operate on BOTH cases.
+ * This is intentionally limited to bulk selection state; it does not alter
+ * the search/filter behaviour or any case data.
+ */
+const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
+
+function getStoredSelectedIds() {
+    try {
+        const raw = localStorage.getItem(BULK_SELECTION_KEY);
+        const ids = raw ? JSON.parse(raw) : [];
+        return Array.isArray(ids) ? [...new Set(ids.map(String))] : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function setStoredSelectedIds(ids) {
+    try {
+        localStorage.setItem(BULK_SELECTION_KEY, JSON.stringify([...new Set(ids.map(String))]));
+    } catch (e) {
+        // Ignore storage errors; normal checkbox behaviour still works.
+    }
+}
+
+function addStoredSelectedId(id) {
+    const ids = getStoredSelectedIds();
+    if (!ids.includes(String(id))) ids.push(String(id));
+    setStoredSelectedIds(ids);
+}
+
+function removeStoredSelectedId(id) {
+    const target = String(id);
+    setStoredSelectedIds(getStoredSelectedIds().filter(x => x !== target));
+}
+
 const boxes = () => document.querySelectorAll('.casebox');
 
 function selected() {
-    return [...new Set([...boxes()].filter(x => x.checked).map(x => x.value))];
+    // Return the persistent selection, not only the checkboxes currently
+    // visible after a search/filter. This is what allows multi-search selection.
+    const stored = getStoredSelectedIds();
+    const visibleChecked = [...boxes()].filter(x => x.checked).map(x => String(x.value));
+    return [...new Set([...stored, ...visibleChecked])];
 }
 
 function refresh() {
@@ -1411,12 +1453,52 @@ function refresh() {
     document.getElementById('selcount').textContent = n;
 }
 
-boxes().forEach(x => x.addEventListener('change', refresh));
-
-document.getElementById('all').addEventListener('change', e => {
-    boxes().forEach(x => x.checked = e.target.checked);
+function restoreStoredSelections() {
+    const stored = new Set(getStoredSelectedIds());
+    boxes().forEach(x => {
+        x.checked = stored.has(String(x.value));
+    });
     refresh();
-});
+}
+
+boxes().forEach(x => x.addEventListener('change', function () {
+    if (this.checked) {
+        addStoredSelectedId(this.value);
+    } else {
+        removeStoredSelectedId(this.value);
+    }
+    // Keep duplicate desktop/mobile checkboxes synchronized.
+    boxes().forEach(other => {
+        if (other !== this && String(other.value) === String(this.value)) {
+            other.checked = this.checked;
+        }
+    });
+    refresh();
+}));
+
+const allBox = document.getElementById('all');
+if (allBox) {
+    allBox.addEventListener('change', e => {
+        const ids = getStoredSelectedIds();
+        const idSet = new Set(ids);
+        boxes().forEach(x => {
+            x.checked = e.target.checked;
+            if (e.target.checked) {
+                idSet.add(String(x.value));
+            } else {
+                idSet.delete(String(x.value));
+            }
+        });
+        setStoredSelectedIds([...idSet]);
+        refresh();
+    });
+}
+
+function clearBulkSelection() {
+    try {
+        localStorage.removeItem(BULK_SELECTION_KEY);
+    } catch (e) {}
+}
 
 function openModal(type) {
     const ids = selected();
@@ -1444,6 +1526,7 @@ function closeModal() {
 function bulkDelete() {
     const ids = selected();
     if (ids.length && confirm('Delete selected cases?')) {
+        clearBulkSelection();
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/bulk/delete?ids=' + ids.join(',');
@@ -1451,6 +1534,17 @@ function bulkDelete() {
         form.submit();
     }
 }
+
+// A completed bulk operation consumes the current selection.
+const modalForm = document.getElementById('modalForm');
+if (modalForm) {
+    modalForm.addEventListener('submit', function () {
+        clearBulkSelection();
+    });
+}
+
+// Restore selections after every page/search load.
+restoreStoredSelections();
 
 // Simple dropdown filters in the red table header
 const headerFilters = [
