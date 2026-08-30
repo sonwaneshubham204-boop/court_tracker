@@ -568,7 +568,10 @@ def home():
     undated_cases = Case.query.filter(
         Case.next_hearing_date.is_(None),
         Case.decision_date.is_(None),
-        Case.case_disposed != "Yes"
+        Case.case_disposed != "Yes",
+        ~db.func.lower(Case.case_stage).in_(
+            ["disposed", "judgment", "order"]
+        )
     ).count()
 
 
@@ -924,7 +927,10 @@ def case_list():
         query = query.filter(
             Case.next_hearing_date.is_(None),
             Case.decision_date.is_(None),
-            Case.case_disposed != "Yes"
+            Case.case_disposed != "Yes",
+            ~db.func.lower(Case.case_stage).in_(
+                ["disposed", "judgment", "order"]
+            )
         )
 
 
@@ -2640,7 +2646,11 @@ def analytics():
     total=Case.query.count()
     active=Case.query.filter(Case.case_disposed != "Yes").count()
     disposed=Case.query.filter_by(case_disposed="Yes").count()
-    undated=Case.query.filter(Case.next_hearing_date.is_(None),Case.case_disposed!="Yes").count()
+    undated=Case.query.filter(
+        Case.next_hearing_date.is_(None),
+        Case.case_disposed!="Yes",
+        ~db.func.lower(Case.case_stage).in_(["disposed", "judgment", "order"])
+    ).count()
     next7=Case.query.filter(Case.next_hearing_date>=today,Case.next_hearing_date<=today+timedelta(days=7)).count()
     days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
     counts=[]
