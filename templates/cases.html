@@ -1025,6 +1025,11 @@ td.action-cell .action-links {
 }
 @media (max-width: 767.98px){
 .mobile-case-card.today-hearing-case .mobile-party-box{
+    background:#173b6c!important;
+    color:#fff!important;
+    border-left-color:#fff!important;
+}
+.mobile-case-card.today-hearing-case .mobile-party-box .vs-highlight{
     color:#fff!important;
 }
 }
@@ -1522,7 +1527,11 @@ function openModal(type) {
         type === 'update' ? 'Change Next Hearing Date / Case Stage' :
         'Dispose Selected — Select Decision Date';
 
-    form.action = type === 'update' ? '/bulk/update?ids=' + ids.join(',') : '/bulk/' + type + '?ids=' + ids.join(',');
+    if (type === 'update' && ids.length === 1) {
+        form.action = '/case/' + ids[0] + '/quick-update';
+    } else {
+        form.action = type === 'update' ? '/bulk/update?ids=' + ids.join(',') : '/bulk/' + type + '?ids=' + ids.join(',');
+    }
     document.getElementById('modal').style.display = 'flex';
 }
 
