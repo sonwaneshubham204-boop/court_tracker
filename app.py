@@ -2439,6 +2439,39 @@ def add_missing_hearing_columns():
 
 
 # =========================================================
+# SINGLE SELECTED CASE UPDATE
+# Locked fix: update only one ticked case from the cases page.
+# Bulk update route remains unchanged.
+# =========================================================
+@app.route("/case/<int:id>/quick-update", methods=["POST"])
+@login_required
+def quick_update_case(id):
+    case = Case.query.get_or_404(id)
+
+    stage = request.form.get("case_stage", "").strip()
+    next_hearing_date = request.form.get("next_hearing_date", "").strip()
+
+    if stage:
+        case.case_stage = stage
+
+    if next_hearing_date:
+        try:
+            case.next_hearing_date = datetime.strptime(
+                next_hearing_date, "%Y-%m-%d"
+            ).date()
+        except ValueError:
+            flash("Invalid Next Hearing Date.", "warning")
+            return redirect(request.referrer or url_for("case_list"))
+
+    if not stage and not next_hearing_date:
+        flash("Please enter a Next Hearing Date or select a Case Stage.", "warning")
+        return redirect(request.referrer or url_for("case_list"))
+
+    db.session.commit()
+    flash("Case updated successfully.", "success")
+    return redirect(request.referrer or url_for("case_list"))
+
+# =========================================================
 # BULK ACTIONS + ANALYTICS
 # =========================================================
 def _bulk_cases():
