@@ -1613,12 +1613,15 @@ def add_evidence(id):
     db.session.flush()
 
 
-    # MULTIPLE FILES
+    # EVIDENCE FILE UPLOAD
+    # Accept the current field name and the legacy singular name
+    # so the upload continues to work even if an older template is cached.
+    uploaded_files = request.files.getlist("evidence_files")
 
-    uploaded_files = request.files.getlist(
-        "evidence_files"
-    )
-
+    if not uploaded_files:
+        uploaded_file = request.files.get("evidence_file")
+        if uploaded_file:
+            uploaded_files = [uploaded_file]
 
     for uploaded_file in uploaded_files:
 
