@@ -2474,6 +2474,41 @@ def quick_update_case(id):
 # =========================================================
 # BULK ACTIONS + ANALYTICS
 # =========================================================
+# Compatibility route for the existing Change Date / Case Stage form.
+# This route is intentionally kept so an older cases.html cannot produce
+# a 404 at /bulk/update. Single-selection cases use quick-update_case().
+@app.route("/bulk/update", methods=["POST"])
+@login_required
+def bulk_update():
+    value = request.form.get("next_hearing_date", "").strip()
+    stage = request.form.get("case_stage", "").strip()
+
+    if not value and not stage:
+        flash("Please enter a Next Hearing Date or select a Case Stage.", "warning")
+        return redirect(request.referrer or url_for("case_list"))
+
+    hearing_date = None
+    if value:
+        try:
+            hearing_date = datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            return "Invalid date", 400
+
+    for c in _bulk_cases():
+        if hearing_date is not None:
+            c.next_hearing_date = hearing_date
+        if stage:
+            c.case_stage = stage
+
+    db.session.commit()
+    if hearing_date is not None and stage:
+        flash("Next hearing date and case stage updated for selected cases.", "success")
+    elif hearing_date is not None:
+        flash("Next hearing date updated for selected cases.", "success")
+    else:
+        flash("Case stage updated for selected cases.", "success")
+    return redirect(request.referrer or url_for("case_list"))
+
 def _bulk_cases():
     raw = request.args.get("ids", "")
     ids = []
