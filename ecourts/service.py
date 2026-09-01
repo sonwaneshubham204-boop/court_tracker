@@ -1,15 +1,19 @@
 """
+ecourts.service
+
 Synchronization service for eCourts-normalized payloads.
 
-This service implements a safe, CNR-first synchronization flow that:
-- Requires CNR for automatic updates
-- Detects changes to next_hearing_date
-- Creates ecourts-sourced Hearing rows (source='ecourts')
-- Updates Case.next_hearing_date only after validation
-- Records append-only sync_log entries via raw SQL to avoid ORM model circular imports
-- Uses transactions and preserves existing manual hearing history
-
-No network calls are made by this module.
+Key behaviors implemented here:
+- CNR-first matching (CNR must be present for automatic updates)
+- Safe change detection on next_hearing_date
+- Creation of ecourts-sourced Hearing rows (source='ecourts')
+- Duplicate prevention:
+    * by stable source_id when provided
+    * by (hearing_date + normalized outcome) among previous ecourts-sourced hearings
+- Transactional updates with robust rollback handling:
+    * on exception, rollback transaction, re-query case, record sync_status='sync_error' and last_sync_error
+    * append an audit row to sync_log for every attempt/result
+- No network calls or scraping
 """
 from datetime import datetime
 from typing import Dict, Any, Optional
@@ -32,19 +36,19 @@ class SyncService:
     SYNC_STATUS_AMBIGUOUS = "ambiguous_match"
 
     def __init__(self, db_session=None):
-        # lazy import to avoid circular imports when app imports ecourts
-        self.db = db_session
+        # allow injection of a db/session for testing; otherwise import lazily
+        self._db_override = db_session
 
-    def _get_db(self):
-        if self.db is not None:
-            return self.db
-        # import on demand
+    def _db(self):
+        if self._db_override is not None:
+            return self._db_override
+        # lazy import
         from app import db as app_db
         return app_db
 
     def _log(self, case_id, success, old_date, new_date, source, payload_text, error_message=None):
-        db = self._get_db()
-        # Use raw SQL insert into sync_log (append-only). Table is created by migrations.
+        """Append-only sync log using a raw SQL INSERT. Caller manages commit/rollback."""
+        db = self._db()
         try:
             insert_sql = text(
                 "INSERT INTO sync_log (case_id, success, old_next_hearing_date, new_next_hearing_date, source, raw_payload, error_message, created_at) "
@@ -59,9 +63,9 @@ class SyncService:
                 "payload": payload_text,
                 "error": error_message
             })
-            # Do not commit here; caller will commit/rollback transaction as appropriate.
+            # do not commit here; leave commit/rollback to the calling flow
         except Exception:
-            # best-effort logging; swallow to avoid raising during rollback paths
+            # best-effort; do not raise from logging to avoid masking original errors
             pass
 
     @staticmethod
@@ -71,21 +75,30 @@ class SyncService:
         return " ".join(str(s).lower().split())
 
     def sync_case_from_data(self, payload: Dict[str, Any]):
-        """Synchronize a single normalized provider payload.
-
-        payload must be normalized (see ecourts.normalizer). Key behavior:
-          - CNR required for automatic updates
-          - If CNR missing -> no auto-update; append log
-          - If multiple matches -> ambiguous -> no auto-update; append log
-          - If single match and next_hearing_date differs -> create ecourts-sourced Hearing and update Case.next_hearing_date within a transaction
         """
-        from app import db, Case, Hearing  # local import to avoid circular import at module load
+        Accepts a normalized payload (see ecourts.normalizer.normalize_provider_payload).
+        Expects keys such as: cnr, case_no, court_no, parties, advocate, case_status,
+        hearing_date, next_hearing_date, outcome, order_info, source_id.
 
-        cnr = payload.get("cnr")
+        Returns SyncResult(success, message, data).
+        """
+        # local imports to avoid circular import at module import time
+        db = self._db()
+        from app import Case, Hearing
+
+        # robust CNR normalization
+        raw_cnr = payload.get("cnr")
+        cnr = None
+        if raw_cnr is not None:
+            try:
+                cnr = str(raw_cnr).strip()
+            except Exception:
+                cnr = None
+
         payload_text = str(payload)
 
         if not cnr:
-            # missing CNR: record log and do not update
+            # Missing CNR -> do not auto-update; log and return
             try:
                 self._log(None, False, None, payload.get("next_hearing_date"), "ecourts", payload_text,
                           error_message="Missing CNR; auto-update skipped.")
@@ -94,8 +107,14 @@ class SyncService:
                 db.session.rollback()
             return SyncResult(False, "Missing CNR; no automatic update performed.")
 
-        # case-insensitive match on crn_no
-        matches = Case.query.filter(Case.crn_no.isnot(None), db.func.lower(Case.crn_no) == cnr.lower()).all()
+        # Case-insensitive match on crn_no (try SQL trim/lower, fallback to equality)
+        matches = []
+        normalized_cnr_lower = cnr.casefold()
+        try:
+            matches = Case.query.filter(Case.crn_no.isnot(None), db.func.lower(db.func.trim(Case.crn_no)) == normalized_cnr_lower).all()
+        except Exception:
+            # fallback when DB doesn't support trim()/lower() combinations in this environment
+            matches = Case.query.filter(Case.crn_no == cnr).all()
 
         if not matches:
             try:
@@ -107,7 +126,7 @@ class SyncService:
             return SyncResult(False, "No matching local case found for CNR.")
 
         if len(matches) > 1:
-            # ambiguous
+            # ambiguous: mark involved cases and log
             try:
                 for c in matches:
                     c.sync_status = self.SYNC_STATUS_AMBIGUOUS
@@ -123,7 +142,7 @@ class SyncService:
         remote_next = payload.get("next_hearing_date")
         local_next = case.next_hearing_date
 
-        # if both None or equal -> no change
+        # If both None or equal -> no change
         if (remote_next is None and local_next is None) or (remote_next == local_next):
             try:
                 case.sync_status = self.SYNC_STATUS_NO_CHANGE
@@ -148,11 +167,16 @@ class SyncService:
                     db.session.commit()
                     return SyncResult(True, "Duplicate by source_id; no action taken.")
 
+            # prepare payload hearing date for comparison (coerce datetime -> date)
+            payload_hearing_date = payload.get("hearing_date")
+            if hasattr(payload_hearing_date, "date"):
+                payload_hearing_date = payload_hearing_date.date()
+
             # duplicate prevention by (hearing_date + outcome) among ecourts-sourced hearings
             if not source_id:
                 candidates = Hearing.query.filter_by(case_id=case.id, source="ecourts").all()
                 for h in candidates:
-                    if h.hearing_date == payload.get("hearing_date") and (self._normalize_text(h.outcome) == self._normalize_text(payload.get("outcome"))):
+                    if h.hearing_date == payload_hearing_date and (self._normalize_text(h.outcome) == self._normalize_text(payload.get("outcome"))):
                         case.sync_status = self.SYNC_STATUS_NO_CHANGE
                         case.last_synced_at = datetime.utcnow()
                         self._log(case.id, True, local_next, remote_next, "ecourts", payload_text,
@@ -160,7 +184,7 @@ class SyncService:
                         db.session.commit()
                         return SyncResult(True, "Duplicate by date/outcome; no action taken.")
 
-            # create ecourts-sourced hearing
+            # Create ecourts-sourced hearing
             new_hearing = Hearing(
                 case_id=case.id,
                 hearing_date=payload.get("hearing_date") or datetime.utcnow().date(),
@@ -177,6 +201,7 @@ class SyncService:
             new_hearing.synced_at = datetime.utcnow()
 
             db.session.add(new_hearing)
+
             old_next = case.next_hearing_date
             case.next_hearing_date = payload.get("next_hearing_date")
             case.last_synced_at = datetime.utcnow()
@@ -187,12 +212,22 @@ class SyncService:
             self._log(case.id, True, old_next, case.next_hearing_date, "ecourts", payload_text)
             db.session.commit()
             return SyncResult(True, "Synced: next hearing date updated.", data={"case_id": case.id})
+
         except Exception as e:
+            # Rollback and record failure. Re-query the case to ensure we can update a fresh instance.
             db.session.rollback()
             try:
-                case.sync_status = self.SYNC_STATUS_ERROR
-                case.last_sync_error = str(e)
-                self._log(case.id, False, local_next, remote_next, "ecourts", payload_text, error_message=str(e))
+                case_id = None
+                if "case" in locals() and case is not None:
+                    case_id = getattr(case, "id", None)
+                if case_id is not None:
+                    fresh_case = Case.query.get(case_id)
+                    if fresh_case is not None:
+                        fresh_case.sync_status = self.SYNC_STATUS_ERROR
+                        fresh_case.last_sync_error = str(e)
+                        fresh_case.last_synced_at = datetime.utcnow()
+                # append a log entry describing the error
+                self._log(case_id, False, local_next, payload.get("next_hearing_date"), "ecourts", payload_text, error_message=str(e))
                 db.session.commit()
             except Exception:
                 db.session.rollback()
