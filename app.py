@@ -2825,8 +2825,13 @@ with app.app_context():
     db.create_all()
     add_missing_case_columns()
     add_missing_hearing_columns()
-    create_default_admin()
 
+    # Apply the non-destructive eCourts foundation migrations.
+    # This helper is idempotent and performs no network access.
+    from ecourts.migrations import apply_ecourts_migrations_if_needed
+    apply_ecourts_migrations_if_needed()
+
+    create_default_admin()
 
 if __name__ == "__main__":
     app.run(
