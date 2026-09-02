@@ -21,6 +21,8 @@ from typing import Dict, Any, Optional
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
+from ecourts.normalizer import normalize_provider_payload
+
 
 class SyncResult:
     def __init__(self, success: bool, message: str = "", data: Optional[Dict[str, Any]] = None):
@@ -103,6 +105,43 @@ class SyncService:
                 payload.get("normalized_crn")
                 or SyncService._normalize_crn(payload["cnr"])
             )
+
+    def sync_case_by_cnr(self, cnr: str, client=None):
+        """
+        Fetch a case through an eCourts client and synchronize the normalized
+        provider payload using the existing sync pipeline.
+
+        The client is responsible only for provider access. This method never
+        writes provider data directly to the database; all local updates remain
+        inside sync_case_from_data().
+        """
+        if cnr is None or not str(cnr).strip():
+            return SyncResult(False, "Missing CNR; no automatic update performed.")
+
+        if client is None:
+            from ecourts.client import NullEcourtsClient
+            client = NullEcourtsClient()
+
+        try:
+            provider_payload = client.fetch_case_by_cnr(str(cnr).strip())
+        except NotImplementedError as exc:
+            return SyncResult(False, str(exc))
+        except Exception as exc:
+            return SyncResult(False, f"eCourts client error: {exc}")
+
+        if provider_payload is None:
+            return SyncResult(False, "eCourts case not found.")
+
+        if not isinstance(provider_payload, dict):
+            return SyncResult(False, "eCourts client returned an invalid payload.")
+
+        normalized_payload = normalize_provider_payload(provider_payload)
+
+        if not normalized_payload.get("cnr"):
+            normalized_payload["cnr"] = str(cnr).strip()
+            normalized_payload["normalized_crn"] = self._normalize_crn(cnr)
+
+        return self.sync_case_from_data(normalized_payload)
 
     def sync_case_from_data(self, payload: Dict[str, Any]):
         """
