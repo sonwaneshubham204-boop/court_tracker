@@ -1686,14 +1686,29 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileAll = document.getElementById('mobileAll');
     if (mobileAll) {
         mobileAll.addEventListener('change', function () {
+            var checked = mobileAll.checked;
+            var idSet = new Set(getStoredSelectedIds());
+
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                box.checked = mobileAll.checked;
+                var id = String(box.value);
+                box.checked = checked;
+
                 sameCaseBoxes(box.value).forEach(function (other) {
-                    other.checked = mobileAll.checked;
+                    other.checked = checked;
                 });
+
+                if (checked) {
+                    idSet.add(id);
+                } else {
+                    idSet.delete(id);
+                }
             });
+
+            setStoredSelectedIds(Array.from(idSet));
+
             var desktopAll = document.getElementById('all');
-            if (desktopAll) desktopAll.checked = mobileAll.checked;
+            if (desktopAll) desktopAll.checked = checked;
+
             if (typeof refresh === 'function') refresh();
         });
     }
