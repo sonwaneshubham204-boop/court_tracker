@@ -1131,6 +1131,7 @@ td.action-cell .action-links {
     <b id="selcount">0</b> selected:
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
+    <button type="button" onclick="shareSelectedOnWhatsApp()">📱 Share on WhatsApp</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
 </div>
 
@@ -1148,6 +1149,8 @@ td.action-cell .action-links {
         data-case-no="{{ case.case_no }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
+        data-cnr="{{ case.crn_no or '' }}"
+        data-advocate="{{ case.advocate_name or '' }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
         data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
         data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
@@ -1297,6 +1300,8 @@ td.action-cell .action-links {
     data-case-no="{{ case.case_no }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
+    data-cnr="{{ case.crn_no or '' }}"
+    data-advocate="{{ case.advocate_name or '' }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
@@ -1537,6 +1542,65 @@ function openModal(type) {
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
+}
+
+function shareSelectedOnWhatsApp() {
+    const ids = selected();
+    if (!ids.length) return;
+
+    const selectedIdSet = new Set(ids.map(String));
+    const casesById = {};
+
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const checkbox = row.querySelector('.casebox');
+        if (!checkbox) return;
+
+        const id = String(checkbox.value);
+        if (!selectedIdSet.has(id) || casesById[id]) return;
+
+        const caseNo = row.dataset.caseNo || '';
+        const party = row.dataset.party || '';
+        const court = row.dataset.court || '';
+        const stage = row.dataset.stage || '';
+        const nextDate = row.dataset.nextDate || '';
+
+        const caseData = {
+            caseNo: caseNo,
+            cnr: '',
+            parties: party,
+            advocate: '',
+            court: court,
+            stage: stage,
+            nextDate: nextDate
+        };
+
+        /*
+         * Read CNR and Advocate from the case row when those values are
+         * exposed as data attributes. No existing UI or database fields
+         * are changed by this sharing feature.
+         */
+        if (row.dataset.cnr !== undefined) caseData.cnr = row.dataset.cnr;
+        if (row.dataset.advocate !== undefined) caseData.advocate = row.dataset.advocate;
+
+        casesById[id] = caseData;
+    });
+
+    const messageCases = ids.map((id, index) => {
+        const item = casesById[String(id)] || {};
+        return [
+            'Case ' + (index + 1),
+            'Case No: ' + (item.caseNo || ''),
+            'CNR No: ' + (item.cnr || ''),
+            'Parties (Who Vs Who): ' + (item.parties || ''),
+            'Advocate Name: ' + (item.advocate || ''),
+            'Court No: ' + (item.court || ''),
+            'Case Stage: ' + (item.stage || ''),
+            'Next Hearing Date: ' + (item.nextDate || '')
+        ].join('\n');
+    }).join('\n\n');
+
+    const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(messageCases);
+    window.open(whatsappUrl, '_blank');
 }
 
 function bulkDelete() {
