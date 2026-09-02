@@ -344,3 +344,152 @@ def test_preserve_existing_manual_hearing_when_ecourts_syncs(isolated_app_db):
     ec_rows = app_mod.Hearing.query.filter_by(case_id=c.id, source="ecourts").all()
     assert len(user_rows) == 1
     assert len(ec_rows) == 1
+
+
+# ---------------------------------------------------------------------------
+# eCourts client -> SyncService integration tests
+# ---------------------------------------------------------------------------
+
+def test_sync_case_by_cnr_fetches_normalizes_and_syncs(isolated_app_db):
+    """
+    Verify the new client -> normalizer -> SyncService pipeline.
+
+    The fake client performs no network access. It returns a provider-shaped
+    payload, which SyncService must normalize and then pass through the
+    existing sync_case_from_data() pipeline.
+    """
+    app_mod = isolated_app_db
+    c = create_case(app_mod, "  INT-001  ", case_no="INT1")
+
+    from ecourts.service import SyncService
+
+    class FakeEcourtsClient:
+        def __init__(self):
+            self.requested_cnr = None
+
+        def fetch_case_by_cnr(self, cnr):
+            self.requested_cnr = cnr
+            return {
+                "crn_no": " int-001 ",
+                "case_no": "REMOTE-CASE-1",
+                "court_no": 7,
+                "parties": "Party A vs Party B",
+                "advocate": "Advocate X",
+                "case_status": "Evidence",
+                "nextHearingDate": "2026-12-15",
+                "hearingDate": "2026-09-02",
+                "outcome": "Order Passed",
+                "id": "remote-int-001",
+            }
+
+    db = app_mod.db
+    client = FakeEcourtsClient()
+    svc = SyncService(db_session=db)
+
+    res = svc.sync_case_by_cnr("  INT-001  ", client=client)
+
+    assert res.success
+    assert client.requested_cnr == "INT-001"
+
+    fresh = app_mod.Case.query.get(c.id)
+    assert fresh is not None
+    assert fresh.normalized_crn == "int-001"
+    assert fresh.case_no == "REMOTE-CASE-1"
+    assert fresh.court_no == 7
+    assert fresh.parties == "Party A vs Party B"
+    assert fresh.advocate_name == "Advocate X"
+    assert fresh.case_stage == "Evidence"
+    assert fresh.next_hearing_date == date(2026, 12, 15)
+    assert fresh.sync_status == svc.SYNC_STATUS_OK
+
+    hearing = app_mod.Hearing.query.filter_by(
+        case_id=c.id,
+        source="ecourts",
+        source_id="remote-int-001",
+    ).first()
+    assert hearing is not None
+    assert hearing.hearing_date == date(2026, 9, 2)
+    assert hearing.outcome_normalized == "order passed"
+
+
+def test_sync_case_by_cnr_missing_cnr_does_not_call_client(isolated_app_db):
+    app_mod = isolated_app_db
+
+    from ecourts.service import SyncService
+
+    class FailingClient:
+        def fetch_case_by_cnr(self, cnr):
+            raise AssertionError("Client must not be called for missing CNR")
+
+    svc = SyncService(db_session=app_mod.db)
+
+    res = svc.sync_case_by_cnr("   ", client=FailingClient())
+
+    assert not res.success
+    assert "Missing CNR" in res.message
+
+
+def test_sync_case_by_cnr_client_not_found_returns_failure(isolated_app_db):
+    app_mod = isolated_app_db
+    create_case(app_mod, "NF-001", case_no="NF1")
+
+    from ecourts.service import SyncService
+
+    class NotFoundClient:
+        def fetch_case_by_cnr(self, cnr):
+            return None
+
+    svc = SyncService(db_session=app_mod.db)
+
+    res = svc.sync_case_by_cnr("NF-001", client=NotFoundClient())
+
+    assert not res.success
+    assert "not found" in res.message.lower()
+
+
+def test_sync_case_by_cnr_invalid_provider_payload_returns_failure(isolated_app_db):
+    app_mod = isolated_app_db
+
+    from ecourts.service import SyncService
+
+    class InvalidPayloadClient:
+        def fetch_case_by_cnr(self, cnr):
+            return ["not", "a", "dict"]
+
+    svc = SyncService(db_session=app_mod.db)
+
+    res = svc.sync_case_by_cnr("INVALID-001", client=InvalidPayloadClient())
+
+    assert not res.success
+    assert "invalid payload" in res.message.lower()
+
+
+def test_sync_case_by_cnr_client_error_is_handled(isolated_app_db):
+    app_mod = isolated_app_db
+
+    from ecourts.service import SyncService
+
+    class ErrorClient:
+        def fetch_case_by_cnr(self, cnr):
+            raise RuntimeError("simulated provider failure")
+
+    svc = SyncService(db_session=app_mod.db)
+
+    res = svc.sync_case_by_cnr("ERR-CLIENT-001", client=ErrorClient())
+
+    assert not res.success
+    assert "client error" in res.message.lower()
+    assert "simulated provider failure" in res.message
+
+
+def test_sync_case_by_cnr_uses_null_client_without_network(isolated_app_db):
+    app_mod = isolated_app_db
+
+    from ecourts.service import SyncService
+
+    svc = SyncService(db_session=app_mod.db)
+
+    res = svc.sync_case_by_cnr("NULL-CLIENT-001")
+
+    assert not res.success
+    assert "not implemented" in res.message.lower()
