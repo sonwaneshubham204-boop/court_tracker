@@ -61,6 +61,7 @@ def create_case(app_mod, crn_no, case_no="CASE-1", court_no=1, parties="A vs B",
         parties=str(parties),
         case_stage=str(case_stage),
         crn_no=(str(crn_no).strip() if crn_no is not None else None),
+        normalized_crn=(str(crn_no).strip().casefold() if crn_no is not None else None),
         next_hearing_date=next_hearing
     )
     db.session.add(c)
@@ -74,10 +75,12 @@ def create_hearing(app_mod, case_id, hearing_date=None, outcome="Hearing", sourc
     """
     from app import db
     Hearing = app_mod.Hearing
+    outcome_value = outcome or "Hearing"
     h = Hearing(
         case_id=case_id,
         hearing_date=(hearing_date or date.today()),
-        outcome=(outcome or "Hearing"),
+        outcome=outcome_value,
+        outcome_normalized=" ".join(str(outcome_value).lower().split()),
         next_hearing_date=next_hearing_date,
         notes=None
     )
@@ -107,9 +110,11 @@ def test_normalizer_cnr_aliases_and_date_parsing(isolated_app_db):
     }
     n = normalize(payload)
     assert n["cnr"] == "ABC/123"
+    assert n["normalized_crn"] == "abc/123"
     assert n["hearing_date"] == date(2026, 9, 2)
     assert n["next_hearing_date"] == date(2026, 10, 1)
     assert n["source_id"] == "remote-1"
+    assert n["outcome_normalized"] == "order passed"
 
 
 def test_missing_cnr_logs_and_skips(isolated_app_db):
@@ -156,6 +161,7 @@ def test_cnr_case_insensitive_trim_matching(isolated_app_db):
     # reload and check
     fresh = app_mod.Case.query.get(c.id)
     assert fresh.next_hearing_date == date(2026, 12, 1)
+    assert fresh.normalized_crn == "abc-123"
 
 
 def test_ambiguous_cnr_marks_cases_and_logs(isolated_app_db):
@@ -216,6 +222,8 @@ def test_changed_next_hearing_creates_ecourts_hearing_and_updates_case(isolated_
     hearing = app_mod.Hearing.query.filter_by(case_id=c.id, source="ecourts", source_id="rid-123").first()
     assert hearing is not None
     assert hearing.outcome is not None
+    assert hearing.outcome_normalized == "order passed"
+    assert fresh_case.normalized_crn == "ch-1"
 
 
 def test_duplicate_prevention_by_source_id(isolated_app_db):
