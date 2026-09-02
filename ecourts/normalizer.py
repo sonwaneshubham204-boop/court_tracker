@@ -28,11 +28,24 @@ def _parse_date(value: Optional[Any]) -> Optional[date]:
     return None
 
 
+def _normalize_text(s: Optional[Any]) -> Optional[str]:
+    if s is None:
+        return None
+    return " ".join(str(s).lower().split())
+
+
+def _normalize_crn(s: Optional[Any]) -> Optional[str]:
+    if s is None:
+        return None
+    return str(s).strip().casefold()
+
+
 def normalize_provider_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Normalize a provider payload into the canonical sync shape.
 
     Expected output keys (all optional unless noted):
       - cnr: str (primary identifier)
+      - normalized_crn: str (canonical form used for matching)
       - case_no: str
       - court_no: int
       - parties: str
@@ -41,6 +54,7 @@ def normalize_provider_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
       - hearing_date: date
       - next_hearing_date: date
       - outcome: str
+      - outcome_normalized: str
       - order_info: str
       - source_id: str (provider-specific per-hearing id)
 
@@ -52,6 +66,7 @@ def normalize_provider_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
     cnr = payload.get("cnr") or payload.get("crn") or payload.get("crn_no") or payload.get("cnr_no")
     if cnr:
         normalized["cnr"] = str(cnr).strip()
+        normalized["normalized_crn"] = _normalize_crn(cnr)
 
     case_no = payload.get("case_no") or payload.get("caseNumber") or payload.get("caseNumberText")
     if case_no:
@@ -86,6 +101,7 @@ def normalize_provider_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
     outcome = payload.get("outcome") or payload.get("result") or payload.get("remarks")
     if outcome:
         normalized["outcome"] = str(outcome).strip()
+        normalized["outcome_normalized"] = _normalize_text(outcome)
 
     order_info = payload.get("order_info") or payload.get("order") or payload.get("order_text")
     if order_info:
