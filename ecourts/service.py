@@ -81,6 +81,29 @@ class SyncService:
             return ""
         return str(s).strip().casefold()
 
+    @staticmethod
+    def _apply_case_fields(case, payload):
+        """Apply available normalized eCourts fields to the local Case."""
+        field_map = {
+            "case_no": "case_no",
+            "court_no": "court_no",
+            "parties": "parties",
+            "advocate": "advocate_name",
+            "case_status": "case_stage",
+        }
+
+        for source_field, target_field in field_map.items():
+            value = payload.get(source_field)
+            if value is not None and hasattr(case, target_field):
+                setattr(case, target_field, value)
+
+        if payload.get("cnr"):
+            case.crn_no = str(payload["cnr"]).strip()
+            case.normalized_crn = (
+                payload.get("normalized_crn")
+                or SyncService._normalize_crn(payload["cnr"])
+            )
+
     def sync_case_from_data(self, payload: Dict[str, Any]):
         """
         Accepts a normalized payload (see ecourts.normalizer.normalize_provider_payload).
@@ -183,6 +206,9 @@ class SyncService:
 
         # remote differs -> attempt to update safely
         try:
+            # Apply available case-level eCourts fields before hearing sync.
+            self._apply_case_fields(case, payload)
+
             source_id = payload.get("source_id")
             # duplicate prevention by source_id
             if source_id:
