@@ -204,6 +204,13 @@ class Case(db.Model):
         nullable=True
     )
 
+    # Normalized CNR used for CNR-first eCourts matching.
+    normalized_crn = db.Column(
+        db.String(200),
+        nullable=True,
+        index=True
+    )
+
     advocate_name = db.Column(
         db.String(200),
         nullable=True
@@ -381,6 +388,13 @@ class Hearing(db.Model):
     source_id = db.Column(
         db.String(255),
         nullable=True
+    )
+
+    # Normalized outcome used for eCourts hearing duplicate prevention.
+    outcome_normalized = db.Column(
+        db.String(300),
+        nullable=True,
+        index=True
     )
 
     synced_at = db.Column(
@@ -1190,6 +1204,12 @@ def add_case():
                 "crn_no"
             ) or None,
 
+            normalized_crn=(
+                request.form.get("crn_no").strip().casefold()
+                if request.form.get("crn_no")
+                else None
+            ),
+
             advocate_name=request.form.get(
                 "advocate_name"
             ) or None,
@@ -1289,6 +1309,12 @@ def edit_case(id):
         case.crn_no = request.form.get(
             "crn_no"
         ) or None
+
+        case.normalized_crn = (
+            request.form.get("crn_no").strip().casefold()
+            if request.form.get("crn_no")
+            else None
+        )
 
         case.advocate_name = request.form.get(
             "advocate_name"
@@ -2200,6 +2226,12 @@ def import_excel():
                         else None
                     ),
 
+                    normalized_crn=(
+                        str(crn_no).strip().casefold()
+                        if crn_no
+                        else None
+                    ),
+
                     court_no=court_no,
 
                     parties=str(
@@ -2437,7 +2469,8 @@ def add_missing_case_columns():
         "last_synced_at": "TIMESTAMP",
         "sync_status": "VARCHAR(50)",
         "last_sync_error": "TEXT",
-        "ecourts_id": "VARCHAR(255)"
+        "ecourts_id": "VARCHAR(255)",
+        "normalized_crn": "VARCHAR(200)"
     }
 
     for column_name, column_type in columns_to_add.items():
@@ -2472,7 +2505,8 @@ def add_missing_hearing_columns():
         "business": "TEXT",
         "source": "VARCHAR(50)",
         "source_id": "VARCHAR(255)",
-        "synced_at": "TIMESTAMP"
+        "synced_at": "TIMESTAMP",
+        "outcome_normalized": "VARCHAR(300)"
     }
 
     for column_name, column_type in columns_to_add.items():
