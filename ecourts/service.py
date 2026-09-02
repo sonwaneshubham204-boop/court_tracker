@@ -19,6 +19,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 
 
 class SyncResult:
@@ -74,6 +75,12 @@ class SyncService:
             return ""
         return " ".join(str(s).lower().split())
 
+    @staticmethod
+    def _normalize_crn(s: Optional[str]) -> str:
+        if s is None:
+            return ""
+        return str(s).strip().casefold()
+
     def sync_case_from_data(self, payload: Dict[str, Any]):
         """
         Accepts a normalized payload (see ecourts.normalizer.normalize_provider_payload).
@@ -109,12 +116,33 @@ class SyncService:
 
         # Case-insensitive match on crn_no (try SQL trim/lower, fallback to equality)
         matches = []
-        normalized_cnr_lower = cnr.casefold()
+        normalized_cnr = payload.get("normalized_crn") or self._normalize_crn(cnr)
         try:
-            matches = Case.query.filter(Case.crn_no.isnot(None), db.func.lower(db.func.trim(Case.crn_no)) == normalized_cnr_lower).all()
+            matches = Case.query.filter(
+                Case.normalized_crn.isnot(None),
+                Case.normalized_crn == normalized_cnr
+            ).all()
         except Exception:
-            # fallback when DB doesn't support trim()/lower() combinations in this environment
-            matches = Case.query.filter(Case.crn_no == cnr).all()
+            matches = []
+
+        # Backward-compatible fallback for legacy rows, then persist canonical CNR.
+        if not matches:
+            try:
+                matches = Case.query.filter(
+                    Case.crn_no.isnot(None),
+                    db.func.lower(db.func.trim(Case.crn_no)) == normalized_cnr
+                ).all()
+            except Exception:
+                matches = Case.query.filter(Case.crn_no == cnr).all()
+
+            if matches:
+                for matched_case in matches:
+                    if not getattr(matched_case, "normalized_crn", None):
+                        matched_case.normalized_crn = normalized_cnr
+                try:
+                    db.session.commit()
+                except Exception:
+                    db.session.rollback()
 
         if not matches:
             try:
@@ -172,11 +200,13 @@ class SyncService:
             if hasattr(payload_hearing_date, "date"):
                 payload_hearing_date = payload_hearing_date.date()
 
-            # duplicate prevention by (hearing_date + outcome) among ecourts-sourced hearings
+            # duplicate prevention by (hearing_date + normalized outcome) among eCourts hearings
+            payload_outcome_normalized = payload.get("outcome_normalized") or self._normalize_text(payload.get("outcome"))
             if not source_id:
                 candidates = Hearing.query.filter_by(case_id=case.id, source="ecourts").all()
                 for h in candidates:
-                    if h.hearing_date == payload_hearing_date and (self._normalize_text(h.outcome) == self._normalize_text(payload.get("outcome"))):
+                    existing_outcome_normalized = getattr(h, "outcome_normalized", None) or self._normalize_text(h.outcome)
+                    if h.hearing_date == payload_hearing_date and existing_outcome_normalized == payload_outcome_normalized:
                         case.sync_status = self.SYNC_STATUS_NO_CHANGE
                         case.last_synced_at = datetime.utcnow()
                         self._log(case.id, True, local_next, remote_next, "ecourts", payload_text,
@@ -199,6 +229,7 @@ class SyncService:
             if source_id:
                 new_hearing.source_id = source_id
             new_hearing.synced_at = datetime.utcnow()
+            new_hearing.outcome_normalized = payload_outcome_normalized
 
             db.session.add(new_hearing)
 
@@ -210,7 +241,25 @@ class SyncService:
                 case.ecourts_id = payload.get("source_id")
 
             self._log(case.id, True, old_next, case.next_hearing_date, "ecourts", payload_text)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except IntegrityError as ie:
+                # DB uniqueness protects against concurrent duplicate insertion.
+                db.session.rollback()
+                fresh_case = Case.query.get(case.id)
+                if fresh_case is not None:
+                    fresh_case.sync_status = self.SYNC_STATUS_NO_CHANGE
+                    fresh_case.last_synced_at = datetime.utcnow()
+                self._log(
+                    case.id, True, old_next, case.next_hearing_date, "ecourts",
+                    payload_text,
+                    error_message=f"IntegrityError on duplicate insert; treated as no-op: {ie}"
+                )
+                try:
+                    db.session.commit()
+                except Exception:
+                    db.session.rollback()
+                return SyncResult(True, "Duplicate (concurrent) detected; no action taken.")
             return SyncResult(True, "Synced: next hearing date updated.", data={"case_id": case.id})
 
         except Exception as e:
