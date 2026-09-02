@@ -1444,7 +1444,7 @@ function getCaseDataFromRow(row) {
         advocate: row.dataset.advocate || '',
         court: row.dataset.court || '',
         stage: row.dataset.stage || '',
-        nextDate: row.dataset.nextDate || ''
+        nextDate: (function () { const d = row.dataset.nextDate || ''; if (!d) return ''; const p = d.split('-'); return p.length === 3 ? p[2] + '-' + p[1] + '-' + p[0] : d; })()
     };
 }
 
