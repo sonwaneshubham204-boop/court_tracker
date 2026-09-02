@@ -33,6 +33,9 @@ def isolated_app_db():
     # Ensure DB is clean and created for tests
     from ecourts.migrations import apply_ecourts_migrations_if_needed
 
+    # Keep the Flask application context active for the entire test.
+    # SyncService and SQLAlchemy queries need an active app context, not just
+    # the setup phase.
     with app_mod.app.app_context():
         # Drop/create to be deterministic per test
         app_mod.db.drop_all()
@@ -40,9 +43,13 @@ def isolated_app_db():
         # Apply ecourts migrations to create sync_log + hearing columns + case extras
         apply_ecourts_migrations_if_needed()
 
-    yield app_mod
-
-    # teardown: remove module so subsequent tests start fresh
+        try:
+            yield app_mod
+        finally:
+            # teardown: remove module so subsequent tests start fresh
+            for mod in ("app", "ecourts.migrations"):
+                if mod in sys.modules:
+                    del sys.modules[mod]
     for mod in ("app", "ecourts.migrations"):
         if mod in sys.modules:
             del sys.modules[mod]
