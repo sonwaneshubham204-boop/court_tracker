@@ -1418,6 +1418,54 @@ if (hasActiveFilter) {
  * the search/filter behaviour or any case data.
  */
 const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
+const BULK_SELECTION_DATA_KEY = 'courtTrackerSelectedCaseData';
+
+function getStoredSelectedData() {
+    try {
+        const raw = localStorage.getItem(BULK_SELECTION_DATA_KEY);
+        const data = raw ? JSON.parse(raw) : {};
+        return data && typeof data === 'object' ? data : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function setStoredSelectedData(data) {
+    try {
+        localStorage.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data || {}));
+    } catch (e) {}
+}
+
+function getCaseDataFromRow(row) {
+    return {
+        caseNo: row.dataset.caseNo || '',
+        cnr: row.dataset.cnr || '',
+        parties: row.dataset.party || '',
+        advocate: row.dataset.advocate || '',
+        court: row.dataset.court || '',
+        stage: row.dataset.stage || '',
+        nextDate: row.dataset.nextDate || ''
+    };
+}
+
+function rememberCaseData(id) {
+    const target = String(id);
+    const row = document.querySelector('.case-row input.casebox[value="' + target + '"]')?.closest('.case-row')
+        || document.querySelector('.mobile-case-card input.casebox[value="' + target + '"]')?.closest('.mobile-case-card');
+    if (!row) return;
+    const data = getStoredSelectedData();
+    data[target] = getCaseDataFromRow(row);
+    setStoredSelectedData(data);
+}
+
+function forgetCaseData(id) {
+    const target = String(id);
+    const data = getStoredSelectedData();
+    delete data[target];
+    setStoredSelectedData(data);
+}
+
+
 
 function getStoredSelectedIds() {
     try {
@@ -1441,11 +1489,13 @@ function addStoredSelectedId(id) {
     const ids = getStoredSelectedIds();
     if (!ids.includes(String(id))) ids.push(String(id));
     setStoredSelectedIds(ids);
+    rememberCaseData(id);
 }
 
 function removeStoredSelectedId(id) {
     const target = String(id);
     setStoredSelectedIds(getStoredSelectedIds().filter(x => x !== target));
+    forgetCaseData(id);
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
@@ -1509,9 +1559,92 @@ if (allBox) {
     });
 }
 
+function shareSelectedOnWhatsApp() {
+    const ids = selected();
+    if (!ids.length) return;
+
+    const storedData = getStoredSelectedData();
+    const casesById = {};
+
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(function(row) {
+        const checkbox = row.querySelector('.casebox');
+        if (!checkbox) return;
+        const id = String(checkbox.value);
+        if (!ids.includes(id) || casesById[id]) return;
+        casesById[id] = getCaseDataFromRow(row);
+    });
+
+    const message = ids.map(function(id, index) {
+        const item = casesById[id] || storedData[id] || {};
+        return [
+            'Case ' + (index + 1),
+            'Case No: ' + (item.caseNo || ''),
+            'CNR No: ' + (item.cnr || ''),
+            'Parties (Who Vs Who): ' + (item.parties || ''),
+            'Advocate Name: ' + (item.advocate || ''),
+            'Court No: ' + (item.court || ''),
+            'Case Stage: ' + (item.stage || ''),
+            'Next Hearing Date: ' + (item.nextDate || '')
+        ].join('\n');
+    }).join('\n\n');
+
+    /*
+     * IMPORTANT:
+     * For large selections on phones, navigator.share() can truncate the
+     * text before WhatsApp receives it. Therefore large messages are copied
+     * in full to the clipboard first, then WhatsApp is opened without putting
+     * the message into the URL. This avoids URL/share-payload truncation.
+     */
+    const isPhone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isLarge = message.length > 5000;
+
+    if (isPhone && isLarge && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(message).then(function() {
+            window.location.href = 'whatsapp://send';
+            setTimeout(function() {
+                alert('All ' + ids.length + ' selected cases were copied. Paste the complete message in WhatsApp.');
+            }, 800);
+        }).catch(function() {
+            alert('Could not copy all case details. Please allow clipboard access and try again.');
+        });
+        return;
+    }
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'Court Tracker - Selected Cases',
+            text: message
+        }).catch(function(error) {
+            if (error && error.name === 'AbortError') return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(message).then(function() {
+                    window.open('https://web.whatsapp.com/', '_blank');
+                    alert('All ' + ids.length + ' selected cases were copied. Paste the complete message in WhatsApp.');
+                });
+            } else {
+                alert('Unable to share the selected cases on this browser.');
+            }
+        });
+        return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(message).then(function() {
+            window.open('https://web.whatsapp.com/', '_blank');
+            alert('All ' + ids.length + ' selected cases were copied. Paste the complete message in WhatsApp.');
+        }).catch(function() {
+            alert('Unable to copy the selected case details. Please try again.');
+        });
+        return;
+    }
+
+    alert('WhatsApp sharing is not supported by this browser.');
+}
+
 function clearBulkSelection() {
     try {
         localStorage.removeItem(BULK_SELECTION_KEY);
+        localStorage.removeItem(BULK_SELECTION_DATA_KEY);
     } catch (e) {}
 }
 
@@ -1542,84 +1675,6 @@ function openModal(type) {
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
-}
-
-function shareSelectedOnWhatsApp() {
-    const ids = selected();
-    if (!ids.length) return;
-
-    const selectedIdSet = new Set(ids.map(String));
-    const casesById = {};
-
-    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
-        const checkbox = row.querySelector('.casebox');
-        if (!checkbox) return;
-
-        const id = String(checkbox.value);
-        if (!selectedIdSet.has(id) || casesById[id]) return;
-
-        casesById[id] = {
-            caseNo: row.dataset.caseNo || '',
-            cnr: row.dataset.cnr || '',
-            parties: row.dataset.party || '',
-            advocate: row.dataset.advocate || '',
-            court: row.dataset.court || '',
-            stage: row.dataset.stage || '',
-            nextDate: row.dataset.nextDate || ''
-        };
-    });
-
-    const message = ids.map((id, index) => {
-        const item = casesById[String(id)] || {};
-        return [
-            'Case ' + (index + 1),
-            'Case No: ' + (item.caseNo || ''),
-            'CNR No: ' + (item.cnr || ''),
-            'Parties (Who Vs Who): ' + (item.parties || ''),
-            'Advocate Name: ' + (item.advocate || ''),
-            'Court No: ' + (item.court || ''),
-            'Case Stage: ' + (item.stage || ''),
-            'Next Hearing Date: ' + (item.nextDate || '')
-        ].join('\n');
-    }).join('\n\n');
-
-    /*
-     * The complete message is NOT placed in a WhatsApp URL.
-     * This avoids URL-length truncation for large selections.
-     * On phones supporting Web Share, the complete text goes to the
-     * native share sheet and WhatsApp can be selected there.
-     * Other browsers copy the complete message and open WhatsApp Web.
-     */
-    if (navigator.share) {
-        navigator.share({
-            title: 'Court Tracker - Selected Cases',
-            text: message
-        }).catch(function (error) {
-            if (error && error.name === 'AbortError') return;
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(message).then(function () {
-                    window.open('https://web.whatsapp.com/', '_blank');
-                    alert('All selected case details were copied. Paste them in WhatsApp.');
-                });
-            } else {
-                alert('Unable to share the selected cases on this browser.');
-            }
-        });
-        return;
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(message).then(function () {
-            window.open('https://web.whatsapp.com/', '_blank');
-            alert('All selected case details were copied. Paste them in WhatsApp.');
-        }).catch(function () {
-            alert('Unable to copy the selected case details. Please try again.');
-        });
-        return;
-    }
-
-    alert('WhatsApp sharing is not supported by this browser.');
 }
 
 function bulkDelete() {
@@ -1773,17 +1828,18 @@ document.addEventListener('DOMContentLoaded', function () {
             var idSet = new Set(getStoredSelectedIds());
 
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                var id = String(box.value);
                 box.checked = checked;
-
                 sameCaseBoxes(box.value).forEach(function (other) {
                     other.checked = checked;
                 });
 
+                var id = String(box.value);
                 if (checked) {
                     idSet.add(id);
+                    rememberCaseData(id);
                 } else {
                     idSet.delete(id);
+                    forgetCaseData(id);
                 }
             });
 
@@ -1791,7 +1847,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             var desktopAll = document.getElementById('all');
             if (desktopAll) desktopAll.checked = checked;
-
             if (typeof refresh === 'function') refresh();
         });
     }
