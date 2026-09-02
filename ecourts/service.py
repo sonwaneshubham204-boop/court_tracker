@@ -1,31 +1,31 @@
 """
 ecourts.service
 
-Synchronization service for eCourts-normalized payloads.
+Synchronization service for the Court Tracker eCourts integration.
 
-Key behaviors implemented here:
-- CNR-first matching (CNR must be present for automatic updates)
-- Safe change detection on next_hearing_date
-- Creation of ecourts-sourced Hearing rows (source='ecourts')
-- Duplicate prevention:
-    * by stable source_id when provided
-    * by (hearing_date + normalized outcome) among previous ecourts-sourced hearings
-- Transactional updates with robust rollback handling:
-    * on exception, rollback transaction, re-query case, record sync_status='sync_error' and last_sync_error
-    * append an audit row to sync_log for every attempt/result
-- No network calls or scraping
+Locked scope:
+- CNR-first matching
+- eCourts automatic update of ONLY the existing Case.next_hearing_date
+- No eCourts Hearing History insertion
+- No Judge / Act-Section / Transfer synchronization
+- Existing manual Case History / Hearing functionality remains untouched
+- No network access in this service; provider access is handled by the client
 """
 from datetime import datetime
 from typing import Dict, Any, Optional
 
 from sqlalchemy import text
-from sqlalchemy.exc import IntegrityError
 
 from ecourts.normalizer import normalize_provider_payload
 
 
 class SyncResult:
-    def __init__(self, success: bool, message: str = "", data: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        success: bool,
+        message: str = "",
+        data: Optional[Dict[str, Any]] = None,
+    ):
         self.success = success
         self.message = message
         self.data = data or {}
@@ -39,87 +39,80 @@ class SyncService:
     SYNC_STATUS_AMBIGUOUS = "ambiguous_match"
 
     def __init__(self, db_session=None):
-        # allow injection of a db/session for testing; otherwise import lazily
+        # Allow injection of a db/session for testing; otherwise import lazily.
         self._db_override = db_session
 
     def _db(self):
         if self._db_override is not None:
             return self._db_override
-        # lazy import
+
         from app import db as app_db
+
         return app_db
 
-    def _log(self, case_id, success, old_date, new_date, source, payload_text, error_message=None):
-        """Append-only sync log using a raw SQL INSERT. Caller manages commit/rollback."""
+    def _log(
+        self,
+        case_id,
+        success,
+        old_date,
+        new_date,
+        source,
+        payload_text,
+        error_message=None,
+    ):
+        """Append an audit row. Caller manages commit/rollback."""
         db = self._db()
+
         try:
             insert_sql = text(
-                "INSERT INTO sync_log (case_id, success, old_next_hearing_date, new_next_hearing_date, source, raw_payload, error_message, created_at) "
-                "VALUES (:case_id, :success, :old, :new, :source, :payload, :error, CURRENT_TIMESTAMP)"
+                "INSERT INTO sync_log "
+                "(case_id, success, old_next_hearing_date, "
+                "new_next_hearing_date, source, raw_payload, "
+                "error_message, created_at) "
+                "VALUES (:case_id, :success, :old, :new, :source, "
+                ":payload, :error, CURRENT_TIMESTAMP)"
             )
-            db.session.execute(insert_sql, {
-                "case_id": case_id,
-                "success": bool(success),
-                "old": old_date,
-                "new": new_date,
-                "source": source,
-                "payload": payload_text,
-                "error": error_message
-            })
-            # do not commit here; leave commit/rollback to the calling flow
+
+            db.session.execute(
+                insert_sql,
+                {
+                    "case_id": case_id,
+                    "success": bool(success),
+                    "old": old_date,
+                    "new": new_date,
+                    "source": source,
+                    "payload": payload_text,
+                    "error": error_message,
+                },
+            )
         except Exception:
-            # best-effort; do not raise from logging to avoid masking original errors
+            # Logging must never mask the original sync operation.
             pass
 
     @staticmethod
-    def _normalize_text(s: Optional[str]) -> str:
-        if s is None:
+    def _normalize_crn(value: Optional[str]) -> str:
+        if value is None:
             return ""
-        return " ".join(str(s).lower().split())
 
-    @staticmethod
-    def _normalize_crn(s: Optional[str]) -> str:
-        if s is None:
-            return ""
-        return str(s).strip().casefold()
-
-    @staticmethod
-    def _apply_case_fields(case, payload):
-        """Apply available normalized eCourts fields to the local Case."""
-        field_map = {
-            "case_no": "case_no",
-            "court_no": "court_no",
-            "parties": "parties",
-            "advocate": "advocate_name",
-            "case_status": "case_stage",
-        }
-
-        for source_field, target_field in field_map.items():
-            value = payload.get(source_field)
-            if value is not None and hasattr(case, target_field):
-                setattr(case, target_field, value)
-
-        if payload.get("cnr"):
-            case.crn_no = str(payload["cnr"]).strip()
-            case.normalized_crn = (
-                payload.get("normalized_crn")
-                or SyncService._normalize_crn(payload["cnr"])
-            )
+        return str(value).strip().casefold()
 
     def sync_case_by_cnr(self, cnr: str, client=None):
         """
-        Fetch a case through an eCourts client and synchronize the normalized
-        provider payload using the existing sync pipeline.
+        Fetch a case by CNR and synchronize ONLY its next hearing date.
 
-        The client is responsible only for provider access. This method never
-        writes provider data directly to the database; all local updates remain
-        inside sync_case_from_data().
+        The provider client performs the external lookup.
+        This method never writes provider data directly except through
+        sync_case_from_data().
         """
         if cnr is None or not str(cnr).strip():
-            return SyncResult(False, "Missing CNR; no automatic update performed.")
+            return SyncResult(
+                False,
+                "Missing CNR; no automatic update performed.",
+            )
 
         if client is None:
             from ecourts.client import NullEcourtsClient
+
             client = NullEcourtsClient()
 
         try:
@@ -133,7 +126,10 @@ class SyncService:
             return SyncResult(False, "eCourts case not found.")
 
         if not isinstance(provider_payload, dict):
-            return SyncResult(False, "eCourts client returned an invalid payload.")
+            return SyncResult(
+                False,
+                "eCourts client returned an invalid payload.",
+            )
 
         normalized_payload = normalize_provider_payload(provider_payload)
 
@@ -145,19 +141,29 @@ class SyncService:
 
     def sync_case_from_data(self, payload: Dict[str, Any]):
         """
-        Accepts a normalized payload (see ecourts.normalizer.normalize_provider_payload).
-        Expects keys such as: cnr, case_no, court_no, parties, advocate, case_status,
-        hearing_date, next_hearing_date, outcome, order_info, source_id.
+        Synchronize ONLY Case.next_hearing_date.
 
-        Returns SyncResult(success, message, data).
+        Required matching key:
+            cnr
+
+        Accepted provider field:
+            next_hearing_date
+
+        No other case fields are automatically changed.
+        In particular, this method does NOT:
+        - create Hearing rows
+        - update Hearing History
+        - update Judge
+        - update Act/Section
+        - update Transfer details
+        - update Case Number, Court Number, Parties, Advocate, or Case Stage
         """
-        # local imports to avoid circular import at module import time
         db = self._db()
-        from app import Case, Hearing
+        from app import Case
 
-        # robust CNR normalization
         raw_cnr = payload.get("cnr")
         cnr = None
+
         if raw_cnr is not None:
             try:
                 cnr = str(raw_cnr).strip()
@@ -167,40 +173,63 @@ class SyncService:
         payload_text = str(payload)
 
         if not cnr:
-            # Missing CNR -> do not auto-update; log and return
             try:
-                self._log(None, False, None, payload.get("next_hearing_date"), "ecourts", payload_text,
-                          error_message="Missing CNR; auto-update skipped.")
+                self._log(
+                    None,
+                    False,
+                    None,
+                    payload.get("next_hearing_date"),
+                    "ecourts",
+                    payload_text,
+                    error_message="Missing CNR; auto-update skipped.",
+                )
                 db.session.commit()
             except Exception:
                 db.session.rollback()
-            return SyncResult(False, "Missing CNR; no automatic update performed.")
 
-        # Case-insensitive match on crn_no (try SQL trim/lower, fallback to equality)
+            return SyncResult(
+                False,
+                "Missing CNR; no automatic update performed.",
+            )
+
+        normalized_cnr = (
+            payload.get("normalized_crn")
+            or self._normalize_crn(cnr)
+        )
+
         matches = []
-        normalized_cnr = payload.get("normalized_crn") or self._normalize_crn(cnr)
+
+        # Preferred match: canonical normalized_crn.
         try:
             matches = Case.query.filter(
                 Case.normalized_crn.isnot(None),
-                Case.normalized_crn == normalized_cnr
+                Case.normalized_crn == normalized_cnr,
             ).all()
         except Exception:
             matches = []
 
-        # Backward-compatible fallback for legacy rows, then persist canonical CNR.
+        # Backward-compatible fallback for older Case rows.
         if not matches:
             try:
                 matches = Case.query.filter(
                     Case.crn_no.isnot(None),
-                    db.func.lower(db.func.trim(Case.crn_no)) == normalized_cnr
+                    db.func.lower(db.func.trim(Case.crn_no))
+                    == normalized_cnr,
                 ).all()
             except Exception:
-                matches = Case.query.filter(Case.crn_no == cnr).all()
+                matches = Case.query.filter(
+                    Case.crn_no == cnr
+                ).all()
 
             if matches:
                 for matched_case in matches:
-                    if not getattr(matched_case, "normalized_crn", None):
+                    if not getattr(
+                        matched_case,
+                        "normalized_crn",
+                        None,
+                    ):
                         matched_case.normalized_crn = normalized_cnr
+
                 try:
                     db.session.commit()
                 except Exception:
@@ -208,141 +237,162 @@ class SyncService:
 
         if not matches:
             try:
-                self._log(None, False, None, payload.get("next_hearing_date"), "ecourts", payload_text,
-                          error_message="No matching local case for CNR")
+                self._log(
+                    None,
+                    False,
+                    None,
+                    payload.get("next_hearing_date"),
+                    "ecourts",
+                    payload_text,
+                    error_message="No matching local case for CNR",
+                )
                 db.session.commit()
             except Exception:
                 db.session.rollback()
-            return SyncResult(False, "No matching local case found for CNR.")
+
+            return SyncResult(
+                False,
+                "No matching local case found for CNR.",
+            )
 
         if len(matches) > 1:
-            # ambiguous: mark involved cases and log
             try:
-                for c in matches:
-                    c.sync_status = self.SYNC_STATUS_AMBIGUOUS
-                # log against first match for traceability
-                self._log(matches[0].id, False, None, payload.get("next_hearing_date"), "ecourts", payload_text,
-                          error_message=f"Ambiguous matches for CNR: {[m.id for m in matches]}")
+                for matched_case in matches:
+                    matched_case.sync_status = (
+                        self.SYNC_STATUS_AMBIGUOUS
+                    )
+
+                self._log(
+                    matches[0].id,
+                    False,
+                    matches[0].next_hearing_date,
+                    payload.get("next_hearing_date"),
+                    "ecourts",
+                    payload_text,
+                    error_message=(
+                        "Ambiguous matches for CNR: "
+                        f"{[item.id for item in matches]}"
+                    ),
+                )
                 db.session.commit()
             except Exception:
                 db.session.rollback()
-            return SyncResult(False, "Ambiguous matches for CNR; no automatic update.")
+
+            return SyncResult(
+                False,
+                "Ambiguous matches for CNR; no automatic update.",
+            )
 
         case = matches[0]
+        old_next = case.next_hearing_date
         remote_next = payload.get("next_hearing_date")
-        local_next = case.next_hearing_date
 
-        # If both None or equal -> no change
-        if (remote_next is None and local_next is None) or (remote_next == local_next):
+        # Nothing to update when the provider has no next date.
+        if remote_next is None:
             try:
                 case.sync_status = self.SYNC_STATUS_NO_CHANGE
                 case.last_synced_at = datetime.utcnow()
-                self._log(case.id, True, local_next, remote_next, "ecourts", payload_text)
+
+                self._log(
+                    case.id,
+                    True,
+                    old_next,
+                    None,
+                    "ecourts",
+                    payload_text,
+                    error_message=(
+                        "eCourts returned no next hearing date; "
+                        "existing date preserved."
+                    ),
+                )
                 db.session.commit()
             except Exception:
                 db.session.rollback()
-            return SyncResult(True, "No change detected.")
 
-        # remote differs -> attempt to update safely
-        try:
-            # Apply available case-level eCourts fields before hearing sync.
-            self._apply_case_fields(case, payload)
-
-            source_id = payload.get("source_id")
-            # duplicate prevention by source_id
-            if source_id:
-                existing = Hearing.query.filter_by(case_id=case.id, source_id=source_id).first()
-                if existing:
-                    case.sync_status = self.SYNC_STATUS_NO_CHANGE
-                    case.last_synced_at = datetime.utcnow()
-                    self._log(case.id, True, local_next, remote_next, "ecourts", payload_text,
-                              error_message="Duplicate detected by source_id; no insertion.")
-                    db.session.commit()
-                    return SyncResult(True, "Duplicate by source_id; no action taken.")
-
-            # prepare payload hearing date for comparison (coerce datetime -> date)
-            payload_hearing_date = payload.get("hearing_date")
-            if hasattr(payload_hearing_date, "date"):
-                payload_hearing_date = payload_hearing_date.date()
-
-            # duplicate prevention by (hearing_date + normalized outcome) among eCourts hearings
-            payload_outcome_normalized = payload.get("outcome_normalized") or self._normalize_text(payload.get("outcome"))
-            if not source_id:
-                candidates = Hearing.query.filter_by(case_id=case.id, source="ecourts").all()
-                for h in candidates:
-                    existing_outcome_normalized = getattr(h, "outcome_normalized", None) or self._normalize_text(h.outcome)
-                    if h.hearing_date == payload_hearing_date and existing_outcome_normalized == payload_outcome_normalized:
-                        case.sync_status = self.SYNC_STATUS_NO_CHANGE
-                        case.last_synced_at = datetime.utcnow()
-                        self._log(case.id, True, local_next, remote_next, "ecourts", payload_text,
-                                  error_message="Duplicate detected by date+outcome; no insertion.")
-                        db.session.commit()
-                        return SyncResult(True, "Duplicate by date/outcome; no action taken.")
-
-            # Create ecourts-sourced hearing
-            new_hearing = Hearing(
-                case_id=case.id,
-                hearing_date=payload.get("hearing_date") or datetime.utcnow().date(),
-                outcome=payload.get("outcome") or "Hearing",
-                presentee=None,
-                business=None,
-                next_hearing_date=payload.get("next_hearing_date"),
-                notes=payload.get("order_info") or None
+            return SyncResult(
+                True,
+                "No eCourts next hearing date; existing date preserved.",
+                data={"case_id": case.id},
             )
-            # provenance
-            new_hearing.source = "ecourts"
-            if source_id:
-                new_hearing.source_id = source_id
-            new_hearing.synced_at = datetime.utcnow()
-            new_hearing.outcome_normalized = payload_outcome_normalized
 
-            db.session.add(new_hearing)
+        # Same date: preserve existing value and only update sync metadata.
+        if remote_next == old_next:
+            try:
+                case.sync_status = self.SYNC_STATUS_NO_CHANGE
+                case.last_synced_at = datetime.utcnow()
 
-            old_next = case.next_hearing_date
-            case.next_hearing_date = payload.get("next_hearing_date")
+                self._log(
+                    case.id,
+                    True,
+                    old_next,
+                    remote_next,
+                    "ecourts",
+                    payload_text,
+                )
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+
+            return SyncResult(
+                True,
+                "No change detected.",
+                data={"case_id": case.id},
+            )
+
+        # The ONLY automatic Case data update happens here.
+        try:
+            case.next_hearing_date = remote_next
             case.last_synced_at = datetime.utcnow()
             case.sync_status = self.SYNC_STATUS_OK
-            if payload.get("source_id"):
-                case.ecourts_id = payload.get("source_id")
+            case.last_sync_error = None
 
-            self._log(case.id, True, old_next, case.next_hearing_date, "ecourts", payload_text)
-            try:
-                db.session.commit()
-            except IntegrityError as ie:
-                # DB uniqueness protects against concurrent duplicate insertion.
-                db.session.rollback()
-                fresh_case = Case.query.get(case.id)
-                if fresh_case is not None:
-                    fresh_case.sync_status = self.SYNC_STATUS_NO_CHANGE
-                    fresh_case.last_synced_at = datetime.utcnow()
-                self._log(
-                    case.id, True, old_next, case.next_hearing_date, "ecourts",
-                    payload_text,
-                    error_message=f"IntegrityError on duplicate insert; treated as no-op: {ie}"
-                )
-                try:
-                    db.session.commit()
-                except Exception:
-                    db.session.rollback()
-                return SyncResult(True, "Duplicate (concurrent) detected; no action taken.")
-            return SyncResult(True, "Synced: next hearing date updated.", data={"case_id": case.id})
+            self._log(
+                case.id,
+                True,
+                old_next,
+                case.next_hearing_date,
+                "ecourts",
+                payload_text,
+            )
 
-        except Exception as e:
-            # Rollback and record failure. Re-query the case to ensure we can update a fresh instance.
+            db.session.commit()
+
+            return SyncResult(
+                True,
+                "Synced: next hearing date updated.",
+                data={
+                    "case_id": case.id,
+                    "old_next_hearing_date": old_next,
+                    "new_next_hearing_date": case.next_hearing_date,
+                },
+            )
+
+        except Exception as exc:
             db.session.rollback()
+
             try:
-                case_id = None
-                if "case" in locals() and case is not None:
-                    case_id = getattr(case, "id", None)
-                if case_id is not None:
-                    fresh_case = Case.query.get(case_id)
-                    if fresh_case is not None:
-                        fresh_case.sync_status = self.SYNC_STATUS_ERROR
-                        fresh_case.last_sync_error = str(e)
-                        fresh_case.last_synced_at = datetime.utcnow()
-                # append a log entry describing the error
-                self._log(case_id, False, local_next, payload.get("next_hearing_date"), "ecourts", payload_text, error_message=str(e))
+                fresh_case = Case.query.get(case.id)
+
+                if fresh_case is not None:
+                    fresh_case.sync_status = self.SYNC_STATUS_ERROR
+                    fresh_case.last_sync_error = str(exc)
+                    fresh_case.last_synced_at = datetime.utcnow()
+
+                self._log(
+                    case.id,
+                    False,
+                    old_next,
+                    remote_next,
+                    "ecourts",
+                    payload_text,
+                    error_message=str(exc),
+                )
+
                 db.session.commit()
             except Exception:
                 db.session.rollback()
-            return SyncResult(False, f"Error during sync: {e}")
+
+            return SyncResult(
+                False,
+                f"Error during sync: {exc}",
+            )
