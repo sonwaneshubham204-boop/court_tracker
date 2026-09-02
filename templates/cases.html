@@ -1558,34 +1558,18 @@ function shareSelectedOnWhatsApp() {
         const id = String(checkbox.value);
         if (!selectedIdSet.has(id) || casesById[id]) return;
 
-        const caseNo = row.dataset.caseNo || '';
-        const party = row.dataset.party || '';
-        const court = row.dataset.court || '';
-        const stage = row.dataset.stage || '';
-        const nextDate = row.dataset.nextDate || '';
-
-        const caseData = {
-            caseNo: caseNo,
-            cnr: '',
-            parties: party,
-            advocate: '',
-            court: court,
-            stage: stage,
-            nextDate: nextDate
+        casesById[id] = {
+            caseNo: row.dataset.caseNo || '',
+            cnr: row.dataset.cnr || '',
+            parties: row.dataset.party || '',
+            advocate: row.dataset.advocate || '',
+            court: row.dataset.court || '',
+            stage: row.dataset.stage || '',
+            nextDate: row.dataset.nextDate || ''
         };
-
-        /*
-         * Read CNR and Advocate from the case row when those values are
-         * exposed as data attributes. No existing UI or database fields
-         * are changed by this sharing feature.
-         */
-        if (row.dataset.cnr !== undefined) caseData.cnr = row.dataset.cnr;
-        if (row.dataset.advocate !== undefined) caseData.advocate = row.dataset.advocate;
-
-        casesById[id] = caseData;
     });
 
-    const messageCases = ids.map((id, index) => {
+    const message = ids.map((id, index) => {
         const item = casesById[String(id)] || {};
         return [
             'Case ' + (index + 1),
@@ -1599,8 +1583,43 @@ function shareSelectedOnWhatsApp() {
         ].join('\n');
     }).join('\n\n');
 
-    const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(messageCases);
-    window.open(whatsappUrl, '_blank');
+    /*
+     * The complete message is NOT placed in a WhatsApp URL.
+     * This avoids URL-length truncation for large selections.
+     * On phones supporting Web Share, the complete text goes to the
+     * native share sheet and WhatsApp can be selected there.
+     * Other browsers copy the complete message and open WhatsApp Web.
+     */
+    if (navigator.share) {
+        navigator.share({
+            title: 'Court Tracker - Selected Cases',
+            text: message
+        }).catch(function (error) {
+            if (error && error.name === 'AbortError') return;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(message).then(function () {
+                    window.open('https://web.whatsapp.com/', '_blank');
+                    alert('All selected case details were copied. Paste them in WhatsApp.');
+                });
+            } else {
+                alert('Unable to share the selected cases on this browser.');
+            }
+        });
+        return;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(message).then(function () {
+            window.open('https://web.whatsapp.com/', '_blank');
+            alert('All selected case details were copied. Paste them in WhatsApp.');
+        }).catch(function () {
+            alert('Unable to copy the selected case details. Please try again.');
+        });
+        return;
+    }
+
+    alert('WhatsApp sharing is not supported by this browser.');
 }
 
 function bulkDelete() {
