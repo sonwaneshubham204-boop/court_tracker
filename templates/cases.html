@@ -1479,8 +1479,12 @@ function restoreStoredSelections() {
 boxes().forEach(x => x.addEventListener('change', function () {
     if (this.checked) {
         addStoredSelectedId(this.value);
+        rememberCaseData(this.value);
     } else {
         removeStoredSelectedId(this.value);
+        const data = getStoredSelectedCaseData();
+        delete data[String(this.value)];
+        setStoredSelectedCaseData(data);
     }
     // Keep duplicate desktop/mobile checkboxes synchronized.
     boxes().forEach(other => {
@@ -1500,6 +1504,7 @@ if (allBox) {
             x.checked = e.target.checked;
             if (e.target.checked) {
                 idSet.add(String(x.value));
+                rememberCaseData(x.value);
             } else {
                 idSet.delete(String(x.value));
             }
@@ -1512,7 +1517,65 @@ if (allBox) {
 function clearBulkSelection() {
     try {
         localStorage.removeItem(BULK_SELECTION_KEY);
+        localStorage.removeItem(BULK_SELECTION_DATA_KEY);
     } catch (e) {}
+}
+
+const BULK_SELECTION_DATA_KEY = 'courtTrackerSelectedCaseData';
+
+function getStoredSelectedCaseData() {
+    try {
+        const raw = localStorage.getItem(BULK_SELECTION_DATA_KEY);
+        const data = raw ? JSON.parse(raw) : {};
+        return data && typeof data === 'object' ? data : {};
+    } catch (e) { return {}; }
+}
+
+function setStoredSelectedCaseData(data) {
+    try { localStorage.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data || {})); } catch (e) {}
+}
+
+function caseDataFromRow(row) {
+    return {
+        caseNo: row.dataset.caseNo || '',
+        cnr: row.dataset.cnr || '',
+        parties: row.dataset.party || '',
+        advocate: row.dataset.advocate || '',
+        court: row.dataset.court || '',
+        stage: row.dataset.stage || '',
+        nextDate: row.dataset.nextDate || ''
+    };
+}
+
+function rememberCaseData(id) {
+    const data = getStoredSelectedCaseData();
+    const rows = document.querySelectorAll('.case-row, .mobile-case-card');
+    for (const row of rows) {
+        const box = row.querySelector('.casebox');
+        if (box && String(box.value) === String(id)) {
+            data[String(id)] = caseDataFromRow(row);
+            break;
+        }
+    }
+    setStoredSelectedCaseData(data);
+}
+
+function rememberVisibleSelectedData() {
+    const ids = new Set(getStoredSelectedIds());
+    const data = getStoredSelectedCaseData();
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (box && box.checked && ids.has(String(box.value))) {
+            data[String(box.value)] = caseDataFromRow(row);
+        }
+    });
+    setStoredSelectedCaseData(data);
+}
+
+function formatWhatsAppDate(raw) {
+    if (!raw) return 'Not Scheduled';
+    const m = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[3]}-${m[2]}-${m[1].slice(-2)}` : raw;
 }
 
 function openModal(type) {
@@ -1696,6 +1759,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 sameCaseBoxes(box.value).forEach(function (other) {
                     other.checked = mobileAll.checked;
                 });
+                if (mobileAll.checked) {
+                    rememberCaseData(box.value);
+                }
             });
             var desktopAll = document.getElementById('all');
             if (desktopAll) desktopAll.checked = mobileAll.checked;
@@ -1777,53 +1843,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script id="selected-whatsapp-share">
 function shareSelectedOnWhatsApp() {
-    const ids = (typeof selected === 'function')
-        ? selected().map(String)
-        : Array.from(document.querySelectorAll('.casebox:checked')).map(x => String(x.value));
+    const ids = getStoredSelectedIds();
+    rememberVisibleSelectedData();
+    const data = getStoredSelectedCaseData();
 
     if (!ids.length) {
         alert('Please select at least one case.');
         return;
     }
 
-    const seen = new Set();
-    const cases = [];
-
-    document.querySelectorAll('.case-row, .mobile-case-card').forEach(function (item) {
-        const box = item.querySelector('.casebox');
-        if (!box) return;
-
-        const id = String(box.value);
-        if (!ids.includes(id) || seen.has(id)) return;
-
-        seen.add(id);
-
-        const nextDate = item.dataset.nextDate
-            ? item.dataset.nextDate.split('-').reverse().join('-')
-            : 'Not Scheduled';
-
-        cases.push(
-            'Case ' + (cases.length + 1) + '\n' +
-            'Case No: ' + (item.dataset.caseNo || '') + '\n' +
-            'CNR No: ' + (item.dataset.crn || '') + '\n' +
-            'Parties: ' + (item.dataset.party || '').replace(/\s*Who\s+Vs\s+Who\s*/gi, ' ').trim() + '\n' +
-            'Advocate Name: ' + (item.dataset.advocate || '') + '\n' +
-            'Court No: ' + (item.dataset.court || '').replace(/^Court\s+/i, '') + '\n' +
-            'Case Stage: ' + (item.dataset.stage || '') + '\n' +
-            'Next Hearing Date: ' + nextDate
-        );
-    });
-
-    if (!cases.length) {
-        alert('Selected case details are not available on this page.');
+    const missing = ids.filter(id => !data[id]);
+    if (missing.length) {
+        alert('Some selected case details are not available on this page. Please open/search those cases once and select them again.');
         return;
     }
 
-    const message = cases.join('\n\n');
+    const message = ids.map((id, index) => {
+        const c = data[id];
+        return [
+            `Case ${index + 1}`,
+            `Case No: ${c.caseNo}`,
+            `CNR No: ${c.cnr || 'Not Available'}`,
+            `Parties: ${c.parties}`,
+            `Advocate Name: ${c.advocate || 'Not Available'}`,
+            `Court No: ${String(c.court || '').replace(/^Court\s+/i, '')}`,
+            `Case Stage: ${c.stage}`,
+            `Next Hearing Date: ${formatWhatsAppDate(c.nextDate)}`
+        ].join('\n');
+    }).join('\n\n');
 
-    // Open WhatsApp with the complete generated message.
-    const url = 'https://wa.me/?text=' + encodeURIComponent(message);
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (navigator.share) {
+        navigator.share({ title: 'Court Cases', text: message }).catch(() => {});
+        return;
+    }
+
+    window.open('https://web.whatsapp.com/send?text=' + encodeURIComponent(message), '_blank');
 }
 </script>
 
