@@ -1131,8 +1131,8 @@ td.action-cell .action-links {
     <b id="selcount">0</b> selected:
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
-    <button type="button" onclick="shareSelectedOnWhatsApp()">📱 Share on WhatsApp</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
+    <button type="button" onclick="shareSelectedOnWhatsApp()">📱 Share on WhatsApp</button>
 </div>
 
 
@@ -1147,12 +1147,12 @@ td.action-cell .action-links {
     {% for case in cases %}
     <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
         data-case-no="{{ case.case_no }}"
+        data-cnr="{{ case.crn_no or '' }}"
+        data-advocate="{{ case.advocate_name or '' }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
         data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
-        data-crn="{{ case.crn_no or case.normalized_crn or '' }}"
-        data-advocate="{{ case.advocate_name or '' }}"
         data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
 
         <div class="card-body">
@@ -1298,12 +1298,12 @@ td.action-cell .action-links {
 {% for case in cases %}
 <tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
     data-case-no="{{ case.case_no }}"
+    data-cnr="{{ case.crn_no or '' }}"
+    data-advocate="{{ case.advocate_name or '' }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
-    data-crn="{{ case.crn_no or case.normalized_crn or '' }}"
-    data-advocate="{{ case.advocate_name or '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
     <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
     <td>{{ case.id }}</td>
@@ -1418,6 +1418,7 @@ if (hasActiveFilter) {
  * the search/filter behaviour or any case data.
  */
 const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
+const BULK_SELECTION_DATA_KEY = 'courtTrackerSelectedCaseData';
 
 function getStoredSelectedIds() {
     try {
@@ -1431,111 +1432,30 @@ function getStoredSelectedIds() {
 
 function setStoredSelectedIds(ids) {
     try {
-        localStorage.setItem(BULK_SELECTION_KEY, JSON.stringify([...new Set(ids.map(String))]));
-    } catch (e) {
-        // Ignore storage errors; normal checkbox behaviour still works.
-    }
-}
-
-function addStoredSelectedId(id) {
-    const ids = getStoredSelectedIds();
-    if (!ids.includes(String(id))) ids.push(String(id));
-    setStoredSelectedIds(ids);
-}
-
-function removeStoredSelectedId(id) {
-    const target = String(id);
-    setStoredSelectedIds(getStoredSelectedIds().filter(x => x !== target));
-}
-
-const boxes = () => document.querySelectorAll('.casebox');
-
-function selected() {
-    // Return the persistent selection, not only the checkboxes currently
-    // visible after a search/filter. This is what allows multi-search selection.
-    const stored = getStoredSelectedIds();
-    const visibleChecked = [...boxes()].filter(x => x.checked).map(x => String(x.value));
-    return [...new Set([...stored, ...visibleChecked])];
-}
-
-function refresh() {
-    const n = selected().length;
-    document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
-    document.getElementById('selcount').textContent = n;
-    // Total Results must always show the actual current result count,
-    // never the number of selected cases.
-    const totalResults = document.getElementById('totalresults');
-    if (totalResults) totalResults.textContent = {{ cases|length }};
-}
-
-function restoreStoredSelections() {
-    const stored = new Set(getStoredSelectedIds());
-    boxes().forEach(x => {
-        x.checked = stored.has(String(x.value));
-    });
-    refresh();
-}
-
-boxes().forEach(x => x.addEventListener('change', function () {
-    if (this.checked) {
-        addStoredSelectedId(this.value);
-        rememberCaseData(this.value);
-    } else {
-        removeStoredSelectedId(this.value);
-        const data = getStoredSelectedCaseData();
-        delete data[String(this.value)];
-        setStoredSelectedCaseData(data);
-    }
-    // Keep duplicate desktop/mobile checkboxes synchronized.
-    boxes().forEach(other => {
-        if (other !== this && String(other.value) === String(this.value)) {
-            other.checked = this.checked;
-        }
-    });
-    refresh();
-}));
-
-const allBox = document.getElementById('all');
-if (allBox) {
-    allBox.addEventListener('change', e => {
-        const ids = getStoredSelectedIds();
-        const idSet = new Set(ids);
-        boxes().forEach(x => {
-            x.checked = e.target.checked;
-            if (e.target.checked) {
-                idSet.add(String(x.value));
-                rememberCaseData(x.value);
-            } else {
-                idSet.delete(String(x.value));
-            }
-        });
-        setStoredSelectedIds([...idSet]);
-        refresh();
-    });
-}
-
-function clearBulkSelection() {
-    try {
-        localStorage.removeItem(BULK_SELECTION_KEY);
-        localStorage.removeItem(BULK_SELECTION_DATA_KEY);
+        localStorage.setItem(
+            BULK_SELECTION_KEY,
+            JSON.stringify([...new Set(ids.map(String))])
+        );
     } catch (e) {}
 }
-
-const BULK_SELECTION_DATA_KEY = 'courtTrackerSelectedCaseData';
 
 function getStoredSelectedCaseData() {
     try {
         const raw = localStorage.getItem(BULK_SELECTION_DATA_KEY);
         const data = raw ? JSON.parse(raw) : {};
         return data && typeof data === 'object' ? data : {};
-    } catch (e) { return {}; }
+    } catch (e) {
+        return {};
+    }
 }
 
 function setStoredSelectedCaseData(data) {
-    try { localStorage.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data || {})); } catch (e) {}
+    try {
+        localStorage.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data));
+    } catch (e) {}
 }
 
-function caseDataFromRow(row) {
+function getRowCaseData(row) {
     return {
         caseNo: row.dataset.caseNo || '',
         cnr: row.dataset.cnr || '',
@@ -1547,35 +1467,281 @@ function caseDataFromRow(row) {
     };
 }
 
-function rememberCaseData(id) {
+function rememberCaseDataFromRow(row) {
+    const checkbox = row.querySelector('.casebox');
+    if (!checkbox) return;
+
+    const id = String(checkbox.value);
     const data = getStoredSelectedCaseData();
-    const rows = document.querySelectorAll('.case-row, .mobile-case-card');
-    for (const row of rows) {
-        const box = row.querySelector('.casebox');
-        if (box && String(box.value) === String(id)) {
-            data[String(id)] = caseDataFromRow(row);
-            break;
-        }
-    }
+    data[id] = getRowCaseData(row);
     setStoredSelectedCaseData(data);
 }
 
-function rememberVisibleSelectedData() {
-    const ids = new Set(getStoredSelectedIds());
+function rememberAllRenderedCaseData() {
     const data = getStoredSelectedCaseData();
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
-        const box = row.querySelector('.casebox');
-        if (box && box.checked && ids.has(String(box.value))) {
-            data[String(box.value)] = caseDataFromRow(row);
-        }
+        const checkbox = row.querySelector('.casebox');
+        if (!checkbox) return;
+        const id = String(checkbox.value);
+        if (!data[id]) data[id] = getRowCaseData(row);
     });
     setStoredSelectedCaseData(data);
 }
 
-function formatWhatsAppDate(raw) {
-    if (!raw) return 'Not Scheduled';
-    const m = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
-    return m ? `${m[3]}-${m[2]}-${m[1].slice(-2)}` : raw;
+function addStoredSelectedId(id) {
+    const ids = getStoredSelectedIds();
+    if (!ids.includes(String(id))) ids.push(String(id));
+    setStoredSelectedIds(ids);
+}
+
+function removeStoredSelectedId(id) {
+    const target = String(id);
+    setStoredSelectedIds(
+        getStoredSelectedIds().filter(x => x !== target)
+    );
+
+    const data = getStoredSelectedCaseData();
+    delete data[target];
+    setStoredSelectedCaseData(data);
+}
+
+function formatWhatsAppDate(value) {
+    if (!value) return '';
+    const parts = String(value).split('-');
+    if (parts.length === 3 && parts[0].length === 4) {
+        return parts[2].padStart(2, '0') + '-' + parts[1].padStart(2, '0') + '-' + parts[0].slice(-2);
+    }
+    return value;
+}
+
+function shareSelectedOnWhatsApp() {
+    const ids = selected();
+    if (!ids.length) {
+        alert('Please select at least one case.');
+        return;
+    }
+
+    rememberAllRenderedCaseData();
+    const storedData = getStoredSelectedCaseData();
+
+    const message = ids.map((id, index) => {
+        const c = storedData[String(id)] || {};
+        return [
+            'Case ' + (index + 1),
+            'Case No: ' + (c.caseNo || ''),
+            'CNR No: ' + (c.cnr || ''),
+            'Parties: ' + (c.parties || ''),
+            'Advocate Name: ' + (c.advocate || ''),
+            'Court No: ' + (c.court || ''),
+            'Case Stage: ' + (c.stage || ''),
+            'Next Hearing Date: ' + formatWhatsAppDate(c.nextDate)
+        ].join('\n');
+    }).join('\n\n');
+
+    // PHONE: share the COMPLETE cases as TEXT only.
+    // IMPORTANT: do not use whatsapp:// or wa.me here. Those URL-based
+    // links are truncated by Android/browser/WhatsApp for long messages
+    // (which is why only ~35 cases were reaching WhatsApp).
+    // navigator.share({text}) sends a text payload, NOT a .txt attachment.
+    const encoded = encodeURIComponent(message);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Court Tracker - Selected Cases',
+                text: message
+            }).catch(function(err) {
+                if (err && err.name === 'AbortError') return;
+                // Last-resort fallback only when the native text share is unavailable.
+                // Never create a file and never split the message.
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message).then(function() {
+                        alert('Complete cases copied. Open WhatsApp and paste once.');
+                    });
+                }
+            });
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(message).then(function() {
+                alert('Complete cases copied. Open WhatsApp and paste once.');
+            });
+        }
+        return;
+    }
+
+    // PC: WhatsApp Web with the same complete text message.
+    window.open('https://web.whatsapp.com/send?text=' + encoded, '_blank');
+}
+
+const boxes = () => document.querySelectorAll('.casebox');
+
+function selected() {
+    // Persistent selection is the single source of truth.
+    return getStoredSelectedIds();
+}
+
+function applySelectedOnlyVisibility() {
+    const selectedIds = new Set(getStoredSelectedIds());
+
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const checkbox = row.querySelector('.casebox');
+        if (!checkbox) return;
+
+        const id = String(checkbox.value);
+
+        // No selection: show all loaded cases.
+        // Selection exists: show ONLY selected cases.
+        row.style.display =
+            selectedIds.size === 0 || selectedIds.has(id) ? '' : 'none';
+    });
+}
+
+function refresh() {
+    const n = selected().length;
+
+    document.getElementById('bulkbar').style.display =
+        n ? 'block' : 'none';
+
+    document.getElementById('selcount').textContent = n;
+
+    // Total Results always remains the actual server result count.
+    const totalResults = document.getElementById('totalresults');
+    if (totalResults) {
+        totalResults.textContent = {{ cases|length }};
+    }
+
+    applySelectedOnlyVisibility();
+}
+
+function restoreStoredSelections() {
+    const stored = new Set(getStoredSelectedIds());
+
+    boxes().forEach(x => {
+        x.checked = stored.has(String(x.value));
+    });
+
+    // Capture data for cases that are currently rendered and selected.
+    boxes().forEach(x => {
+        if (!x.checked) return;
+        const row = x.closest('.case-row, .mobile-case-card');
+        if (row) rememberCaseDataFromRow(row);
+    });
+
+    const allBox = document.getElementById('all');
+    if (allBox) {
+        const desktopBoxes = [...document.querySelectorAll(
+            '.table-wrap .casebox'
+        )];
+        allBox.checked =
+            desktopBoxes.length > 0 &&
+            desktopBoxes.every(x => x.checked);
+    }
+
+    const mobileAll = document.getElementById('mobileAll');
+    if (mobileAll) {
+        const mobileBoxes = [...document.querySelectorAll(
+            '.mobile-cases-bootstrap .casebox'
+        )];
+        mobileAll.checked =
+            mobileBoxes.length > 0 &&
+            mobileBoxes.every(x => x.checked);
+    }
+
+    refresh();
+}
+
+boxes().forEach(x => x.addEventListener('change', function () {
+    const id = String(this.value);
+    const row = this.closest('.case-row, .mobile-case-card');
+
+    if (this.checked) {
+        addStoredSelectedId(id);
+        if (row) rememberCaseDataFromRow(row);
+    } else {
+        removeStoredSelectedId(id);
+    }
+
+    // Synchronize desktop + mobile copies of the same case.
+    boxes().forEach(other => {
+        if (other !== this && String(other.value) === id) {
+            other.checked = this.checked;
+        }
+    });
+
+    refresh();
+}));
+
+const allBox = document.getElementById('all');
+
+if (allBox) {
+    allBox.addEventListener('change', e => {
+        const idSet = new Set(getStoredSelectedIds());
+        const data = getStoredSelectedCaseData();
+
+        // Select/unselect only cases currently loaded by the page.
+        document.querySelectorAll('.table-wrap .casebox').forEach(x => {
+            x.checked = e.target.checked;
+            const id = String(x.value);
+            const row = x.closest('.case-row');
+
+            if (e.target.checked) {
+                idSet.add(id);
+                if (row) data[id] = getRowCaseData(row);
+            } else {
+                idSet.delete(id);
+                delete data[id];
+            }
+        });
+
+        // Keep mobile copies synchronized.
+        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(x => {
+            x.checked = e.target.checked;
+        });
+
+        setStoredSelectedIds([...idSet]);
+        setStoredSelectedCaseData(data);
+        refresh();
+    });
+}
+
+const mobileAll = document.getElementById('mobileAll');
+
+if (mobileAll) {
+    mobileAll.addEventListener('change', e => {
+        const idSet = new Set(getStoredSelectedIds());
+        const data = getStoredSelectedCaseData();
+
+        // Mobile Select All / Unselect updates the same persistent selection.
+        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(x => {
+            x.checked = e.target.checked;
+            const id = String(x.value);
+            const row = x.closest('.mobile-case-card');
+
+            if (e.target.checked) {
+                idSet.add(id);
+                if (row) data[id] = getRowCaseData(row);
+            } else {
+                idSet.delete(id);
+                delete data[id];
+            }
+        });
+
+        // Keep desktop copies synchronized.
+        document.querySelectorAll('.table-wrap .casebox').forEach(x => {
+            x.checked = e.target.checked;
+        });
+
+        setStoredSelectedIds([...idSet]);
+        setStoredSelectedCaseData(data);
+        refresh();
+    });
+}
+
+function clearBulkSelection() {
+    try {
+        localStorage.removeItem(BULK_SELECTION_KEY);
+        localStorage.removeItem(BULK_SELECTION_DATA_KEY);
+    } catch (e) {}
 }
 
 function openModal(type) {
@@ -1735,170 +1901,6 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 
 
 
-<script id="bootstrap-mobile-case-sync">
-document.addEventListener('DOMContentLoaded', function () {
-    function sameCaseBoxes(value) {
-        return Array.from(document.querySelectorAll('.casebox'))
-            .filter(function (box) { return String(box.value) === String(value); });
-    }
-
-    document.querySelectorAll('.casebox').forEach(function (box) {
-        box.addEventListener('change', function () {
-            sameCaseBoxes(box.value).forEach(function (other) {
-                if (other !== box) other.checked = box.checked;
-            });
-            if (typeof refresh === 'function') refresh();
-        });
-    });
-
-    var mobileAll = document.getElementById('mobileAll');
-    if (mobileAll) {
-        mobileAll.addEventListener('change', function () {
-            var ids = getStoredSelectedIds();
-            var idSet = new Set(ids);
-            var data = getStoredSelectedCaseData();
-
-            document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                var id = String(box.value);
-                box.checked = mobileAll.checked;
-                sameCaseBoxes(box.value).forEach(function (other) {
-                    other.checked = mobileAll.checked;
-                });
-                if (mobileAll.checked) {
-                    idSet.add(id);
-                    rememberCaseData(id);
-                } else {
-                    idSet.delete(id);
-                    delete data[id];
-                }
-            });
-
-            setStoredSelectedIds(Array.from(idSet));
-            setStoredSelectedCaseData(data);
-
-            var desktopAll = document.getElementById('all');
-            if (desktopAll) desktopAll.checked = mobileAll.checked;
-            if (typeof refresh === 'function') refresh();
-        });
-    }});
-</script>
-
-<script id="selected-only-view-fix">
-/*
- * Selected-only view:
- * Once one or more cases are selected, show only those selected cases.
- * When the last selection is cleared, restore the normal filtered list.
- * Existing bulk operations and checkbox persistence remain unchanged.
- */
-(function () {
-    function getSelectedIds() {
-        if (typeof selected === 'function') {
-            return new Set(selected().map(String));
-        }
-        return new Set(
-            Array.from(document.querySelectorAll('.casebox:checked'))
-                .map(function (box) { return String(box.value); })
-        );
-    }
-
-    function applySelectedOnlyView() {
-        var ids = getSelectedIds();
-        var hasSelection = ids.size > 0;
-
-        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(function (row) {
-            var box = row.querySelector('.casebox');
-            if (!box) {
-                row.style.display = '';
-                return;
-            }
-
-            if (!hasSelection) {
-                /* No selection: leave the existing filter result untouched. */
-                return;
-            }
-
-            row.style.display = ids.has(String(box.value)) ? '' : 'none';
-        });
-    }
-
-    document.querySelectorAll('.casebox').forEach(function (box) {
-        box.addEventListener('change', function () {
-            setTimeout(applySelectedOnlyView, 0);
-        });
-    });
-
-    var mobileAll = document.getElementById('mobileAll');
-    if (mobileAll) {
-        mobileAll.addEventListener('change', function () {
-            setTimeout(applySelectedOnlyView, 0);
-        });
-    }
-
-    var desktopAll = document.getElementById('all');
-    if (desktopAll) {
-        desktopAll.addEventListener('change', function () {
-            setTimeout(applySelectedOnlyView, 0);
-        });
-    }
-
-    /* Re-apply after any existing header/date filter changes. */
-    document.querySelectorAll('.header-filter').forEach(function (filter) {
-        filter.addEventListener('change', function () {
-            setTimeout(applySelectedOnlyView, 0);
-        });
-    });
-
-    /* Initial state, including selections restored from localStorage. */
-    setTimeout(applySelectedOnlyView, 0);
-})();
-</script>
-
-<script id="selected-whatsapp-share">
-function shareSelectedOnWhatsApp() {
-    // One unique ID per selected case. Works with desktop + mobile checkboxes.
-    const ids = [...new Set([
-        ...getStoredSelectedIds(),
-        ...[...boxes()].filter(x => x.checked).map(x => String(x.value))
-    ])];
-
-    // Always refresh stored case data from every currently rendered row.
-    rememberVisibleSelectedData();
-    ids.forEach(id => rememberCaseData(id));
-    const data = getStoredSelectedCaseData();
-
-    if (!ids.length) {
-        alert('Please select at least one case.');
-        return;
-    }
-
-    const missing = ids.filter(id => !data[id]);
-    if (missing.length) {
-        alert('Some selected case details are not available in the current results. Please load those cases and select them before sharing.');
-        return;
-    }
-
-    const message = ids.map((id, index) => {
-        const c = data[id];
-        return [
-            `Case ${index + 1}`,
-            `Case No: ${c.caseNo}`,
-            `CNR No: ${c.cnr || 'Not Available'}`,
-            `Parties: ${c.parties}`,
-            `Advocate Name: ${c.advocate || 'Not Available'}`,
-            `Court No: ${String(c.court || '').replace(/^Court\s+/i, '')}`,
-            `Case Stage: ${c.stage}`,
-            `Next Hearing Date: ${formatWhatsAppDate(c.nextDate)}`
-        ].join('\n');
-    }).join('\n\n');
-
-    if (navigator.share) {
-        navigator.share({ title: 'Court Cases', text: message }).catch(() => {});
-        return;
-    }
-
-    window.open('https://web.whatsapp.com/send?text=' + encodeURIComponent(message), '_blank');
-}
-</script>
 
 </body>
 </html>
