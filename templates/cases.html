@@ -1457,10 +1457,43 @@ function refresh() {
     const n = selected().length;
     document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
     document.getElementById('selcount').textContent = n;
-    // When selections are held across searches, show the held operation total.
-    // With no held selections, keep showing the current search result count.
+
+    /*
+     * LOCKED SELECTION DISPLAY:
+     * When one or more cases are selected, show ONLY those selected cases
+     * in the current results view (desktop table and mobile cards).
+     * The actual Total Results value remains the server result count (e.g. 72).
+     * Selection is still persisted in localStorage, so selections can survive
+     * search/filter page loads.
+     */
     const totalResults = document.getElementById('totalresults');
-    if (totalResults) totalResults.textContent = n ? n : {{ cases|length }};
+    if (totalResults) totalResults.textContent = {{ cases|length }};
+
+    const selectedIds = new Set(selected().map(String));
+
+    document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+        const checkbox = row.querySelector('.casebox');
+        const id = checkbox ? String(checkbox.value) : '';
+
+        if (n > 0) {
+            row.style.display = selectedIds.has(id) ? '' : 'none';
+        } else {
+            row.style.display = '';
+        }
+    });
+
+    /*
+     * Keep Select All controls correct after the visible list is reduced
+     * to selected cases. Do not change the existing selection itself.
+     */
+    const mobileBoxes = [...document.querySelectorAll('.mobile-case-check')];
+    const mobileAll = document.getElementById('mobileAll');
+    if (mobileAll && mobileBoxes.length) {
+        const allChecked = mobileBoxes.every(x => x.checked);
+        const anyChecked = mobileBoxes.some(x => x.checked);
+        mobileAll.checked = allChecked;
+        mobileAll.indeterminate = !allChecked && anyChecked;
+    }
 }
 
 function restoreStoredSelections() {
@@ -1674,42 +1707,11 @@ document.addEventListener('DOMContentLoaded', function () {
             .filter(function (box) { return String(box.value) === String(value); });
     }
 
-    function syncAllCheckboxes() {
-        var mobileBoxes = Array.from(document.querySelectorAll('.mobile-case-check'));
-        var mobileAll = document.getElementById('mobileAll');
-        var desktopAll = document.getElementById('all');
-
-        if (!mobileBoxes.length) return;
-
-        var allChecked = mobileBoxes.every(function (box) { return box.checked; });
-        var anyChecked = mobileBoxes.some(function (box) { return box.checked; });
-
-        if (mobileAll) {
-            mobileAll.checked = allChecked;
-            mobileAll.indeterminate = !allChecked && anyChecked;
-        }
-
-        if (desktopAll) {
-            desktopAll.checked = allChecked;
-            desktopAll.indeterminate = !allChecked && anyChecked;
-        }
-    }
-
     document.querySelectorAll('.casebox').forEach(function (box) {
         box.addEventListener('change', function () {
             sameCaseBoxes(box.value).forEach(function (other) {
                 if (other !== box) other.checked = box.checked;
             });
-
-            if (typeof setStoredSelectedIds === 'function') {
-                if (box.checked) {
-                    addStoredSelectedId(box.value);
-                } else {
-                    removeStoredSelectedId(box.value);
-                }
-            }
-
-            syncAllCheckboxes();
             if (typeof refresh === 'function') refresh();
         });
     });
@@ -1717,56 +1719,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileAll = document.getElementById('mobileAll');
     if (mobileAll) {
         mobileAll.addEventListener('change', function () {
-            var checked = mobileAll.checked;
-
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                box.checked = checked;
-
+                box.checked = mobileAll.checked;
                 sameCaseBoxes(box.value).forEach(function (other) {
-                    other.checked = checked;
+                    other.checked = mobileAll.checked;
                 });
             });
-
-            /*
-             * IMPORTANT:
-             * Programmatically checking/unchecking boxes does not fire their
-             * individual change events. Therefore update localStorage here too.
-             * This fixes Select All -> Unselect on mobile leaving old selections.
-             */
-            if (typeof getStoredSelectedIds === 'function' &&
-                typeof setStoredSelectedIds === 'function') {
-
-                var ids = getStoredSelectedIds();
-                var idSet = new Set(ids);
-
-                document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                    if (checked) {
-                        idSet.add(String(box.value));
-                    } else {
-                        idSet.delete(String(box.value));
-                    }
-                });
-
-                setStoredSelectedIds(Array.from(idSet));
-            }
-
             var desktopAll = document.getElementById('all');
-            if (desktopAll) {
-                desktopAll.checked = checked;
-                desktopAll.indeterminate = false;
-            }
-
-            mobileAll.indeterminate = false;
-            syncAllCheckboxes();
+            if (desktopAll) desktopAll.checked = mobileAll.checked;
             if (typeof refresh === 'function') refresh();
         });
     }
-
-    /*
-     * Restore the correct Select All state after localStorage selections
-     * have been restored, including when the page is opened on a phone.
-     */
-    syncAllCheckboxes();
 });
 </script>
 
