@@ -1521,14 +1521,9 @@ function shareSelectedOnWhatsApp() {
         return;
     }
 
-    // Save every currently rendered case before building the message.
-    // This is important when selection was made after searches/filters.
     rememberAllRenderedCaseData();
-
     const storedData = getStoredSelectedCaseData();
 
-    // Build ONE complete message from the persistent selected-ID list.
-    // No dependence on currently visible rows, so all selected cases are included.
     const message = ids.map((id, index) => {
         const c = storedData[String(id)] || {};
         return [
@@ -1543,60 +1538,23 @@ function shareSelectedOnWhatsApp() {
         ].join('\n');
     }).join('\n\n');
 
+    // PHONE: open WhatsApp directly with the cases as TEXT in one message.
+    // No .txt file, no attachment, no Part 1 / Part 2.
+    const encoded = encodeURIComponent(message);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    /*
-     * MOBILE:
-     * Do NOT put the full 72-case message into whatsapp:// or wa.me.
-     * Mobile browsers/WhatsApp can truncate long URL query strings (the
-     * previous ~35-case failure). navigator.share hands the COMPLETE text
-     * directly to the OS share sheet, where the user can choose WhatsApp.
-     */
-    if (isMobile && typeof navigator.share === 'function') {
-        // IMPORTANT: share the complete case list as a TEXT FILE, not as a
-        // giant WhatsApp URL/text payload. Android/WhatsApp can truncate a
-        // long text share; a file preserves the complete 72/ALL cases.
-        const file = new File([message], 'Court_Tracker_All_Selected_Cases.txt', {
-            type: 'text/plain'
-        });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({
-                title: 'Court Tracker - All Selected Cases',
-                text: 'All selected Court Tracker cases',
-                files: [file]
-            }).catch(function (err) {
-                if (err && err.name !== 'AbortError') {
-                    navigator.clipboard.writeText(message).then(function () {
-                        alert('All cases copied. Open WhatsApp and paste the complete list.');
-                    });
-                }
-            });
-            return;
-        }
-
-        // Fallback: copy the COMPLETE message, never a shortened URL.
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(message).then(function () {
-                alert('All selected cases copied. Open WhatsApp and paste the complete list.');
-            });
-            return;
-        }
+    if (isMobile) {
+        // Android/iOS WhatsApp direct text composer.
+        window.location.href = 'whatsapp://send?text=' + encoded;
+        setTimeout(function () {
+            // Fallback if the WhatsApp scheme is blocked by the browser.
+            window.location.href = 'https://wa.me/?text=' + encoded;
+        }, 1200);
+        return;
     }
 
-    // PC: use the complete message when WhatsApp Web can accept it.
-    // Also put the full message in the clipboard so no cases are lost if the
-    // browser/WhatsApp URL length is rejected.
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(message).catch(function () {});
-    }
-    const encodedMessage = encodeURIComponent(message);
-    if (encodedMessage.length < 50000) {
-        window.open('https://web.whatsapp.com/send?text=' + encodedMessage, '_blank');
-    } else {
-        window.open('https://web.whatsapp.com/', '_blank');
-        alert('The complete case list is copied to clipboard. In WhatsApp Web, paste it into the chat. No cases were removed.');
-    }
+    // PC: WhatsApp Web with the same complete text message.
+    window.open('https://web.whatsapp.com/send?text=' + encoded, '_blank');
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
