@@ -1553,23 +1553,50 @@ function shareSelectedOnWhatsApp() {
      * directly to the OS share sheet, where the user can choose WhatsApp.
      */
     if (isMobile && typeof navigator.share === 'function') {
-        navigator.share({
-            title: 'Court Tracker Cases',
-            text: message
-        }).catch(function (err) {
-            // User cancellation is normal; do nothing.
-            if (err && err.name !== 'AbortError') {
-                const encoded = encodeURIComponent(message);
-                window.location.href = 'whatsapp://send?text=' + encoded;
-            }
+        // IMPORTANT: share the complete case list as a TEXT FILE, not as a
+        // giant WhatsApp URL/text payload. Android/WhatsApp can truncate a
+        // long text share; a file preserves the complete 72/ALL cases.
+        const file = new File([message], 'Court_Tracker_All_Selected_Cases.txt', {
+            type: 'text/plain'
         });
-        return;
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+                title: 'Court Tracker - All Selected Cases',
+                text: 'All selected Court Tracker cases',
+                files: [file]
+            }).catch(function (err) {
+                if (err && err.name !== 'AbortError') {
+                    navigator.clipboard.writeText(message).then(function () {
+                        alert('All cases copied. Open WhatsApp and paste the complete list.');
+                    });
+                }
+            });
+            return;
+        }
+
+        // Fallback: copy the COMPLETE message, never a shortened URL.
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(message).then(function () {
+                alert('All selected cases copied. Open WhatsApp and paste the complete list.');
+            });
+            return;
+        }
     }
 
-    // DESKTOP/PC: open WhatsApp Web with the complete message.
-    // Do not split the cases: the complete selected set stays together.
+    // PC: use the complete message when WhatsApp Web can accept it.
+    // Also put the full message in the clipboard so no cases are lost if the
+    // browser/WhatsApp URL length is rejected.
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(message).catch(function () {});
+    }
     const encodedMessage = encodeURIComponent(message);
-    window.open('https://web.whatsapp.com/send?text=' + encodedMessage, '_blank');
+    if (encodedMessage.length < 50000) {
+        window.open('https://web.whatsapp.com/send?text=' + encodedMessage, '_blank');
+    } else {
+        window.open('https://web.whatsapp.com/', '_blank');
+        alert('The complete case list is copied to clipboard. In WhatsApp Web, paste it into the chat. No cases were removed.');
+    }
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
