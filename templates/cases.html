@@ -1817,8 +1817,12 @@ function applyHeaderFilters() {
     const party = document.getElementById('partyFilter').value;
     const stage = document.getElementById('stageFilter').value;
 
+    const selectedIds = new Set(getStoredSelectedIds());
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
-        const show =
+        const box = row.querySelector('.casebox');
+        const id = box ? String(box.value) : '';
+        const selectedVisible = selectedIds.size === 0 || selectedIds.has(id);
+        const show = selectedVisible &&
             (!caseNo || row.dataset.caseNo === caseNo) &&
             (!court || row.dataset.court === court) &&
             (!party || row.dataset.party === party) &&
@@ -1869,7 +1873,11 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
         const baseFilters = [...document.querySelectorAll('.header-filter')]
             .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
 
+        const selectedIds = new Set(getStoredSelectedIds());
         document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+            const box = row.querySelector('.casebox');
+            const id = box ? String(box.value) : '';
+            const selectedVisible = selectedIds.size === 0 || selectedIds.has(id);
             const baseHidden = baseFilters.some(f => {
                 if (!f.value) return false;
                 if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
@@ -1879,7 +1887,8 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
                 return false;
             });
 
-            const show = !baseHidden &&
+            const show = selectedVisible &&
+                         !baseHidden &&
                          matches(row, nextDateFilter.value) &&
                          matches(row, timeLeftFilter.value);
 
