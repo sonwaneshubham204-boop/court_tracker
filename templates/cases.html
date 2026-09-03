@@ -1761,12 +1761,27 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileAll = document.getElementById('mobileAll');
     if (mobileAll) {
         mobileAll.addEventListener('change', function () {
+            // Keep mobile Select All in sync with persistent localStorage selection.
+            // Unchecking removes only the cases currently shown on this page,
+            // while selections from other searches remain preserved.
+            var storedIds = getStoredSelectedIds();
+            var idSet = new Set(storedIds);
+
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
                 box.checked = mobileAll.checked;
                 sameCaseBoxes(box.value).forEach(function (other) {
                     other.checked = mobileAll.checked;
                 });
+
+                if (mobileAll.checked) {
+                    idSet.add(String(box.value));
+                } else {
+                    idSet.delete(String(box.value));
+                }
             });
+
+            setStoredSelectedIds(Array.from(idSet));
+
             var desktopAll = document.getElementById('all');
             if (desktopAll) desktopAll.checked = mobileAll.checked;
             if (typeof refresh === 'function') refresh();
