@@ -1467,7 +1467,9 @@ function applySelectedOnlyFilter() {
 
     const totalResults = document.getElementById('totalresults');
     if (totalResults) {
-        totalResults.textContent = selectedOnly ? selectedIds.size : {{ cases|length }};
+        totalResults.textContent = selectedOnly
+            ? selectedIds.size
+            : {{ cases|length }};
     }
 
     const btn = document.getElementById('selectedOnlyBtn');
@@ -1489,7 +1491,7 @@ function toggleSelectedOnly() {
     if (selectedOnly) {
         applySelectedOnlyFilter();
     } else {
-        // Restore the existing Search/Header/Date filters exactly as before.
+        // Restore the page's existing search/header/date filters.
         if (typeof applyNewFilters === 'function') {
             applyNewFilters();
         } else if (typeof applyHeaderFilters === 'function') {
@@ -1509,7 +1511,8 @@ function refresh() {
     document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
     document.getElementById('selcount').textContent = n;
 
-    // Total Results changes to selected count ONLY while Selected Only is active.
+    // Normal mode = actual current server result count.
+    // Selected Only mode = number of persistently selected cases.
     const totalResults = document.getElementById('totalresults');
     if (totalResults) {
         totalResults.textContent = selectedOnly ? n : {{ cases|length }};
@@ -1644,14 +1647,14 @@ function applyHeaderFilters() {
     const selectedIds = new Set(getStoredSelectedIds());
 
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
-        const box = row.querySelector('.casebox');
-        const isSelected = box && selectedIds.has(String(box.value));
-
         const show =
             (!caseNo || row.dataset.caseNo === caseNo) &&
             (!court || row.dataset.court === court) &&
             (!party || row.dataset.party === party) &&
             (!stage || row.dataset.stage === stage);
+
+        const box = row.querySelector('.casebox');
+        const isSelected = box && selectedIds.has(String(box.value));
 
         row.style.display = selectedOnly
             ? (isSelected ? '' : 'none')
@@ -1713,13 +1716,13 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
                 return false;
             });
 
-            const box = row.querySelector('.casebox');
-            const selectedIds = new Set(getStoredSelectedIds());
-            const isSelected = box && selectedIds.has(String(box.value));
-
             const show = !baseHidden &&
                          matches(row, nextDateFilter.value) &&
                          matches(row, timeLeftFilter.value);
+
+            const box = row.querySelector('.casebox');
+            const selectedIds = new Set(getStoredSelectedIds());
+            const isSelected = box && selectedIds.has(String(box.value));
 
             row.style.display = selectedOnly
                 ? (isSelected ? '' : 'none')
