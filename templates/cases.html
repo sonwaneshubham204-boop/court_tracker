@@ -1147,6 +1147,8 @@ td.action-cell .action-links {
     {% for case in cases %}
     <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
         data-case-no="{{ case.case_no }}"
+        data-cnr="{{ case.crn_no or '' }}"
+        data-advocate="{{ case.advocate_name or '' }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
@@ -1407,11 +1409,11 @@ if (hasActiveFilter) {
 }
 
 /*
- * Bulk-selection persistence:
- * Keep checked case IDs in localStorage so a user can search for one case,
- * tick it, search for another case, tick it, and still operate on BOTH cases.
- * This is intentionally limited to bulk selection state; it does not alter
- * the search/filter behaviour or any case data.
+ * LOCKED BULK SELECTION
+ * - Persistent across search/filter reloads.
+ * - Total Results always remains the server result count.
+ * - When N cases are selected, only those N selected cases are shown.
+ * - Does not modify case data or existing actions.
  */
 const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
 
@@ -1427,10 +1429,11 @@ function getStoredSelectedIds() {
 
 function setStoredSelectedIds(ids) {
     try {
-        localStorage.setItem(BULK_SELECTION_KEY, JSON.stringify([...new Set(ids.map(String))]));
-    } catch (e) {
-        // Ignore storage errors; normal checkbox behaviour still works.
-    }
+        localStorage.setItem(
+            BULK_SELECTION_KEY,
+            JSON.stringify([...new Set(ids.map(String))])
+        );
+    } catch (e) {}
 }
 
 function addStoredSelectedId(id) {
@@ -1441,17 +1444,26 @@ function addStoredSelectedId(id) {
 
 function removeStoredSelectedId(id) {
     const target = String(id);
-    setStoredSelectedIds(getStoredSelectedIds().filter(x => x !== target));
+    setStoredSelectedIds(
+        getStoredSelectedIds().filter(x => x !== target)
+    );
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
 
 function selected() {
-    // Return the persistent selection, not only the checkboxes currently
-    // visible after a search/filter. This is what allows multi-search selection.
-    const stored = getStoredSelectedIds();
-    const visibleChecked = [...boxes()].filter(x => x.checked).map(x => String(x.value));
-    return [...new Set([...stored, ...visibleChecked])];
+    return getStoredSelectedIds();
+}
+
+function applySelectedOnlyVisibility() {
+    const selectedIds = new Set(getStoredSelectedIds());
+
+    document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+        const checkbox = row.querySelector('.casebox');
+        const id = checkbox ? String(checkbox.value) : '';
+        row.style.display =
+            selectedIds.size === 0 || selectedIds.has(id) ? '' : 'none';
+    });
 }
 
 function refresh() {
@@ -1459,92 +1471,19 @@ function refresh() {
     document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
     document.getElementById('selcount').textContent = n;
 
-    // Total Results is always the actual result count (e.g. 72).
     const totalResults = document.getElementById('totalresults');
     if (totalResults) totalResults.textContent = {{ cases|length }};
 
-    applyCombinedCaseVisibility();
-}
-
-function applyCombinedCaseVisibility() {
-    const selectedIds = new Set(selected().map(String));
-    const hasSelection = selectedIds.size > 0;
-
-    const caseNoFilter = document.getElementById('caseNoFilter');
-    const courtFilter = document.getElementById('courtFilter');
-    const partyFilter = document.getElementById('partyFilter');
-    const stageFilter = document.getElementById('stageFilter');
-    const nextDateFilter = document.getElementById('nextDateFilter');
-    const timeLeftFilter = document.getElementById('timeLeftFilter');
-
-    function startOfDay(d) {
-        d = new Date(d);
-        d.setHours(0, 0, 0, 0);
-        return d;
-    }
-
-    function matchesDate(row, value) {
-        if (!value) return true;
-        const disposed = row.dataset.disposed === 'true';
-        const raw = row.dataset.nextDate;
-
-        if (value === 'disposed') return disposed;
-        if (value === 'undated') return !raw && !disposed;
-        if (!raw) return false;
-
-        const today = startOfDay(new Date());
-        const hearing = startOfDay(raw + 'T00:00:00');
-        const diff = Math.round((hearing - today) / 86400000);
-
-        if (value === 'today') return diff === 0;
-        if (value === 'tomorrow') return diff === 1;
-        if (value === 'next7') return diff >= 0 && diff <= 7;
-        if (value === 'next30') return diff >= 0 && diff <= 30;
-        if (value === 'future') return diff > 30;
-        if (value === 'past' || value === 'overdue') return diff < 0;
-        return true;
-    }
-
-    document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
-        const checkbox = row.querySelector('.casebox');
-        const id = checkbox ? String(checkbox.value) : '';
-
-        const filterMatch =
-            (!caseNoFilter || !caseNoFilter.value || row.dataset.caseNo === caseNoFilter.value) &&
-            (!courtFilter || !courtFilter.value || row.dataset.court === courtFilter.value) &&
-            (!partyFilter || !partyFilter.value || row.dataset.party === partyFilter.value) &&
-            (!stageFilter || !stageFilter.value || row.dataset.stage === stageFilter.value) &&
-            (!nextDateFilter || matchesDate(row, nextDateFilter.value)) &&
-            (!timeLeftFilter || matchesDate(row, timeLeftFilter.value));
-
-        // If anything is selected, ONLY selected cases are visible.
-        // Existing filters still apply as an additional restriction.
-        row.style.display = (filterMatch && (!hasSelection || selectedIds.has(id))) ? '' : 'none';
-    });
-
-    // Keep Select All state synchronized without changing the selection.
-    const uniqueIds = [...new Set([...document.querySelectorAll('.casebox')].map(x => String(x.value)))];
-    const allSelected = uniqueIds.length > 0 && uniqueIds.every(id => selectedIds.has(id));
-    const someSelected = uniqueIds.some(id => selectedIds.has(id));
-
-    const mobileAll = document.getElementById('mobileAll');
-    if (mobileAll) {
-        mobileAll.checked = allSelected;
-        mobileAll.indeterminate = someSelected && !allSelected;
-    }
-
-    const desktopAll = document.getElementById('all');
-    if (desktopAll) {
-        desktopAll.checked = allSelected;
-        desktopAll.indeterminate = someSelected && !allSelected;
-    }
+    applySelectedOnlyVisibility();
 }
 
 function restoreStoredSelections() {
     const stored = new Set(getStoredSelectedIds());
+
     boxes().forEach(x => {
         x.checked = stored.has(String(x.value));
     });
+
     refresh();
 }
 
@@ -1554,28 +1493,37 @@ boxes().forEach(x => x.addEventListener('change', function () {
     } else {
         removeStoredSelectedId(this.value);
     }
-    // Keep duplicate desktop/mobile checkboxes synchronized.
+
+    // Keep desktop/mobile duplicate checkboxes synchronized.
     boxes().forEach(other => {
-        if (other !== this && String(other.value) === String(this.value)) {
+        if (
+            other !== this &&
+            String(other.value) === String(this.value)
+        ) {
             other.checked = this.checked;
         }
     });
+
     refresh();
 }));
 
 const allBox = document.getElementById('all');
+
 if (allBox) {
     allBox.addEventListener('change', e => {
-        const ids = getStoredSelectedIds();
-        const idSet = new Set(ids);
+        const checked = e.target.checked;
+        const idSet = new Set(getStoredSelectedIds());
+
         boxes().forEach(x => {
-            x.checked = e.target.checked;
-            if (e.target.checked) {
+            x.checked = checked;
+
+            if (checked) {
                 idSet.add(String(x.value));
             } else {
                 idSet.delete(String(x.value));
             }
         });
+
         setStoredSelectedIds([...idSet]);
         refresh();
     });
@@ -1585,35 +1533,6 @@ function clearBulkSelection() {
     try {
         localStorage.removeItem(BULK_SELECTION_KEY);
     } catch (e) {}
-}
-
-function openModal(type) {
-    const ids = selected();
-    if (!ids.length) return;
-
-    const form = document.getElementById('modalForm');
-
-    const isUpdate = type === 'update';
-    document.getElementById('bulkdate').style.display = isUpdate ? 'block' : 'none';
-    document.getElementById('bulkdateLabel').style.display = isUpdate ? 'block' : 'none';
-    document.getElementById('bulkstage').style.display = isUpdate ? 'block' : 'none';
-    document.getElementById('bulkstageLabel').style.display = isUpdate ? 'block' : 'none';
-    document.getElementById('decision').style.display = type === 'dispose' ? 'block' : 'none';
-
-    document.getElementById('mtitle').textContent =
-        type === 'update' ? 'Change Next Hearing Date / Case Stage' :
-        'Dispose Selected — Select Decision Date';
-
-    if (type === 'update' && ids.length === 1) {
-        form.action = '/case/' + ids[0] + '/quick-update';
-    } else {
-        form.action = type === 'update' ? '/bulk/update?ids=' + ids.join(',') : '/bulk/' + type + '?ids=' + ids.join(',');
-    }
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
 }
 
 function shareSelectedOnWhatsApp() {
@@ -1641,31 +1560,79 @@ function shareSelectedOnWhatsApp() {
         };
     });
 
-    const messageCases = ids.map((id, index) => {
-        const item = casesById[String(id)] || {};
-        return [
-            'Case ' + (index + 1),
-            'Case No: ' + (item.caseNo || ''),
-            'CNR No: ' + (item.cnr || ''),
-            'Parties (Who Vs Who): ' + (item.parties || ''),
-            'Advocate Name: ' + (item.advocate || ''),
-            'Court No: ' + (item.court || ''),
-            'Case Stage: ' + (item.stage || ''),
-            'Next Hearing Date: ' + (item.nextDate || '')
-        ].join('\\n');
+    const clean = value => String(value || '').trim();
+
+    const message = ids.map((id, index) => {
+        const c = casesById[String(id)] || {};
+        const lines = [];
+
+        lines.push('⚖️ Case ' + (index + 1));
+        if (clean(c.caseNo)) lines.push('Case No: ' + clean(c.caseNo));
+        if (clean(c.cnr)) lines.push('CNR: ' + clean(c.cnr));
+        if (clean(c.parties)) lines.push('Who Vs Who: ' + clean(c.parties));
+        if (clean(c.advocate)) lines.push('Advocate: ' + clean(c.advocate));
+        if (clean(c.court)) lines.push('Court: ' + clean(c.court));
+        if (clean(c.stage)) lines.push('Stage: ' + clean(c.stage));
+        if (clean(c.nextDate)) lines.push('Next Hearing: ' + clean(c.nextDate));
+
+        return lines.join('\\n');
     }).join('\\n\\n');
 
-    const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(messageCases);
-    window.open(whatsappUrl, '_blank');
+    const whatsappUrl =
+        'https://wa.me/?text=' + encodeURIComponent(message);
+
+    window.location.href = whatsappUrl;
+}
+
+function openModal(type) {
+    const ids = selected();
+    if (!ids.length) return;
+
+    const form = document.getElementById('modalForm');
+
+    const isUpdate = type === 'update';
+    document.getElementById('bulkdate').style.display =
+        isUpdate ? 'block' : 'none';
+    document.getElementById('bulkdateLabel').style.display =
+        isUpdate ? 'block' : 'none';
+    document.getElementById('bulkstage').style.display =
+        isUpdate ? 'block' : 'none';
+    document.getElementById('bulkstageLabel').style.display =
+        isUpdate ? 'block' : 'none';
+    document.getElementById('decision').style.display =
+        type === 'dispose' ? 'block' : 'none';
+
+    document.getElementById('mtitle').textContent =
+        type === 'update'
+            ? 'Change Next Hearing Date / Case Stage'
+            : 'Dispose Selected — Select Decision Date';
+
+    if (type === 'update' && ids.length === 1) {
+        form.action = '/case/' + ids[0] + '/quick-update';
+    } else {
+        form.action =
+            type === 'update'
+                ? '/bulk/update?ids=' + ids.join(',')
+                : '/bulk/' + type + '?ids=' + ids.join(',');
+    }
+
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
 }
 
 function bulkDelete() {
     const ids = selected();
+
     if (ids.length && confirm('Delete selected cases?')) {
         clearBulkSelection();
+
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/bulk/delete?ids=' + ids.join(',');
+
         document.body.appendChild(form);
         form.submit();
     }
@@ -1673,22 +1640,32 @@ function bulkDelete() {
 
 // A completed bulk operation consumes the current selection.
 const modalForm = document.getElementById('modalForm');
+
 if (modalForm) {
     modalForm.addEventListener('submit', function (e) {
-        if (document.getElementById('mtitle').textContent === 'Change Next Hearing Date / Case Stage') {
-            const dateValue = document.getElementById('bulkdate').value.trim();
-            const stageValue = document.getElementById('bulkstage').value.trim();
+        if (
+            document.getElementById('mtitle').textContent ===
+            'Change Next Hearing Date / Case Stage'
+        ) {
+            const dateValue =
+                document.getElementById('bulkdate').value.trim();
+            const stageValue =
+                document.getElementById('bulkstage').value.trim();
+
             if (!dateValue && !stageValue) {
                 e.preventDefault();
-                alert('Please enter a Next Hearing Date or select a Case Stage.');
+                alert(
+                    'Please enter a Next Hearing Date or select a Case Stage.'
+                );
                 return;
             }
         }
+
         clearBulkSelection();
     });
 }
 
-// Restore selections after every page/search load.
+// Restore selections after page/search load.
 restoreStoredSelections();
 
 // Simple dropdown filters in the red table header
@@ -1705,9 +1682,19 @@ function applyHeaderFilters() {
     const party = document.getElementById('partyFilter').value;
     const stage = document.getElementById('stageFilter').value;
 
-    applyCombinedCaseVisibility();
+    document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+        const show =
+            (!caseNo || row.dataset.caseNo === caseNo) &&
+            (!court || row.dataset.court === court) &&
+            (!party || row.dataset.party === party) &&
+            (!stage || row.dataset.stage === stage);
+        row.style.display = show ? '' : 'none';
+    });
 }
-headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFilters));
+headerFilters.forEach(filter => filter.addEventListener('change', function () {
+    applyHeaderFilters();
+    applySelectedOnlyVisibility();
+}));
 
 </script>
 
@@ -1750,11 +1737,32 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
         const baseFilters = [...document.querySelectorAll('.header-filter')]
             .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
 
-        applyCombinedCaseVisibility();
+        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+            const baseHidden = baseFilters.some(f => {
+                if (!f.value) return false;
+                if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
+                if (f.id === 'courtFilter') return row.dataset.court !== f.value;
+                if (f.id === 'partyFilter') return row.dataset.party !== f.value;
+                if (f.id === 'stageFilter') return row.dataset.stage !== f.value;
+                return false;
+            });
+
+            const show = !baseHidden &&
+                         matches(row, nextDateFilter.value) &&
+                         matches(row, timeLeftFilter.value);
+
+            row.style.display = show ? '' : 'none';
+        });
     }
 
-    nextDateFilter.addEventListener('change', applyNewFilters);
-    timeLeftFilter.addEventListener('change', applyNewFilters);
+    nextDateFilter.addEventListener('change', function () {
+        applyNewFilters();
+        applySelectedOnlyVisibility();
+    });
+    timeLeftFilter.addEventListener('change', function () {
+        applyNewFilters();
+        applySelectedOnlyVisibility();
+    });
 })();
 </script>
 
@@ -1769,58 +1777,68 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 document.addEventListener('DOMContentLoaded', function () {
     function sameCaseBoxes(value) {
         return Array.from(document.querySelectorAll('.casebox'))
-            .filter(function (box) { return String(box.value) === String(value); });
+            .filter(function (box) {
+                return String(box.value) === String(value);
+            });
     }
 
     document.querySelectorAll('.casebox').forEach(function (box) {
         box.addEventListener('change', function () {
-            sameCaseBoxes(box.value).forEach(function (other) {
-                if (other !== box) other.checked = box.checked;
-            });
-
-            if (box.checked) {
-                addStoredSelectedId(box.value);
+            if (this.checked) {
+                addStoredSelectedId(this.value);
             } else {
-                removeStoredSelectedId(box.value);
+                removeStoredSelectedId(this.value);
             }
 
-            if (typeof refresh === 'function') refresh();
+            sameCaseBoxes(this.value).forEach(function (other) {
+                other.checked = box.checked;
+            });
+
+            refresh();
         });
     });
 
     var mobileAll = document.getElementById('mobileAll');
+
     if (mobileAll) {
         mobileAll.addEventListener('change', function () {
-            var checked = mobileAll.checked;
-            var idSet = new Set(getStoredSelectedIds());
+            const checked = this.checked;
+            const idSet = new Set(getStoredSelectedIds());
 
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                var id = String(box.value);
                 box.checked = checked;
 
                 sameCaseBoxes(box.value).forEach(function (other) {
                     other.checked = checked;
                 });
 
-                if (checked) idSet.add(id);
-                else idSet.delete(id);
+                if (checked) {
+                    idSet.add(String(box.value));
+                } else {
+                    idSet.delete(String(box.value));
+                }
             });
 
-            setStoredSelectedIds(Array.from(idSet));
+            setStoredSelectedIds([...idSet]);
 
             var desktopAll = document.getElementById('all');
-            if (desktopAll) {
-                desktopAll.checked = checked;
-                desktopAll.indeterminate = false;
-            }
+            if (desktopAll) desktopAll.checked = checked;
 
-            mobileAll.indeterminate = false;
-
-            if (typeof refresh === 'function') refresh();
+            refresh();
         });
     }
+
+    refresh();
 });
 </script>
 
 </body>
 </html>
+
+<script id="court-tracker-locked-final-init">
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof restoreStoredSelections === 'function') {
+        restoreStoredSelections();
+    }
+});
+</script>
