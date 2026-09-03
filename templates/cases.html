@@ -1754,21 +1754,33 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileAll = document.getElementById('mobileAll');
     if (mobileAll) {
         mobileAll.addEventListener('change', function () {
+            var ids = getStoredSelectedIds();
+            var idSet = new Set(ids);
+            var data = getStoredSelectedCaseData();
+
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
+                var id = String(box.value);
                 box.checked = mobileAll.checked;
                 sameCaseBoxes(box.value).forEach(function (other) {
                     other.checked = mobileAll.checked;
                 });
                 if (mobileAll.checked) {
-                    rememberCaseData(box.value);
+                    idSet.add(id);
+                    rememberCaseData(id);
+                } else {
+                    idSet.delete(id);
+                    delete data[id];
                 }
             });
+
+            setStoredSelectedIds(Array.from(idSet));
+            setStoredSelectedCaseData(data);
+
             var desktopAll = document.getElementById('all');
             if (desktopAll) desktopAll.checked = mobileAll.checked;
             if (typeof refresh === 'function') refresh();
         });
-    }
-});
+    }});
 </script>
 
 <script id="selected-only-view-fix">
@@ -1843,8 +1855,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script id="selected-whatsapp-share">
 function shareSelectedOnWhatsApp() {
-    const ids = getStoredSelectedIds();
+    // One unique ID per selected case. Works with desktop + mobile checkboxes.
+    const ids = [...new Set([
+        ...getStoredSelectedIds(),
+        ...[...boxes()].filter(x => x.checked).map(x => String(x.value))
+    ])];
+
+    // Always refresh stored case data from every currently rendered row.
     rememberVisibleSelectedData();
+    ids.forEach(id => rememberCaseData(id));
     const data = getStoredSelectedCaseData();
 
     if (!ids.length) {
@@ -1854,7 +1873,7 @@ function shareSelectedOnWhatsApp() {
 
     const missing = ids.filter(id => !data[id]);
     if (missing.length) {
-        alert('Some selected case details are not available on this page. Please open/search those cases once and select them again.');
+        alert('Some selected case details are not available in the current results. Please load those cases and select them before sharing.');
         return;
     }
 
