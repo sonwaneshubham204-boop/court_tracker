@@ -1547,24 +1547,22 @@ function shareSelectedOnWhatsApp() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Court Tracker - Selected Cases',
-                text: message
-            }).catch(function(err) {
-                if (err && err.name === 'AbortError') return;
-                // Last-resort fallback only when the native text share is unavailable.
-                // Never create a file and never split the message.
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(message).then(function() {
-                        alert('Complete cases copied. Open WhatsApp and paste once.');
-                    });
-                }
+        // MOBILE FIX: never send the long case list through navigator.share().
+        // Android/Chrome/WhatsApp may truncate large EXTRA_TEXT payloads.
+        // Copy the complete text first, then open WhatsApp; paste once.
+        function copied() {
+            alert('Complete ' + ids.length + ' cases copied. Open WhatsApp and paste once.');
+            setTimeout(function() {
+                try { window.location.href = 'whatsapp://send'; } catch (e) {}
+            }, 150);
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(message).then(copied).catch(function() {
+                window.prompt('Copy ALL ' + ids.length + ' selected cases, then paste once in WhatsApp:', message);
             });
-        } else if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(message).then(function() {
-                alert('Complete cases copied. Open WhatsApp and paste once.');
-            });
+        } else {
+            window.prompt('Copy ALL ' + ids.length + ' selected cases, then paste once in WhatsApp:', message);
         }
         return;
     }
