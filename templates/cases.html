@@ -1514,19 +1514,46 @@ function formatWhatsAppDate(value) {
     return value;
 }
 
+function formatWhatsAppDate(raw) {
+    if (!raw) return '';
+    const s = String(raw).trim();
+    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return `${m[3]}-${m[2]}-${m[1].slice(-2)}`;
+    m = s.match(/^(\d{2})[\/-](\d{2})[\/-](\d{4})$/);
+    if (m) return `${m[1]}-${m[2]}-${m[3].slice(-2)}`;
+    return s;
+}
+
 function shareSelectedOnWhatsApp() {
-    const ids = selected();
-    if (!ids.length) return;
+    const ids = getStoredSelectedIds();
+    if (!ids.length) {
+        alert('Please select at least one case.');
+        return;
+    }
 
-    // First save any case data currently rendered on the page.
-    rememberAllRenderedCaseData();
+    const selectedSet = new Set(ids.map(String));
+    const casesById = {};
 
-    const storedData = getStoredSelectedCaseData();
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const checkbox = row.querySelector('.casebox');
+        if (!checkbox) return;
 
-    // Share every selected case in persistent selection order, even when
-    // some selected cases came from an earlier search/filter result.
+        const id = String(checkbox.value);
+        if (!selectedSet.has(id) || casesById[id]) return;
+
+        casesById[id] = {
+            caseNo: row.dataset.caseNo || '',
+            cnr: row.dataset.cnr || '',
+            parties: row.dataset.party || '',
+            advocate: row.dataset.advocate || '',
+            court: row.dataset.court || '',
+            stage: row.dataset.stage || '',
+            nextDate: formatWhatsAppDate(row.dataset.nextDate || '')
+        };
+    });
+
     const message = ids.map((id, index) => {
-        const c = storedData[String(id)] || {};
+        const c = casesById[String(id)] || {};
         return [
             'Case ' + (index + 1),
             'Case No: ' + (c.caseNo || ''),
@@ -1535,17 +1562,13 @@ function shareSelectedOnWhatsApp() {
             'Advocate Name: ' + (c.advocate || ''),
             'Court No: ' + (c.court || ''),
             'Case Stage: ' + (c.stage || ''),
-            'Next Hearing Date: ' + formatWhatsAppDate(c.nextDate)
+            'Next Hearing Date: ' + (c.nextDate || '')
         ].join('\n');
     }).join('\n\n');
 
-    // Send ALL selected cases in one systematic WhatsApp message.
-    // Do not impose an artificial case/message limit here; that was causing
-    // the share to stop around case 35.
-    window.open(
-        'https://wa.me/?text=' + encodeURIComponent(message),
-        '_blank'
-    );
+    // One direct WhatsApp open. No artificial 35-case / 3500-character cutoff.
+    const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
+    window.open(whatsappUrl, '_blank', 'noopener');
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
