@@ -1538,18 +1538,34 @@ function shareSelectedOnWhatsApp() {
         ].join('\n');
     }).join('\n\n');
 
-    // PHONE: open WhatsApp directly with the cases as TEXT in one message.
-    // No .txt file, no attachment, no Part 1 / Part 2.
+    // PHONE: share the COMPLETE cases as TEXT only.
+    // IMPORTANT: do not use whatsapp:// or wa.me here. Those URL-based
+    // links are truncated by Android/browser/WhatsApp for long messages
+    // (which is why only ~35 cases were reaching WhatsApp).
+    // navigator.share({text}) sends a text payload, NOT a .txt attachment.
     const encoded = encodeURIComponent(message);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // Android/iOS WhatsApp direct text composer.
-        window.location.href = 'whatsapp://send?text=' + encoded;
-        setTimeout(function () {
-            // Fallback if the WhatsApp scheme is blocked by the browser.
-            window.location.href = 'https://wa.me/?text=' + encoded;
-        }, 1200);
+        if (navigator.share) {
+            navigator.share({
+                title: 'Court Tracker - Selected Cases',
+                text: message
+            }).catch(function(err) {
+                if (err && err.name === 'AbortError') return;
+                // Last-resort fallback only when the native text share is unavailable.
+                // Never create a file and never split the message.
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message).then(function() {
+                        alert('Complete cases copied. Open WhatsApp and paste once.');
+                    });
+                }
+            });
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(message).then(function() {
+                alert('Complete cases copied. Open WhatsApp and paste once.');
+            });
+        }
         return;
     }
 
