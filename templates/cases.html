@@ -1515,51 +1515,61 @@ function formatWhatsAppDate(value) {
 }
 
 function shareSelectedOnWhatsApp() {
-    // Share ALL cases on both desktop and mobile.
-    // Mobile uses the native share sheet so WhatsApp receives the complete
-    // message without browser URL/popup limits. Desktop keeps the existing
-    // WhatsApp URL method.
-    const rows = [...document.querySelectorAll('.case-row, .mobile-case-card')];
-    const seen = new Set();
-    const cases = [];
-
-    rows.forEach(row => {
-        const checkbox = row.querySelector('.casebox');
-        if (!checkbox) return;
-        const id = String(checkbox.value);
-        if (seen.has(id)) return;
-        seen.add(id);
-        cases.push(getRowCaseData(row));
-    });
-
-    if (!cases.length) return;
-
-    const message = cases.map((c, index) => [
-        'Case ' + (index + 1),
-        'Case No: ' + (c.caseNo || ''),
-        'CNR No: ' + (c.cnr || ''),
-        'Parties: ' + (c.parties || ''),
-        'Advocate Name: ' + (c.advocate || ''),
-        'Court No: ' + (c.court || ''),
-        'Case Stage: ' + (c.stage || ''),
-        'Next Hearing Date: ' + formatWhatsAppDate(c.nextDate)
-    ].join('\n')).join('\n\n');
-
-    // On phones, use the native OS share sheet. This avoids the mobile
-    // browser's URL-length and multiple-window limits and sends ALL cases
-    // as one complete text payload to WhatsApp.
-    if (navigator.share) {
-        navigator.share({
-            text: message
-        }).catch(() => {});
+    const ids = selected();
+    if (!ids.length) {
+        alert('Please select at least one case.');
         return;
     }
 
-    // Desktop / browsers without Web Share API.
-    window.open(
-        'https://wa.me/?text=' + encodeURIComponent(message),
-        '_blank'
-    );
+    // Save every currently rendered case before building the message.
+    // This is important when selection was made after searches/filters.
+    rememberAllRenderedCaseData();
+
+    const storedData = getStoredSelectedCaseData();
+
+    // Build ONE complete message from the persistent selected-ID list.
+    // No dependence on currently visible rows, so all selected cases are included.
+    const message = ids.map((id, index) => {
+        const c = storedData[String(id)] || {};
+        return [
+            'Case ' + (index + 1),
+            'Case No: ' + (c.caseNo || ''),
+            'CNR No: ' + (c.cnr || ''),
+            'Parties: ' + (c.parties || ''),
+            'Advocate Name: ' + (c.advocate || ''),
+            'Court No: ' + (c.court || ''),
+            'Case Stage: ' + (c.stage || ''),
+            'Next Hearing Date: ' + formatWhatsAppDate(c.nextDate)
+        ].join('\n');
+    }).join('\n\n');
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    /*
+     * MOBILE:
+     * Do NOT put the full 72-case message into whatsapp:// or wa.me.
+     * Mobile browsers/WhatsApp can truncate long URL query strings (the
+     * previous ~35-case failure). navigator.share hands the COMPLETE text
+     * directly to the OS share sheet, where the user can choose WhatsApp.
+     */
+    if (isMobile && typeof navigator.share === 'function') {
+        navigator.share({
+            title: 'Court Tracker Cases',
+            text: message
+        }).catch(function (err) {
+            // User cancellation is normal; do nothing.
+            if (err && err.name !== 'AbortError') {
+                const encoded = encodeURIComponent(message);
+                window.location.href = 'whatsapp://send?text=' + encoded;
+            }
+        });
+        return;
+    }
+
+    // DESKTOP/PC: open WhatsApp Web with the complete message.
+    // Do not split the cases: the complete selected set stays together.
+    const encodedMessage = encodeURIComponent(message);
+    window.open('https://web.whatsapp.com/send?text=' + encodedMessage, '_blank');
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
@@ -1890,38 +1900,6 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 
 
 
-<script id="bootstrap-mobile-case-sync">
-document.addEventListener('DOMContentLoaded', function () {
-    function sameCaseBoxes(value) {
-        return Array.from(document.querySelectorAll('.casebox'))
-            .filter(function (box) { return String(box.value) === String(value); });
-    }
-
-    document.querySelectorAll('.casebox').forEach(function (box) {
-        box.addEventListener('change', function () {
-            sameCaseBoxes(box.value).forEach(function (other) {
-                if (other !== box) other.checked = box.checked;
-            });
-            if (typeof refresh === 'function') refresh();
-        });
-    });
-
-    var mobileAll = document.getElementById('mobileAll');
-    if (mobileAll) {
-        mobileAll.addEventListener('change', function () {
-            document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                box.checked = mobileAll.checked;
-                sameCaseBoxes(box.value).forEach(function (other) {
-                    other.checked = mobileAll.checked;
-                });
-            });
-            var desktopAll = document.getElementById('all');
-            if (desktopAll) desktopAll.checked = mobileAll.checked;
-            if (typeof refresh === 'function') refresh();
-        });
-    }
-});
-</script>
 
 </body>
 </html>
