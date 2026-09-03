@@ -1131,7 +1131,6 @@ td.action-cell .action-links {
     <b id="selcount">0</b> selected:
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
-    <button type="button" onclick="shareSelectedOnWhatsApp()">📱 Share on WhatsApp</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
 </div>
 
@@ -1149,8 +1148,6 @@ td.action-cell .action-links {
         data-case-no="{{ case.case_no }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
-        data-cnr="{{ case.crn_no or '' }}"
-        data-advocate="{{ case.advocate_name or '' }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
         data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
         data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
@@ -1300,8 +1297,6 @@ td.action-cell .action-links {
     data-case-no="{{ case.case_no }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
-    data-cnr="{{ case.crn_no or '' }}"
-    data-advocate="{{ case.advocate_name or '' }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
@@ -1418,54 +1413,6 @@ if (hasActiveFilter) {
  * the search/filter behaviour or any case data.
  */
 const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
-const BULK_SELECTION_DATA_KEY = 'courtTrackerSelectedCaseData';
-
-function getStoredSelectedData() {
-    try {
-        const raw = localStorage.getItem(BULK_SELECTION_DATA_KEY);
-        const data = raw ? JSON.parse(raw) : {};
-        return data && typeof data === 'object' ? data : {};
-    } catch (e) {
-        return {};
-    }
-}
-
-function setStoredSelectedData(data) {
-    try {
-        localStorage.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data || {}));
-    } catch (e) {}
-}
-
-function getCaseDataFromRow(row) {
-    return {
-        caseNo: row.dataset.caseNo || '',
-        cnr: row.dataset.cnr || '',
-        parties: row.dataset.party || '',
-        advocate: row.dataset.advocate || '',
-        court: row.dataset.court || '',
-        stage: row.dataset.stage || '',
-        nextDate: (function () { const d = row.dataset.nextDate || ''; if (!d) return ''; const p = d.split('-'); return p.length === 3 ? p[2] + '-' + p[1] + '-' + p[0] : d; })()
-    };
-}
-
-function rememberCaseData(id) {
-    const target = String(id);
-    const row = document.querySelector('.case-row input.casebox[value="' + target + '"]')?.closest('.case-row')
-        || document.querySelector('.mobile-case-card input.casebox[value="' + target + '"]')?.closest('.mobile-case-card');
-    if (!row) return;
-    const data = getStoredSelectedData();
-    data[target] = getCaseDataFromRow(row);
-    setStoredSelectedData(data);
-}
-
-function forgetCaseData(id) {
-    const target = String(id);
-    const data = getStoredSelectedData();
-    delete data[target];
-    setStoredSelectedData(data);
-}
-
-
 
 function getStoredSelectedIds() {
     try {
@@ -1489,13 +1436,11 @@ function addStoredSelectedId(id) {
     const ids = getStoredSelectedIds();
     if (!ids.includes(String(id))) ids.push(String(id));
     setStoredSelectedIds(ids);
-    rememberCaseData(id);
 }
 
 function removeStoredSelectedId(id) {
     const target = String(id);
     setStoredSelectedIds(getStoredSelectedIds().filter(x => x !== target));
-    forgetCaseData(id);
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
@@ -1512,10 +1457,10 @@ function refresh() {
     const n = selected().length;
     document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
     document.getElementById('selcount').textContent = n;
-    // When selections are held across searches, show the held operation total.
-    // With no held selections, keep showing the current search result count.
+    // Total Results must always show the number of cases returned by the
+    // current server-side search/filter. It must NOT change when cases are selected.
     const totalResults = document.getElementById('totalresults');
-    if (totalResults) totalResults.textContent = n ? n : {{ cases|length }};
+    if (totalResults) totalResults.textContent = {{ cases|length }};
 }
 
 function restoreStoredSelections() {
@@ -1559,92 +1504,9 @@ if (allBox) {
     });
 }
 
-function shareSelectedOnWhatsApp() {
-    const ids = selected();
-    if (!ids.length) return;
-
-    const storedData = getStoredSelectedData();
-    const casesById = {};
-
-    document.querySelectorAll('.case-row, .mobile-case-card').forEach(function(row) {
-        const checkbox = row.querySelector('.casebox');
-        if (!checkbox) return;
-        const id = String(checkbox.value);
-        if (!ids.includes(id) || casesById[id]) return;
-        casesById[id] = getCaseDataFromRow(row);
-    });
-
-    const message = ids.map(function(id, index) {
-        const item = casesById[id] || storedData[id] || {};
-        return [
-            'Case ' + (index + 1),
-            'Case No: ' + (item.caseNo || ''),
-            'CNR No: ' + (item.cnr || ''),
-            'Parties (Who Vs Who): ' + (item.parties || ''),
-            'Advocate Name: ' + (item.advocate || ''),
-            'Court No: ' + (item.court || ''),
-            'Case Stage: ' + (item.stage || ''),
-            'Next Hearing Date: ' + (item.nextDate || '')
-        ].join('\n');
-    }).join('\n\n');
-
-    /*
-     * IMPORTANT:
-     * For large selections on phones, navigator.share() can truncate the
-     * text before WhatsApp receives it. Therefore large messages are copied
-     * in full to the clipboard first, then WhatsApp is opened without putting
-     * the message into the URL. This avoids URL/share-payload truncation.
-     */
-    const isPhone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isLarge = message.length > 5000;
-
-    if (isPhone && isLarge && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(message).then(function() {
-            window.location.href = 'whatsapp://send';
-            setTimeout(function() {
-                alert('All ' + ids.length + ' selected cases were copied. Paste the complete message in WhatsApp.');
-            }, 800);
-        }).catch(function() {
-            alert('Could not copy all case details. Please allow clipboard access and try again.');
-        });
-        return;
-    }
-
-    if (navigator.share) {
-        navigator.share({
-            title: 'Court Tracker - Selected Cases',
-            text: message
-        }).catch(function(error) {
-            if (error && error.name === 'AbortError') return;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(message).then(function() {
-                    window.open('https://web.whatsapp.com/', '_blank');
-                    alert('All ' + ids.length + ' selected cases were copied. Paste the complete message in WhatsApp.');
-                });
-            } else {
-                alert('Unable to share the selected cases on this browser.');
-            }
-        });
-        return;
-    }
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(message).then(function() {
-            window.open('https://web.whatsapp.com/', '_blank');
-            alert('All ' + ids.length + ' selected cases were copied. Paste the complete message in WhatsApp.');
-        }).catch(function() {
-            alert('Unable to copy the selected case details. Please try again.');
-        });
-        return;
-    }
-
-    alert('WhatsApp sharing is not supported by this browser.');
-}
-
 function clearBulkSelection() {
     try {
         localStorage.removeItem(BULK_SELECTION_KEY);
-        localStorage.removeItem(BULK_SELECTION_DATA_KEY);
     } catch (e) {}
 }
 
@@ -1824,29 +1686,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileAll = document.getElementById('mobileAll');
     if (mobileAll) {
         mobileAll.addEventListener('change', function () {
-            var checked = mobileAll.checked;
-            var idSet = new Set(getStoredSelectedIds());
-
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
-                box.checked = checked;
+                box.checked = mobileAll.checked;
                 sameCaseBoxes(box.value).forEach(function (other) {
-                    other.checked = checked;
+                    other.checked = mobileAll.checked;
                 });
-
-                var id = String(box.value);
-                if (checked) {
-                    idSet.add(id);
-                    rememberCaseData(id);
-                } else {
-                    idSet.delete(id);
-                    forgetCaseData(id);
-                }
             });
-
-            setStoredSelectedIds(Array.from(idSet));
-
             var desktopAll = document.getElementById('all');
-            if (desktopAll) desktopAll.checked = checked;
+            if (desktopAll) desktopAll.checked = mobileAll.checked;
             if (typeof refresh === 'function') refresh();
         });
     }
