@@ -1539,34 +1539,13 @@ function shareSelectedOnWhatsApp() {
         ].join('\n');
     }).join('\n\n');
 
-    // WhatsApp/browser URL length can truncate a very large pre-filled message.
-    // Keep every selected case, but split only when necessary so ALL cases are
-    // available systematically instead of silently losing cases after #35.
-    const MAX_WHATSAPP_TEXT = 3500;
-    const chunks = [];
-    let chunk = '';
-
-    message.split('\n\n').forEach(block => {
-        const candidate = chunk ? chunk + '\n\n' + block : block;
-        if (chunk && candidate.length > MAX_WHATSAPP_TEXT) {
-            chunks.push(chunk);
-            chunk = block;
-        } else {
-            chunk = candidate;
-        }
-    });
-    if (chunk) chunks.push(chunk);
-
-    // Open each chunk separately. No selected case is dropped.
-    chunks.forEach((text, index) => {
-        const prefix = chunks.length > 1
-            ? 'Court Tracker Cases - Part ' + (index + 1) + '/' + chunks.length + '\n\n'
-            : '';
-        window.open(
-            'https://wa.me/?text=' + encodeURIComponent(prefix + text),
-            '_blank'
-        );
-    });
+    // Send ALL selected cases in one systematic WhatsApp message.
+    // Do not impose an artificial case/message limit here; that was causing
+    // the share to stop around case 35.
+    window.open(
+        'https://wa.me/?text=' + encodeURIComponent(message),
+        '_blank'
+    );
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
