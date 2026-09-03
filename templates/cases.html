@@ -1420,9 +1420,19 @@ if (hasActiveFilter) {
 const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
 const BULK_SELECTION_DATA_KEY = 'courtTrackerSelectedCaseData';
 
+// Selection belongs to the current browser tab/session.
+// Remove any old localStorage selection left by previous versions so a fresh
+// phone tab never opens with stale cases already selected.
+try {
+    localStorage.removeItem(BULK_SELECTION_KEY);
+    localStorage.removeItem(BULK_SELECTION_DATA_KEY);
+} catch (e) {}
+
+const selectionStore = sessionStorage;
+
 function getStoredSelectedIds() {
     try {
-        const raw = localStorage.getItem(BULK_SELECTION_KEY);
+        const raw = selectionStore.getItem(BULK_SELECTION_KEY);
         const ids = raw ? JSON.parse(raw) : [];
         return Array.isArray(ids) ? [...new Set(ids.map(String))] : [];
     } catch (e) {
@@ -1432,7 +1442,7 @@ function getStoredSelectedIds() {
 
 function setStoredSelectedIds(ids) {
     try {
-        localStorage.setItem(
+        selectionStore.setItem(
             BULK_SELECTION_KEY,
             JSON.stringify([...new Set(ids.map(String))])
         );
@@ -1441,7 +1451,7 @@ function setStoredSelectedIds(ids) {
 
 function getStoredSelectedCaseData() {
     try {
-        const raw = localStorage.getItem(BULK_SELECTION_DATA_KEY);
+        const raw = selectionStore.getItem(BULK_SELECTION_DATA_KEY);
         const data = raw ? JSON.parse(raw) : {};
         return data && typeof data === 'object' ? data : {};
     } catch (e) {
@@ -1451,7 +1461,7 @@ function getStoredSelectedCaseData() {
 
 function setStoredSelectedCaseData(data) {
     try {
-        localStorage.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data));
+        selectionStore.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data));
     } catch (e) {}
 }
 
@@ -1748,8 +1758,8 @@ if (mobileAll) {
 
 function clearBulkSelection() {
     try {
-        localStorage.removeItem(BULK_SELECTION_KEY);
-        localStorage.removeItem(BULK_SELECTION_DATA_KEY);
+        selectionStore.removeItem(BULK_SELECTION_KEY);
+        selectionStore.removeItem(BULK_SELECTION_DATA_KEY);
     } catch (e) {}
 }
 
