@@ -1515,8 +1515,10 @@ function formatWhatsAppDate(value) {
 }
 
 function shareSelectedOnWhatsApp() {
-    // Share ALL cases, on both desktop and mobile.
-    // Do not depend on checkbox selection or the currently visible subset.
+    // Share ALL cases on both desktop and mobile.
+    // Mobile uses the native share sheet so WhatsApp receives the complete
+    // message without browser URL/popup limits. Desktop keeps the existing
+    // WhatsApp URL method.
     const rows = [...document.querySelectorAll('.case-row, .mobile-case-card')];
     const seen = new Set();
     const cases = [];
@@ -1543,32 +1545,21 @@ function shareSelectedOnWhatsApp() {
         'Next Hearing Date: ' + formatWhatsAppDate(c.nextDate)
     ].join('\n')).join('\n\n');
 
-    // WhatsApp/browser URL length can truncate large messages, especially on mobile.
-    // Split only between complete cases so ALL cases are shared.
-    const MAX_WHATSAPP_TEXT = 3500;
-    const chunks = [];
-    let chunk = '';
+    // On phones, use the native OS share sheet. This avoids the mobile
+    // browser's URL-length and multiple-window limits and sends ALL cases
+    // as one complete text payload to WhatsApp.
+    if (navigator.share) {
+        navigator.share({
+            text: message
+        }).catch(() => {});
+        return;
+    }
 
-    message.split('\n\n').forEach(block => {
-        const candidate = chunk ? chunk + '\n\n' + block : block;
-        if (chunk && candidate.length > MAX_WHATSAPP_TEXT) {
-            chunks.push(chunk);
-            chunk = block;
-        } else {
-            chunk = candidate;
-        }
-    });
-    if (chunk) chunks.push(chunk);
-
-    chunks.forEach((text, index) => {
-        const prefix = chunks.length > 1
-            ? 'Court Tracker All Cases - Part ' + (index + 1) + '/' + chunks.length + '\n\n'
-            : '';
-        window.open(
-            'https://wa.me/?text=' + encodeURIComponent(prefix + text),
-            '_blank'
-        );
-    });
+    // Desktop / browsers without Web Share API.
+    window.open(
+        'https://wa.me/?text=' + encodeURIComponent(message),
+        '_blank'
+    );
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
