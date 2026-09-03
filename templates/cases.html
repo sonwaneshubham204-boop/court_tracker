@@ -1521,52 +1521,63 @@ function shareSelectedOnWhatsApp() {
         return;
     }
 
-    // Keep the complete selected-case data available even after searches/filters.
+    // Keep data for every selected case, including cases selected before a
+    // search/filter change.  Nothing is taken from the currently visible list.
     rememberAllRenderedCaseData();
     const storedData = getStoredSelectedCaseData();
 
-    /*
-     * IMPORTANT PHONE FIX:
-     * Android/WhatsApp can truncate a long prefilled/share payload.
-     * Therefore the single message is deliberately compact: ONE LINE PER CASE,
-     * while still containing Case No, CNR, Parties, Advocate, Court, Stage and Date.
-     * No .txt file, no attachment, no Part 1/Part 2.
-     */
+    // One WhatsApp message.  Keep each case on one compact line so the
+    // Android/Web Share payload stays small enough for the phone share sheet.
     const message = ids.map((id, index) => {
         const c = storedData[String(id)] || {};
-        return [
-            (index + 1) + ')',
-            c.caseNo || '-',
-            c.cnr || '-',
-            c.parties || '-',
-            c.advocate || '-',
-            c.court || '-',
-            c.stage || '-',
-            formatWhatsAppDate(c.nextDate) || '-'
-        ].join(' | ');
+        const parts = [
+            c.caseNo,
+            c.cnr,
+            c.parties,
+            c.advocate,
+            c.court,
+            c.stage,
+            formatWhatsAppDate(c.nextDate)
+        ].map(v => String(v || '').replace(/[\r\n]+/g, ' ').trim());
+
+        return (index + 1) + ') ' +
+            'Case No: ' + parts[0] + ' | ' +
+            'CNR: ' + parts[1] + ' | ' +
+            'Parties: ' + parts[2] + ' | ' +
+            'Advocate: ' + parts[3] + ' | ' +
+            'Court: ' + parts[4] + ' | ' +
+            'Stage: ' + parts[5] + ' | ' +
+            'Date: ' + parts[6];
     }).join('\n');
 
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile && typeof navigator.share === 'function') {
-        // TEXT ONLY. Never create/share a file.
+        // Native text sharing: WhatsApp receives TEXT, not a .txt file.
         navigator.share({
+            title: 'Court Tracker - Selected Cases',
             text: message
         }).catch(function(err) {
             if (err && err.name === 'AbortError') return;
-
-            // Fallback: copy the SAME complete single-message text.
-            // This is still text, never a .txt attachment.
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(message).then(function() {
-                    alert('Complete ' + ids.length + ' cases copied as one message. Open WhatsApp and paste once.');
+                    alert('All selected cases copied. Open WhatsApp and paste once.');
                 });
             }
         });
         return;
     }
 
-    // PC: WhatsApp Web prefilled with the same single compact message.
+    if (isMobile) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(message).then(function() {
+                alert('All selected cases copied. Open WhatsApp and paste once.');
+            });
+        }
+        return;
+    }
+
+    // Desktop: open one WhatsApp Web compose message containing ALL selected cases.
     const encoded = encodeURIComponent(message);
     window.open('https://web.whatsapp.com/send?text=' + encoded, '_blank');
 }
