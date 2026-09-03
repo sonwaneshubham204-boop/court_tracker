@@ -1037,6 +1037,20 @@ td.action-cell .action-links {
     background:#fff!important;
     color:#173b6c!important;
 }
+
+/* Restore dark-blue Next Hearing Date display. */
+.table-wrap td.next-hearing-date-cell {
+    color:#173b6c !important;
+    font-weight:700 !important;
+}
+.mobile-case-card .next-hearing-date-value {
+    color:#173b6c !important;
+    font-weight:700 !important;
+}
+.table-wrap tbody tr.case-row.today-hearing-case td.next-hearing-date-cell,
+.mobile-case-card.today-hearing-case .next-hearing-date-value {
+    color:#fff !important;
+}
 </style>
 </head>
 
@@ -1132,6 +1146,7 @@ td.action-cell .action-links {
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
+    <button type="button" onclick="shareSelectedOnWhatsApp()">📱 Share on WhatsApp</button>
 </div>
 
 
@@ -1146,6 +1161,8 @@ td.action-cell .action-links {
     {% for case in cases %}
     <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
         data-case-no="{{ case.case_no }}"
+        data-cnr="{{ case.cnr_no or '' }}"
+        data-advocate="{{ case.advocate_name or '' }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
@@ -1197,7 +1214,7 @@ td.action-cell .action-links {
                 <div class="col-12">
                     <div class="mobile-detail-box">
                         <span class="mobile-detail-label">Next Hearing</span>
-                        <div class="mobile-detail-value">
+                        <div class="mobile-detail-value next-hearing-date-value">
                             {% if case.next_hearing_date %}
                                 {{ case.next_hearing_date.strftime("%d-%m-%Y") }} — {{ case.next_hearing_date.strftime("%A") }}
                             {% else %}Not Scheduled{% endif %}
@@ -1295,6 +1312,8 @@ td.action-cell .action-links {
 {% for case in cases %}
 <tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
     data-case-no="{{ case.case_no }}"
+    data-cnr="{{ case.cnr_no or '' }}"
+    data-advocate="{{ case.advocate_name or '' }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
@@ -1312,7 +1331,7 @@ td.action-cell .action-links {
             {{ case.case_stage }}
         {% endif %}
     </td>
-    <td>
+    <td class="next-hearing-date-cell">
         {% if case.next_hearing_date %}
             {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
             <small class="weekday {% if case.next_hearing_date.strftime('%A') in ['Sunday', 'Monday'] %}weekday-dark{% endif %}">{{ case.next_hearing_date.strftime("%A") }}</small>
@@ -1453,6 +1472,16 @@ function selected() {
     return [...new Set([...stored, ...visibleChecked])];
 }
 
+function applySelectedOnlyVisibility() {
+    const selectedIds = new Set(getStoredSelectedIds());
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (!box) return;
+        const id = String(box.value);
+        row.style.display = selectedIds.size === 0 || selectedIds.has(id) ? '' : 'none';
+    });
+}
+
 function refresh() {
     const n = selected().length;
     document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
@@ -1461,6 +1490,7 @@ function refresh() {
     // With no held selections, keep showing the current search result count.
     const totalResults = document.getElementById('totalresults');
     if (totalResults) totalResults.textContent = {{ cases|length }};
+    applySelectedOnlyVisibility();
 }
 
 function restoreStoredSelections() {
@@ -1740,12 +1770,16 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileAll = document.getElementById('mobileAll');
     if (mobileAll) {
         mobileAll.addEventListener('change', function () {
+            const current = new Set(getStoredSelectedIds());
             document.querySelectorAll('.mobile-case-check').forEach(function (box) {
                 box.checked = mobileAll.checked;
                 sameCaseBoxes(box.value).forEach(function (other) {
                     other.checked = mobileAll.checked;
                 });
+                if (mobileAll.checked) current.add(String(box.value));
+                else current.delete(String(box.value));
             });
+            setStoredSelectedIds([...current]);
             var desktopAll = document.getElementById('all');
             if (desktopAll) desktopAll.checked = mobileAll.checked;
             if (typeof refresh === 'function') refresh();
