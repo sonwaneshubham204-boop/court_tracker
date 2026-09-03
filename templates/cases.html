@@ -1052,6 +1052,23 @@ td.action-cell .action-links {
     color:#fff !important;
 }
 </style>
+
+<style id="locked-next-hearing-date-dark-blue">
+/* LOCKED: Next Hearing Date text dark blue only. */
+.table-wrap td:nth-child(7) {
+    color:#173b6c !important;
+    font-weight:700 !important;
+}
+.mobile-case-card .mobile-detail-value {
+    color:#173b6c;
+}
+.mobile-case-card.today-hearing-case .mobile-detail-value {
+    color:#fff !important;
+}
+.table-wrap tbody tr.case-row.today-hearing-case td {
+    color:#fff !important;
+}
+</style>
 </head>
 
 <body>
@@ -1161,7 +1178,7 @@ td.action-cell .action-links {
     {% for case in cases %}
     <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
         data-case-no="{{ case.case_no }}"
-        data-cnr="{{ case.cnr_no or '' }}"
+        data-cnr="{{ case.crn_no or case.normalized_crn or '' }}"
         data-advocate="{{ case.advocate_name or '' }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
@@ -1312,7 +1329,7 @@ td.action-cell .action-links {
 {% for case in cases %}
 <tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
     data-case-no="{{ case.case_no }}"
-    data-cnr="{{ case.cnr_no or '' }}"
+    data-cnr="{{ case.crn_no or case.normalized_crn or '' }}"
     data-advocate="{{ case.advocate_name or '' }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
