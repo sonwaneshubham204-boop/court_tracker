@@ -465,12 +465,6 @@ td.action-cell .action-links button {
     white-space: nowrap !important;
 }
 
-
-.overdue-text {
-    display: inline-block !important;
-    white-space: nowrap !important;
-    overflow: visible !important;
-}
 </style>
 
 <style>
@@ -983,6 +977,29 @@ td.action-cell .action-links {
     color:#173b6c!important;
 }
 </style>
+
+<style>
+/* OVERDUE ALIGNMENT FIX V2 — only Time Left / overdue presentation */
+.table-wrap th.time-left-head,
+.table-wrap td:nth-child(8) {
+    width: 135px !important;
+    min-width: 135px !important;
+    max-width: 135px !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+}
+.table-wrap td:nth-child(8) .overdue-text {
+    display: inline-block !important;
+    width: max-content !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+}
+</style>
 </head>
 
 <body>
@@ -1130,7 +1147,7 @@ td.action-cell .action-links {
                         <div class="mobile-detail-value">
                             {% if case.next_hearing_date %}
                                 {% set d = (case.next_hearing_date - today).days %}
-                                {% if d < 0 %}<span class="overdue-text">{{ d|abs }} days overdue</span>
+                                {% if d < 0 %}{{ d|abs }} days overdue
                                 {% elif d == 0 %}TODAY
                                 {% elif d == 1 %}Tomorrow
                                 {% else %}{{ d }} days left{% endif %}
@@ -1269,7 +1286,7 @@ td.action-cell .action-links {
         {% if case.next_hearing_date %}
             {% set d = (case.next_hearing_date - today).days %}
             {% if d < 0 %}
-                <span class="overdue-text">{{ d|abs }} days overdue</span>
+                {{ d|abs }} days overdue
             {% elif d == 0 %}
                 TODAY
             {% elif d == 1 %}
