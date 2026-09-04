@@ -4,251 +4,1675 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
 <style>
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; background:#f3f5f8; color:#1f2937; }
-    .page { max-width: 1450px; margin: 0 auto; padding: 24px; }
-    .nav { margin-bottom:18px; }
-    .nav a { margin-right:12px; color:#273c75; font-weight:600; text-decoration:none; }
-    .nav a:hover { text-decoration:underline; }
+* { box-sizing: border-box; }
 
-    .search-card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 16px rgba(0,0,0,.08); }
-    .search-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .search-main { flex:1 1 420px; min-width:240px; }
-    input, select, button { font:inherit; }
-    input[type=text], input[type=date], select {
-        width:100%; padding:11px 12px; border:1px solid #cbd5e1; border-radius:7px; background:white;
+.cases-page { max-width: 1400px; margin: 0 auto; }
+.top-links { margin: 12px 0 18px; }
+.top-links a { margin-right: 10px; }
+
+.search-card {
+    background: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    margin-bottom: 18px;
+}
+
+.compact-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.compact-search {
+    flex: 1 1 420px;
+    min-width: 220px;
+}
+
+.compact-search input {
+    width: 100%;
+    padding: 11px 12px;
+}
+
+.filter-toggle, .search-btn, .clear-btn {
+    padding: 11px 16px;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-toggle { background: #e5e7eb; color: #111827; }
+.search-btn { background: #2563eb; color: #fff; }
+.clear-btn { background: #6b7280; color: #fff; }
+
+.filters-panel {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #ddd;
+}
+
+.filters-panel.open { display: block; }
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.filter-field label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    padding: 10px;
+}
+
+.bulkbar {
+    display: none;
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+    background: #eef6ff;
+    border: 1px solid #bcd;
+    border-radius: 9px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.bulkbar button {
+    padding: 8px 11px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+.danger { background: #c62828; color: white; border: 0; }
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 9px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background: #b3122b;
+    color: #fff;
+}
+
+/* LOCKED: only Name of Parties font slightly larger */
+td:nth-child(5) {
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+}
+
+.weekday-dark {
+    color: #374151 !important;
+    font-weight: 700 !important;
+}
+
+.weekday {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    color: #666;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal .box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: min(420px, 92vw);
+}
+
+.modal input, .modal select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+@media (max-width: 900px) {
+    .filter-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+@media (max-width: 600px) {
+    .filter-grid { grid-template-columns: 1fr; }
+    .compact-row { align-items: stretch; }
+    .compact-search { flex-basis: 100%; }
+}
+
+/* Final compact layout and header dropdown fixes */
+.cases-page { max-width: 1250px; margin: 0 auto; padding: 0 12px; }
+.top-links { margin: 6px 0 10px; }
+.search-card { padding: 10px 14px; margin-bottom: 12px; max-width: 900px; }
+.compact-row { gap: 8px; flex-wrap: nowrap; }
+.compact-search { flex: 1 1 auto; min-width: 260px; }
+.compact-search input { padding: 9px 11px; }
+.filter-toggle, .search-btn, .clear-btn { padding: 9px 14px; }
+.results { margin: 12px 0 10px; }
+
+.table-wrap { overflow-x: auto; }
+/* Fit the complete cases table inside the page on desktop */
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; min-width: 0; table-layout: fixed; }
+
+/* Total = 100% */
+table col.col-check  { width: 4%; }
+table col.col-id     { width: 5%; }
+table col.col-case   { width: 15%; }
+table col.col-court  { width: 9%; }
+table col.col-parties{ width: 20%; }
+table col.col-stage  { width: 11%; }
+table col.col-date   { width: 13%; }
+table col.col-left   { width: 8%; }
+table col.col-action { width: 15%; }
+
+th, td {
+    padding: 9px 10px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+th:nth-child(3), td:nth-child(3),
+th:nth-child(4), td:nth-child(4),
+th:nth-child(7), td:nth-child(7),
+th:nth-child(8), td:nth-child(8),
+th:nth-child(9), td:nth-child(9) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    table { min-width: 1080px; }
+}
+th { vertical-align: middle; }
+th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
+th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
+
+.header-filter {
+    width: 100%;
+    margin-top: 6px;
+    padding: 4px 22px 4px 6px;
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 4px;
+    background: rgba(255,255,255,.16);
+    color: #fff;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+.header-filter option { color: #111827; background: #fff; }
+.header-label { display:block; white-space:nowrap; }
+
+/* Keep Filter + Search + Clear on one line */
+.compact-row {
+    flex-wrap: nowrap !important;
+}
+.compact-search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+.filter-toggle, .search-btn, .clear-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+
+/* FINAL TABLE FIT FIX */
+.table-wrap { width: 100% !important; overflow-x: auto !important; }
+.table-wrap table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+.table-wrap table col.col-check  { width: 4% !important; }
+.table-wrap table col.col-id     { width: 5% !important; }
+.table-wrap table col.col-case   { width: 16% !important; }
+.table-wrap table col.col-court  { width: 10% !important; }
+.table-wrap table col.col-parties{ width: 24% !important; }
+.table-wrap table col.col-stage  { width: 12% !important; }
+.table-wrap table col.col-date   { width: 14% !important; }
+.table-wrap table col.col-left   { width: 8% !important; }
+.table-wrap table col.col-action { width: 15% !important; }
+
+.table-wrap th,
+.table-wrap td {
+    padding: 8px 8px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+.table-wrap th.next-date-head,
+.table-wrap th.time-left-head,
+.table-wrap td:nth-child(7),
+.table-wrap td:nth-child(8) {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.45 !important;
+}
+
+
+/* LOCKED: only align Filter, Search and Clear on the same line */
+.compact-row {
+    align-items: center !important;
+}
+.filter-toggle,
+.search-btn,
+.clear-btn {
+    height: 44px !important;
+    line-height: 1 !important;
+    align-self: center !important;
+}
+
+
+/* LOCKED: Clear button beside Search */
+.compact-row { display:flex !important; align-items:center !important; flex-wrap:nowrap !important; }
+.clear-btn {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    height:44px !important;
+    padding:0 18px !important;
+    margin:0 !important;
+    flex:0 0 auto !important;
+    white-space:nowrap !important;
+}
+
+
+/* LOCKED: exact single-row alignment for Search controls only */
+.search-card .compact-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+}
+.search-card .compact-search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+}
+.search-card .compact-search input,
+.search-card .filter-toggle,
+.search-card .search-btn,
+.search-card .clear-btn {
+    box-sizing: border-box !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+}
+.search-card .compact-search input {
+    width: 100% !important;
+}
+.search-card .filter-toggle,
+.search-card .search-btn,
+.search-card .clear-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: top !important;
+    line-height: normal !important;
+}
+
+
+/* LOCKED FIX: Action column only */
+.action-cell {
+    width: 170px !important;
+    min-width: 170px !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    overflow: visible !important;
+}
+.action-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    white-space: nowrap !important;
+}
+.action-links a,
+.action-links form,
+.action-links button {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+}
+.action-links form {
+    padding: 0 !important;
+}
+.action-links button {
+    border: 0 !important;
+    background: none !important;
+    padding: 0 !important;
+    color: #2563eb !important;
+    font: inherit !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+.action-links a:hover,
+.action-links button:hover {
+    text-decoration: underline !important;
+}
+
+
+/* FINAL LOCKED FIX — ACTION COLUMN ONLY */
+.table-wrap {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+}
+
+table {
+    min-width: 1240px !important;
+}
+
+th:last-child,
+td.action-cell {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    overflow: visible !important;
+}
+
+.action-cell .action-links {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    overflow: visible !important;
+}
+
+.action-cell .action-links a,
+.action-cell .action-links form,
+.action-cell .action-links button {
+    position: static !important;
+    float: none !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+
+/* ACTION CELL — vertical links only */
+td.action-cell .action-links {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    white-space: normal !important;
+}
+td.action-cell .action-links > span {
+    display: none !important;
+}
+td.action-cell .action-links form {
+    display: block !important;
+}
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+}
+
+</style>
+
+<style>
+/* FINAL LOCK — Action column only, keep all other features unchanged */
+.table-wrap table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    table-layout: fixed !important;
+}
+.table-wrap table col.col-check  { width: 4% !important; }
+.table-wrap table col.col-id     { width: 5% !important; }
+.table-wrap table col.col-case   { width: 15% !important; }
+.table-wrap table col.col-court  { width: 9% !important; }
+.table-wrap table col.col-parties{ width: 21% !important; }
+.table-wrap table col.col-stage  { width: 11% !important; }
+.table-wrap table col.col-date   { width: 12% !important; }
+.table-wrap table col.col-left   { width: 7% !important; }
+.table-wrap table col.col-action { width: 16% !important; }
+
+th:last-child, td.action-cell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+}
+td.action-cell .action-links {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    align-items: flex-start !important;
+}
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    word-break: normal !important;
+}
+</style>
+
+<style>
+/* ACTION BUTTON COLOR FIX ONLY */
+td.action-cell .action-links {
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:8px !important;
+}
+td.action-cell .action-links form,
+td.action-cell .action-links a {
+    display:block !important;
+    width:100% !important;
+    margin:0 !important;
+}
+td.action-cell .action-links span { display:none !important; }
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    box-sizing:border-box !important;
+    display:block !important;
+    width:100% !important;
+    background:#1f4f8a !important;
+    color:#ffffff !important;
+    border:0 !important;
+    border-radius:7px !important;
+    padding:10px 12px !important;
+    font-weight:700 !important;
+    text-align:left !important;
+    text-decoration:none !important;
+    cursor:pointer !important;
+}
+td.action-cell .action-links a:hover,
+td.action-cell .action-links button:hover {
+    background:#163d6b !important;
+    color:#ffffff !important;
+    text-decoration:none !important;
+}
+</style>
+
+<style>
+/* REQUESTED DISPLAY FIXES ONLY */
+.cases-page, .cases-page * {
+    font-family: Cambria, Georgia, serif !important;
+}
+.table-wrap table col.col-case { width: 13% !important; }
+.table-wrap table col.col-left { width: 9% !important; }
+.table-wrap td:nth-child(8) {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+}
+</style>
+
+
+<!-- LOCKED: compact Action spacing + slightly larger non-button content only -->
+<style>
+/* Only reduce spacing between Highlight / Open / Edit / Delete */
+td.action-cell .action-links {
+    gap: 3px !important;
+}
+
+/* Slightly larger text everywhere on this page, excluding buttons */
+.cases-page,
+.cases-page input,
+.cases-page select,
+.cases-page textarea,
+.cases-page table,
+.cases-page th,
+.cases-page td,
+.cases-page label,
+.cases-page .results,
+.cases-page .weekday {
+    font-size: 17px !important;
+}
+
+/* Keep all button text at its previous size */
+.cases-page button,
+.cases-page input[type="submit"],
+.cases-page input[type="button"],
+.cases-page .filter-toggle,
+.cases-page .search-btn,
+.cases-page .clear-btn {
+    font-size: 16px !important;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+<style id="bootstrap-mobile-cases">
+/* Bootstrap-based responsive presentation: desktop remains unchanged */
+.mobile-cases-bootstrap { display:none; }
+
+@media (max-width: 767.98px) {
+    .cases-page {
+        width:100% !important;
+        max-width:100% !important;
+        margin:0 !important;
+        padding:10px !important;
     }
-    .btn { border:0; border-radius:7px; padding:11px 16px; cursor:pointer; font-weight:700; text-decoration:none; display:inline-block; }
-    .primary { background:#2454a6; color:white; }
-    .secondary { background:#e5e7eb; color:#111827; }
-    .danger { background:#b91c1c; color:white; }
-    .success { background:#15803d; color:white; }
-    .warning { background:#b45309; color:white; }
-    .toggle { margin-top:10px; border:0; background:none; color:#2454a6; cursor:pointer; font-weight:700; padding:4px 0; }
-    #moreFilters { display:none; margin-top:14px; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
-    #moreFilters.show { display:grid; }
 
-    .results { margin:24px 0 12px; font-size:27px; }
-    .bulkbar { display:none; background:#fff; padding:12px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:12px; gap:10px; align-items:center; flex-wrap:wrap; }
-    .bulkbar.show { display:flex; }
-    .selected-count { font-weight:700; margin-right:8px; }
+    /* Keep existing desktop table out of the mobile viewport only */
+    .table-wrap { display:none !important; }
 
-    .table-wrap { background:white; border-radius:12px; box-shadow:0 3px 16px rgba(0,0,0,.08); overflow:auto; }
-    table { width:100%; border-collapse:collapse; min-width:1050px; }
-    th, td { padding:13px 12px; border-bottom:1px solid #e5e7eb; text-align:left; vertical-align:middle; }
-    th { background:#b30f2d; color:white; white-space:nowrap; }
-    tr:hover td { background:#fafafa; }
-    a.case-link { font-weight:700; color:#234a91; }
-    .muted { color:#6b7280; }
-    .overdue { color:#b91c1c; font-weight:700; }
-    .today { color:#15803d; font-weight:700; }
-    .upcoming { color:#2454a6; font-weight:700; }
-    .row-actions a { margin-right:6px; }
-    .row-actions form { display:inline; }
-    .small-btn { padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; background:white; cursor:pointer; }
-    .flash { padding:12px 14px; margin-bottom:12px; border-radius:8px; background:#ecfdf5; color:#166534; }
-    @media(max-width:700px){ .page{padding:12px;} .results{font-size:23px;} }
+    .top-links {
+        display:flex !important;
+        flex-wrap:wrap !important;
+        gap:8px !important;
+        margin:8px 0 12px !important;
+    }
+    .top-links a {
+        margin:0 !important;
+        padding:8px 11px !important;
+        font-size:15px !important;
+    }
+
+    .search-card { padding:11px !important; margin-bottom:12px !important; }
+    .compact-row { gap:8px !important; }
+    .compact-search { flex:1 1 100% !important; min-width:0 !important; }
+    .compact-search input { min-height:44px !important; }
+    .filter-toggle, .search-btn, .clear-btn, .highlight-filter {
+        min-height:42px !important;
+        padding:8px 12px !important;
+    }
+
+    .mobile-cases-bootstrap {
+        display:block !important;
+        width:100% !important;
+    }
+
+    .mobile-select-row {
+        display:flex !important;
+        align-items:center !important;
+        justify-content:space-between !important;
+        gap:10px !important;
+        padding:8px 10px !important;
+        margin-bottom:10px !important;
+        border:1px solid #dbe3ea !important;
+        border-radius:10px !important;
+        background:#fff !important;
+    }
+
+    .mobile-case-card {
+        border:1px solid #d7dde5 !important;
+        border-radius:12px !important;
+        margin-bottom:11px !important;
+        overflow:hidden !important;
+        background:#fff !important;
+        box-shadow:0 2px 8px rgba(0,0,0,.06) !important;
+    }
+
+    .mobile-case-card.highlighted-case {
+        border-left:5px solid #b8860b !important;
+        background:#fffdf1 !important;
+    }
+
+    .mobile-case-card .card-body {
+        padding:12px !important;
+    }
+
+    .mobile-case-head {
+        display:flex !important;
+        align-items:flex-start !important;
+        gap:10px !important;
+        margin-bottom:10px !important;
+    }
+
+    .mobile-case-check {
+        margin-top:5px !important;
+        flex:0 0 auto !important;
+    }
+
+    .mobile-case-number {
+        flex:1 1 auto !important;
+        min-width:0 !important;
+        color:#1f4f8a !important;
+        font-weight:700 !important;
+        font-size:18px !important;
+        line-height:1.28 !important;
+        overflow-wrap:anywhere !important;
+        text-decoration:none !important;
+    }
+
+    .mobile-case-meta .badge {
+        font-size:13px !important;
+        font-weight:600 !important;
+    }
+
+    .mobile-party-box {
+        border-left:4px solid #b3122b !important;
+        background:#f8fafc !important;
+        padding:9px 10px !important;
+        border-radius:7px !important;
+        font-size:16px !important;
+        line-height:1.42 !important;
+        overflow-wrap:anywhere !important;
+    }
+
+    .mobile-detail-box {
+        height:100% !important;
+        border:1px solid #e1e6ed !important;
+        border-radius:8px !important;
+        background:#fafbfd !important;
+        padding:8px 9px !important;
+    }
+
+    .mobile-detail-label {
+        display:block !important;
+        font-size:12px !important;
+        font-weight:700 !important;
+        color:#64748b !important;
+        margin-bottom:3px !important;
+    }
+
+    .mobile-detail-value {
+        font-size:14px !important;
+        line-height:1.35 !important;
+        overflow-wrap:anywhere !important;
+    }
+
+    .mobile-actions {
+        display:grid !important;
+        grid-template-columns:1fr 1fr !important;
+        gap:7px !important;
+        margin-top:11px !important;
+    }
+
+    .mobile-actions .btn,
+    .mobile-actions form {
+        width:100% !important;
+        margin:0 !important;
+    }
+
+    .mobile-actions .btn,
+    .mobile-actions button {
+        min-height:40px !important;
+        font-size:14px !important;
+        font-weight:700 !important;
+    }
+
+    .mobile-actions .highlight-form {
+        grid-column:1 / -1 !important;
+    }
+
+    /* Existing bulk operations remain available and stack cleanly on phone */
+    #bulkbar.bulkbar {
+        width:100% !important;
+        padding:10px !important;
+        margin:8px 0 12px !important;
+    }
+
+    #bulkbar.bulkbar button {
+        display:block !important;
+        width:100% !important;
+        margin:6px 0 0 !important;
+        min-height:40px !important;
+        white-space:normal !important;
+    }
+
+    h2 { font-size:22px !important; margin:10px 0 !important; }
+}
+
+@media (min-width:768px) {
+    .mobile-cases-bootstrap { display:none !important; }
+}
+</style>
+
+
+<style id="mobile-card-conflict-killer">
+@media (max-width:767.98px){
+  .mobile-cases-bootstrap,
+  .mobile-cases-bootstrap * { box-sizing:border-box!important; }
+
+  .mobile-case-card{
+    display:block!important;
+    position:static!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0 0 11px 0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+
+  .mobile-case-card .card-body{
+    display:block!important;
+    position:static!important;
+    width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:12px!important;
+    overflow:visible!important;
+  }
+
+  .mobile-case-card .mobile-case-head{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:auto!important;
+    min-height:32px!important;
+    margin:0 0 10px!important;
+    padding:0!important;
+    position:static!important;
+    overflow:visible!important;
+  }
+
+  .mobile-case-card .mobile-case-check{
+    display:block!important;
+    position:static!important;
+    flex:0 0 20px!important;
+    width:20px!important;
+    height:20px!important;
+    margin:0 10px 0 0!important;
+    padding:0!important;
+    transform:none!important;
+  }
+
+  .mobile-case-card .mobile-case-number{
+    display:block!important;
+    position:static!important;
+    float:none!important;
+    clear:none!important;
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    writing-mode:horizontal-tb!important;
+    text-orientation:mixed!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:anywhere!important;
+    transform:none!important;
+    line-height:1.3!important;
+    text-indent:0!important;
+  }
+
+  .mobile-case-card .mobile-case-meta,
+  .mobile-case-card .mobile-party-box,
+  .mobile-case-card .row,
+  .mobile-case-card .mobile-actions{
+    position:static!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+}
+</style>
+
+
+<style id="locked-mobile-search-clear-only">
+/* LOCKED: ONLY mobile Search bar + Clear visibility. Nothing else. */
+@media (max-width: 767.98px) {
+
+    .search-card .compact-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 8px !important;
+        overflow: visible !important;
+    }
+
+    /* Search input gets its own full-width row */
+    .search-card .compact-row .compact-search {
+        display: flex !important;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        order: 1 !important;
+    }
+
+    .search-card .compact-row .compact-search input {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        box-sizing: border-box !important;
+    }
+
+    .search-card .compact-row .filter-toggle {
+        order: 2 !important;
+    }
+
+    .search-card .compact-row .search-btn {
+        order: 3 !important;
+    }
+
+    /* Keep the long Highlight button on its own row */
+    .search-card .compact-row .highlight-filter {
+        order: 4 !important;
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Clear must always have a visible place */
+    .search-card .compact-row .clear-btn {
+        order: 5 !important;
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 78px !important;
+        max-width: 100% !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        box-sizing: border-box !important;
+    }
+}
+</style>
+
+<style>
+/* Dynamic highlight for cases scheduled today. */
+.table-wrap tbody tr.case-row.today-hearing-case td{
+    background:#173b6c!important;
+    color:#fff!important;
+    border-color:rgba(255,255,255,.24)!important;
+}
+.table-wrap tbody tr.case-row.today-hearing-case a,
+.table-wrap tbody tr.case-row.today-hearing-case .weekday,
+.table-wrap tbody tr.case-row.today-hearing-case .action-links button{
+    color:#fff!important;
+}
+.mobile-case-card.today-hearing-case,
+.mobile-case-card.today-hearing-case .card-body,
+.mobile-case-card.today-hearing-case .mobile-detail-box{
+    background:#173b6c!important;
+    color:#fff!important;
+    border-color:rgba(255,255,255,.28)!important;
+}
+.mobile-case-card.today-hearing-case .mobile-case-number,
+.mobile-case-card.today-hearing-case .mobile-detail-label,
+.mobile-case-card.today-hearing-case .mobile-detail-value{
+    color:#fff!important;
+}
+@media (max-width: 767.98px){
+.mobile-case-card.today-hearing-case .mobile-party-box{
+    background:#173b6c!important;
+    color:#fff!important;
+    border-left-color:#fff!important;
+}
+.mobile-case-card.today-hearing-case .mobile-party-box .vs-highlight{
+    color:#fff!important;
+}
+}
+.mobile-case-card.today-hearing-case .badge{
+    background:#fff!important;
+    color:#173b6c!important;
+}
+</style>
+
+<style id="tailwind-compat-adjusted">
+/* Tailwind compatibility layer — adjusted to preserve the existing Court Tracker UI.
+   Tailwind is available for utility classes, but it must not redesign/override this page. */
+.cases-page {
+    font-family: Cambria, Georgia, serif !important;
+}
+.cases-page .tw-keep-old-ui {
+    all: revert;
+}
+/* Keep the established old layout dimensions and controls stable. */
+.cases-page, .cases-page * {
+    box-sizing: border-box;
+}
 </style>
 </head>
+
 <body>
-<div class="page">
+<div class="container">
+<div class="cases-page">
 
-    <div class="nav">
-        <a href="/">Dashboard</a> |
-        <a href="/add-case">Add New Case</a> |
-        <a href="/export-excel">Export to Excel</a> |
-        <a href="/import-excel">Import from Excel</a> |
-        <a href="/analytics">Analytics</a>
-    </div>
+<h1>{{ title }}</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+<div class="top-links">
+    <a href="/">Dashboard</a> |
+    <a href="/add-case">Add New Case</a> |
+    <a href="/analytics">📊 Analytics</a> |
+    <a href="/export-excel">Export to Excel</a>
+</div>
 
-    <form class="search-card" action="/cases" method="GET">
-        <div class="search-row">
-            <div class="search-main">
-                <input type="text" name="search" value="{{ search|default('') }}"
-                       placeholder="Search case number, party, CRN or advocate...">
-            </div>
+<form class="search-card" method="GET" action="/cases">
 
-            <select name="court_no" style="width:150px">
-                <option value="">All Courts</option>
-                <option value="1" {% if court_no == "1" %}selected{% endif %}>Court 1</option>
-                <option value="2" {% if court_no == "2" %}selected{% endif %}>Court 2</option>
-                <option value="3" {% if court_no == "3" %}selected{% endif %}>Court 3</option>
-            </select>
-
-            <select name="hearing_status" style="width:180px">
-                <option value="">All Cases</option>
-                <option value="past" {% if hearing_status == "past" %}selected{% endif %}>Past / Overdue</option>
-                <option value="today" {% if hearing_status == "today" %}selected{% endif %}>Today</option>
-                <option value="tomorrow" {% if hearing_status == "tomorrow" %}selected{% endif %}>Tomorrow</option>
-                <option value="upcoming" {% if hearing_status == "upcoming" %}selected{% endif %}>Upcoming</option>
-                <option value="undated" {% if hearing_status == "undated" %}selected{% endif %}>Undated</option>
-            </select>
-
-            <button class="btn primary" type="submit">Search</button>
-            <a class="btn secondary" href="/cases">Clear</a>
+    <div class="compact-row">
+        <div class="compact-search">
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search Case No, CNR, Party, Advocate or Place...">
         </div>
 
-        <button class="toggle" type="button" onclick="document.getElementById('moreFilters').classList.toggle('show')">
-            ▼ More filters / Date range
+        <button type="button" class="filter-toggle" id="filterToggle">
+            ⚙ Filters ▼
         </button>
 
-        <div id="moreFilters" {% if case_stage or date_from or date_to or case_disposed %}class="show"{% endif %}>
-            <select name="case_stage">
-                <option value="">All Stages</option>
-                {% set stages = ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
-                {% for stage in stages %}
-                <option value="{{ stage }}" {% if case_stage == stage %}selected{% endif %}>{{ stage }}</option>
-                {% endfor %}
-            </select>
+        <button type="submit" class="search-btn">Search</button>
+        <a href="/cases?highlighted=1" class="highlight-filter {% if highlighted_only == '1' %}active{% endif %}">⭐ Highlighted Cases Only</a>
+        <a href="/cases" class="clear-btn">Clear</a>
+    </div>
 
-            <select name="case_disposed">
-                <option value="">All Status</option>
-                <option value="No" {% if case_disposed == "No" %}selected{% endif %}>Active</option>
-                <option value="Yes" {% if case_disposed == "Yes" %}selected{% endif %}>Disposed</option>
-            </select>
+    <div class="filters-panel" id="filtersPanel">
 
-            <input type="date" name="date_from" value="{{ date_from|default('') }}" title="Hearing Date From">
-            <input type="date" name="date_to" value="{{ date_to|default('') }}" title="Hearing Date To">
+        <div class="filter-grid">
+
+            <div class="filter-field">
+                <label>Court</label>
+                <select name="court_no">
+                    <option value="">All Courts</option>
+                    {% for n in [1,2,3] %}
+                    <option value="{{ n }}" {% if court_no == n|string %}selected{% endif %}>
+                        Court {{ n }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Case Stage</label>
+                <select name="case_stage">
+                    <option value="">All Stages</option>
+                    {% for s in all_stage_options %}
+                    <option value="{{ s }}" {% if case_stage == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Hearing Status</label>
+                <select name="hearing_status">
+                    <option value="">All</option>
+                    <option value="past" {% if hearing_status == "past" %}selected{% endif %}>Past / Overdue</option>
+                    <option value="today" {% if hearing_status == "today" %}selected{% endif %}>Today</option>
+                    <option value="tomorrow" {% if hearing_status == "tomorrow" %}selected{% endif %}>Tomorrow</option>
+                    <option value="upcoming" {% if hearing_status == "upcoming" %}selected{% endif %}>Upcoming</option>
+                    <option value="undated" {% if hearing_status == "undated" %}selected{% endif %}>Undated</option>
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Hearing Date From</label>
+                <input type="date" name="date_from" value="{{ date_from }}">
+            </div>
+
+            <div class="filter-field">
+                <label>Hearing Date To</label>
+                <input type="date" name="date_to" value="{{ date_to }}">
+            </div>
+
         </div>
-    </form>
+    </div>
+</form>
 
-    <h2 class="results">Total Results: {{ cases|length }}</h2>
+<h2>Total Results: <strong id="totalresults">{{ cases|length }}</strong></h2>
 
-    <div id="bulkbar" class="bulkbar">
-        <span class="selected-count"><span id="selectedCount">0</span> selected</span>
-        <button type="button" class="btn primary" onclick="bulkAction('date')">📅 Change Next Hearing Date</button>
-        <button type="button" class="btn warning" onclick="bulkAction('stage')">⚖️ Change Case Stage</button>
-        <button type="button" class="btn success" onclick="bulkAction('dispose')">✅ Dispose Selected</button>
-        <button type="button" class="btn danger" onclick="bulkAction('delete')">🗑️ Delete Selected</button>
+<div id="bulkbar" class="bulkbar">
+    <b id="selcount">0</b> selected:
+    <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
+    <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
+    <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
+</div>
+
+
+
+<!-- Bootstrap phone layout: same server-side case data and same routes -->
+<div class="mobile-cases-bootstrap d-md-none">
+    <div class="mobile-select-row">
+        <label class="m-0 fw-bold"><input type="checkbox" id="mobileAll"> Select All Cases</label>
+        <span class="text-muted small">All case operations available</span>
     </div>
 
-    <div class="table-wrap">
-    {% if cases %}
-    <table>
-        <thead>
-        <tr>
-            <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
-            <th>ID</th>
-            <th>Case Number</th>
-            <th>Court</th>
-            <th>Name of Parties</th>
-            <th>Case Stage</th>
-            <th>Next Hearing Date</th>
-            <th>Time Left</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for case in cases %}
-        <tr>
-            <td><input class="case-check" type="checkbox" value="{{ case.id }}" onchange="updateBulkBar()"></td>
-            <td>{{ case.id }}</td>
-            <td><a class="case-link" href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
-            <td>Court {{ case.court_no }}</td>
-            <td>{{ case.parties }}</td>
-            <td>
-                {{ case.case_stage }}
-                {% if case.case_stage == "Other" and case.case_stage_other %}
-                    - {{ case.case_stage_other }}
-                {% endif %}
-            </td>
-            <td>
-                {% if case.next_hearing_date %}
-                    {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
-                    <div class="muted" style="font-size:12px">{{ case.next_hearing_date.strftime("%A") }}</div>
-                {% else %}
-                    <span class="muted">Not Scheduled</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if case.case_disposed == "Yes" %}
-                    <span class="muted">Disposed{% if case.decision_date %}<br>{{ case.decision_date.strftime("%d-%m-%Y") }}{% endif %}</span>
-                {% elif case.next_hearing_date %}
-                    {% set days_left = (case.next_hearing_date - today).days %}
-                    {% if days_left < 0 %}<span class="overdue">{{ days_left|abs }} days overdue</span>
-                    {% elif days_left == 0 %}<span class="today">🔴 TODAY</span>
-                    {% elif days_left == 1 %}<span class="upcoming">Tomorrow</span>
-                    {% else %}<span class="upcoming">{{ days_left }} days left</span>{% endif %}
-                {% else %}
-                    <span class="muted">Undated</span>
-                {% endif %}
-            </td>
-            <td class="row-actions">
-                <a href="/case/{{ case.id }}">Open</a> |
-                <a href="/edit-case/{{ case.id }}">Edit</a> |
-                <form action="/delete-case/{{ case.id }}" method="POST">
-                    <button class="small-btn" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
+    {% for case in cases %}
+    <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
+        data-case-no="{{ case.case_no }}"
+        data-court="Court {{ case.court_no }}"
+        data-party="{{ case.parties }}"
+        data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
+        data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
+        data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
+
+        <div class="card-body">
+            <div class="mobile-case-head" style="display:flex!important; flex-direction:row!important; align-items:center!important; width:100%!important; min-height:32px!important; height:auto!important; margin:0 0 10px 0!important; padding:0!important; position:static!important;">
+                <input class="casebox mobile-case-check" type="checkbox" value="{{ case.id }}" style="display:block!important; flex:0 0 20px!important; width:20px!important; height:20px!important; margin:0 10px 0 0!important; position:static!important;">
+                <a class="mobile-case-number" href="/case/{{ case.id }}" style="display:block!important; flex:1 1 auto!important; width:auto!important; min-width:0!important; max-width:calc(100% - 30px)!important; height:auto!important; min-height:0!important; margin:0!important; padding:0!important; position:static!important; writing-mode:horizontal-tb!important; white-space:normal!important; word-break:normal!important; overflow-wrap:anywhere!important; transform:none!important; text-indent:0!important;">{{ case.case_no }}</a>
+            </div>
+
+            <div class="mobile-case-meta d-flex flex-wrap gap-2 mb-3">
+                <span class="badge rounded-pill text-bg-light border text-dark">ID: {{ case.id }}</span>
+                <span class="badge rounded-pill text-bg-light border text-dark">Court {{ case.court_no }}</span>
+            </div>
+
+            <div class="mobile-party-box mb-3">{{ case.parties|format_vs }}</div>
+
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="mobile-detail-box">
+                        <span class="mobile-detail-label">Case Stage</span>
+                        <div class="mobile-detail-value">
+                            {% if case.case_stage == "Other" and case.case_stage_other %}
+                                {{ case.case_stage_other }}
+                            {% else %}
+                                {{ case.case_stage }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="mobile-detail-box">
+                        <span class="mobile-detail-label">Time Left</span>
+                        <div class="mobile-detail-value">
+                            {% if case.next_hearing_date %}
+                                {% set d = (case.next_hearing_date - today).days %}
+                                {% if d < 0 %}{{ d|abs }} days overdue
+                                {% elif d == 0 %}TODAY
+                                {% elif d == 1 %}Tomorrow
+                                {% else %}{{ d }} days left{% endif %}
+                            {% else %}Undated{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="mobile-detail-box">
+                        <span class="mobile-detail-label">Next Hearing</span>
+                        <div class="mobile-detail-value">
+                            {% if case.next_hearing_date %}
+                                {{ case.next_hearing_date.strftime("%d-%m-%Y") }} — {{ case.next_hearing_date.strftime("%A") }}
+                            {% else %}Not Scheduled{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mobile-actions">
+                <form class="highlight-form" action="/case/{{ case.id }}/toggle-highlight" method="POST">
+                    <button class="btn btn-warning" type="submit">
+                        {% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}
+                    </button>
                 </form>
-            </td>
-        </tr>
+                <a class="btn btn-primary" href="/case/{{ case.id }}">Open</a>
+                <a class="btn btn-outline-primary" href="/edit-case/{{ case.id }}">Edit</a>
+                <form action="/delete-case/{{ case.id }}" method="POST">
+                    <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
+                </form>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+<div class="table-wrap">
+<table>
+<colgroup>
+    <col class="col-check"><col class="col-id"><col class="col-case"><col class="col-court">
+    <col class="col-parties"><col class="col-stage"><col class="col-date"><col class="col-left"><col class="col-action">
+</colgroup>
+<thead>
+<tr>
+    <th><input type="checkbox" id="all"></th>
+    <th>ID</th>
+    <th>
+        <span class="header-label">Case Number</span>
+        <select class="header-filter" id="caseNoFilter" aria-label="Filter Case Number">
+            <option value="">All</option>
+            {% for case in cases %}<option value="{{ case.case_no }}">{{ case.case_no }}</option>{% endfor %}
+        </select>
+    </th>
+    <th>
+        <span class="header-label">Court</span>
+        <select class="header-filter" id="courtFilter" aria-label="Filter Court">
+            <option value="">All</option>
+            <option value="Court 1">Court 1</option><option value="Court 2">Court 2</option><option value="Court 3">Court 3</option>
+        </select>
+    </th>
+    <th>
+        <span class="header-label">Name of Parties</span>
+        <select class="header-filter" id="partyFilter" aria-label="Filter Party">
+            <option value="">All</option>
+            {% for case in cases %}<option value="{{ case.parties|format_vs }}">{{ case.parties|format_vs }}</option>{% endfor %}
+        </select>
+    </th>
+    <th>
+        <span class="header-label">Case Stage</span>
+        <select class="header-filter" id="stageFilter" aria-label="Filter Case Stage">
+            <option value="">All</option>
+            {% for s in all_stage_options %}
+            <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}</select>
+    </th>
+    <th class="next-date-head">
+        <span class="header-label">Next Hearing<br>Date</span>
+        <select class="header-filter" id="nextDateFilter">
+            <option value="">All</option>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="next7">Next 7 Days</option>
+            <option value="future">Future Dates</option>
+            <option value="past">Past / Overdue</option>
+            <option value="undated">Undated</option>
+            <option value="disposed">Disposed Cases</option>
+        </select>
+    </th>
+    <th class="time-left-head">
+        <span class="header-label">Time<br>Left</span>
+        <select class="header-filter" id="timeLeftFilter">
+            <option value="">All</option>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="next7">Next 7 Days</option>
+            <option value="next30">Next 30 Days</option>
+            <option value="future">More Than 30 Days</option>
+            <option value="overdue">Overdue</option>
+            <option value="undated">Undated</option>
+        </select>
+    </th>
+    <th>Action</th>
+</tr>
+</thead>
+<tbody>
+{% for case in cases %}
+<tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
+    data-case-no="{{ case.case_no }}"
+    data-court="Court {{ case.court_no }}"
+    data-party="{{ case.parties }}"
+    data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
+    data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
+    data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
+    <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
+    <td>{{ case.id }}</td>
+    <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
+    <td>Court {{ case.court_no }}</td>
+    <td>{{ case.parties|format_vs }}</td>
+    <td>
+        {% if case.case_stage == "Other" and case.case_stage_other %}
+            {{ case.case_stage_other }}
+        {% else %}
+            {{ case.case_stage }}
+        {% endif %}
+    </td>
+    <td>
+        {% if case.next_hearing_date %}
+            {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
+            <small class="weekday {% if case.next_hearing_date.strftime('%A') in ['Sunday', 'Monday'] %}weekday-dark{% endif %}">{{ case.next_hearing_date.strftime("%A") }}</small>
+        {% else %}
+            Not Scheduled
+        {% endif %}
+    </td>
+    <td>
+        {% if case.next_hearing_date %}
+            {% set d = (case.next_hearing_date - today).days %}
+            {% if d < 0 %}
+                {{ d|abs }} days overdue
+            {% elif d == 0 %}
+                TODAY
+            {% elif d == 1 %}
+                Tomorrow
+            {% else %}
+                {{ d }} days left
+            {% endif %}
+        {% else %}
+            Undated
+        {% endif %}
+    </td>
+    <td class="action-cell">
+        <div class="action-links">
+            <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
+                <button type="submit">{% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button>
+            </form>
+            <a href="/case/{{ case.id }}">Open</a>
+            <span>|</span>
+            <a href="/edit-case/{{ case.id }}">Edit</a>
+            <span>|</span>
+            <form action="/delete-case/{{ case.id }}" method="POST">
+                <button type="submit"
+                        onclick="return confirm('Delete this case?')">Delete</button>
+            </form>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<div id="modal" class="modal">
+<div class="box">
+<form id="modalForm" method="POST">
+
+    <h3 id="mtitle"></h3>
+
+    <label id="bulkdateLabel" style="display:none">Next Hearing Date</label>
+    <input id="bulkdate" type="date" name="next_hearing_date" style="display:none">
+
+    <label id="bulkstageLabel" style="display:none">Case Stage</label>
+    <select id="bulkstage" name="case_stage" style="display:none">
+        <option value="">Select Stage</option>
+        {% for s in all_stage_options %}
+        <option value="{{ s }}">{{ s }}</option>
         {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <div style="padding:25px"><h3>No cases found.</h3></div>
-    {% endif %}
+    </select>
+
+    <input id="decision" type="date" name="decision_date" style="display:none">
+
+    <div>
+        <button type="submit">Confirm</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
     </div>
+
+</form>
+</div>
+</div>
+
+</div>
 </div>
 
 <script>
-function selectedIds() {
-    return Array.from(document.querySelectorAll('.case-check:checked')).map(x => x.value);
-}
-function toggleAll(master) {
-    document.querySelectorAll('.case-check').forEach(x => x.checked = master.checked);
-    updateBulkBar();
-}
-function updateBulkBar() {
-    const ids = selectedIds();
-    document.getElementById('selectedCount').textContent = ids.length;
-    document.getElementById('bulkbar').classList.toggle('show', ids.length > 0);
-    const all = document.querySelectorAll('.case-check').length;
-    document.getElementById('selectAll').checked = all > 0 && ids.length === all;
-}
-function postBulk(url, fields) {
-    const ids = selectedIds();
-    if (!ids.length) return;
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url + '?ids=' + encodeURIComponent(ids.join(','));
-    Object.entries(fields || {}).forEach(([name, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden'; input.name = name; input.value = value;
-        form.appendChild(input);
-    });
-    document.body.appendChild(form);
-    form.submit();
-}
-function bulkAction(type) {
-    if (!selectedIds().length) return;
+const filterToggle = document.getElementById('filterToggle');
+const filtersPanel = document.getElementById('filtersPanel');
 
-    if (type === 'date') {
-        const value = prompt('Enter new next hearing date in YYYY-MM-DD format:');
-        if (value) postBulk('/bulk/date', {next_hearing_date:value});
-    }
-    if (type === 'stage') {
-        const value = prompt('Enter new case stage (e.g. Notice, Hearing, Arguments, Judgment, Other):');
-        if (value) postBulk('/bulk/stage', {case_stage:value});
-    }
-    if (type === 'dispose') {
-        const value = prompt('Enter Decision Date in YYYY-MM-DD format:');
-        if (value) postBulk('/bulk/dispose', {decision_date:value});
-    }
-    if (type === 'delete') {
-        if (confirm('Delete all selected cases? This cannot be undone.')) {
-            postBulk('/bulk/delete', {});
-        }
+filterToggle.addEventListener('click', () => {
+    filtersPanel.classList.toggle('open');
+    filterToggle.innerHTML = filtersPanel.classList.contains('open')
+        ? '⚙ Filters ▲'
+        : '⚙ Filters ▼';
+});
+
+const hasActiveFilter = {{ 'true' if court_no or case_stage or hearing_status or highlighted_only or date_from or date_to else 'false' }};
+if (hasActiveFilter) {
+    filtersPanel.classList.add('open');
+    filterToggle.innerHTML = '⚙ Filters ▲';
+}
+
+/*
+ * Bulk-selection persistence:
+ * Keep checked case IDs in localStorage so a user can search for one case,
+ * tick it, search for another case, tick it, and still operate on BOTH cases.
+ * This is intentionally limited to bulk selection state; it does not alter
+ * the search/filter behaviour or any case data.
+ */
+const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
+
+function getStoredSelectedIds() {
+    try {
+        const raw = localStorage.getItem(BULK_SELECTION_KEY);
+        const ids = raw ? JSON.parse(raw) : [];
+        return Array.isArray(ids) ? [...new Set(ids.map(String))] : [];
+    } catch (e) {
+        return [];
     }
 }
+
+function setStoredSelectedIds(ids) {
+    try {
+        localStorage.setItem(BULK_SELECTION_KEY, JSON.stringify([...new Set(ids.map(String))]));
+    } catch (e) {
+        // Ignore storage errors; normal checkbox behaviour still works.
+    }
+}
+
+function addStoredSelectedId(id) {
+    const ids = getStoredSelectedIds();
+    if (!ids.includes(String(id))) ids.push(String(id));
+    setStoredSelectedIds(ids);
+}
+
+function removeStoredSelectedId(id) {
+    const target = String(id);
+    setStoredSelectedIds(getStoredSelectedIds().filter(x => x !== target));
+}
+
+const boxes = () => document.querySelectorAll('.casebox');
+
+function selected() {
+    // Return the persistent selection, not only the checkboxes currently
+    // visible after a search/filter. This is what allows multi-search selection.
+    const stored = getStoredSelectedIds();
+    const visibleChecked = [...boxes()].filter(x => x.checked).map(x => String(x.value));
+    return [...new Set([...stored, ...visibleChecked])];
+}
+
+function refresh() {
+    const n = selected().length;
+    document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
+    document.getElementById('selcount').textContent = n;
+    // Total Results always means the actual server/search result count.
+    // It must never change to the selected-case count.
+    const totalResults = document.getElementById('totalresults');
+    if (totalResults) totalResults.textContent = {{ cases|length }};
+}
+
+function restoreStoredSelections() {
+    const stored = new Set(getStoredSelectedIds());
+    boxes().forEach(x => {
+        x.checked = stored.has(String(x.value));
+    });
+    refresh();
+}
+
+boxes().forEach(x => x.addEventListener('change', function () {
+    if (this.checked) {
+        addStoredSelectedId(this.value);
+    } else {
+        removeStoredSelectedId(this.value);
+    }
+    // Keep duplicate desktop/mobile checkboxes synchronized.
+    boxes().forEach(other => {
+        if (other !== this && String(other.value) === String(this.value)) {
+            other.checked = this.checked;
+        }
+    });
+    refresh();
+}));
+
+const allBox = document.getElementById('all');
+if (allBox) {
+    allBox.addEventListener('change', e => {
+        if (!e.target.checked) {
+            // Unselect All must clear the persistent selection completely,
+            // including cases selected on earlier searches/pages.
+            clearBulkSelection();
+            boxes().forEach(x => { x.checked = false; });
+            const mobileAll = document.getElementById('mobileAll');
+            if (mobileAll) mobileAll.checked = false;
+            refresh();
+            return;
+        }
+
+        const ids = getStoredSelectedIds();
+        const idSet = new Set(ids);
+        boxes().forEach(x => {
+            x.checked = true;
+            idSet.add(String(x.value));
+        });
+        setStoredSelectedIds([...idSet]);
+        const mobileAll = document.getElementById('mobileAll');
+        if (mobileAll) mobileAll.checked = true;
+        refresh();
+    });
+}
+
+function clearBulkSelection() {
+    try {
+        localStorage.removeItem(BULK_SELECTION_KEY);
+    } catch (e) {}
+}
+
+function openModal(type) {
+    const ids = selected();
+    if (!ids.length) return;
+
+    const form = document.getElementById('modalForm');
+
+    const isUpdate = type === 'update';
+    document.getElementById('bulkdate').style.display = isUpdate ? 'block' : 'none';
+    document.getElementById('bulkdateLabel').style.display = isUpdate ? 'block' : 'none';
+    document.getElementById('bulkstage').style.display = isUpdate ? 'block' : 'none';
+    document.getElementById('bulkstageLabel').style.display = isUpdate ? 'block' : 'none';
+    document.getElementById('decision').style.display = type === 'dispose' ? 'block' : 'none';
+
+    document.getElementById('mtitle').textContent =
+        type === 'update' ? 'Change Next Hearing Date / Case Stage' :
+        'Dispose Selected — Select Decision Date';
+
+    if (type === 'update' && ids.length === 1) {
+        form.action = '/case/' + ids[0] + '/quick-update';
+    } else {
+        form.action = type === 'update' ? '/bulk/update?ids=' + ids.join(',') : '/bulk/' + type + '?ids=' + ids.join(',');
+    }
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+function bulkDelete() {
+    const ids = selected();
+    if (ids.length && confirm('Delete selected cases?')) {
+        clearBulkSelection();
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/bulk/delete?ids=' + ids.join(',');
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// A completed bulk operation consumes the current selection.
+const modalForm = document.getElementById('modalForm');
+if (modalForm) {
+    modalForm.addEventListener('submit', function (e) {
+        if (document.getElementById('mtitle').textContent === 'Change Next Hearing Date / Case Stage') {
+            const dateValue = document.getElementById('bulkdate').value.trim();
+            const stageValue = document.getElementById('bulkstage').value.trim();
+            if (!dateValue && !stageValue) {
+                e.preventDefault();
+                alert('Please enter a Next Hearing Date or select a Case Stage.');
+                return;
+            }
+        }
+        clearBulkSelection();
+    });
+}
+
+// Restore selections after every page/search load.
+restoreStoredSelections();
+
+// Simple dropdown filters in the red table header
+const headerFilters = [
+    document.getElementById('caseNoFilter'),
+    document.getElementById('courtFilter'),
+    document.getElementById('partyFilter'),
+    document.getElementById('stageFilter')
+];
+
+function applyHeaderFilters() {
+    const caseNo = document.getElementById('caseNoFilter').value;
+    const court = document.getElementById('courtFilter').value;
+    const party = document.getElementById('partyFilter').value;
+    const stage = document.getElementById('stageFilter').value;
+
+    document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+        const show =
+            (!caseNo || row.dataset.caseNo === caseNo) &&
+            (!court || row.dataset.court === court) &&
+            (!party || row.dataset.party === party) &&
+            (!stage || row.dataset.stage === stage);
+        row.style.display = show ? '' : 'none';
+    });
+}
+headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFilters));
+
 </script>
+
+
+<script>
+(function () {
+    const nextDateFilter = document.getElementById('nextDateFilter');
+    const timeLeftFilter = document.getElementById('timeLeftFilter');
+    if (!nextDateFilter || !timeLeftFilter) return;
+
+    function startOfDay(d) {
+        d = new Date(d);
+        d.setHours(0,0,0,0);
+        return d;
+    }
+
+    function matches(row, value) {
+        if (!value) return true;
+        const disposed = row.dataset.disposed === 'true';
+        const raw = row.dataset.nextDate;
+
+        if (value === 'disposed') return disposed;
+        if (value === 'undated') return !raw && !disposed;
+        if (!raw) return false;
+
+        const today = startOfDay(new Date());
+        const hearing = startOfDay(raw + 'T00:00:00');
+        const diff = Math.round((hearing - today) / 86400000);
+
+        if (value === 'today') return diff === 0;
+        if (value === 'tomorrow') return diff === 1;
+        if (value === 'next7') return diff >= 0 && diff <= 7;
+        if (value === 'next30') return diff >= 0 && diff <= 30;
+        if (value === 'future') return diff > 30;
+        if (value === 'past' || value === 'overdue') return diff < 0;
+        return true;
+    }
+
+    function applyNewFilters() {
+        const baseFilters = [...document.querySelectorAll('.header-filter')]
+            .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
+
+        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+            const baseHidden = baseFilters.some(f => {
+                if (!f.value) return false;
+                if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
+                if (f.id === 'courtFilter') return row.dataset.court !== f.value;
+                if (f.id === 'partyFilter') return row.dataset.party !== f.value;
+                if (f.id === 'stageFilter') return row.dataset.stage !== f.value;
+                return false;
+            });
+
+            const show = !baseHidden &&
+                         matches(row, nextDateFilter.value) &&
+                         matches(row, timeLeftFilter.value);
+
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    nextDateFilter.addEventListener('change', applyNewFilters);
+    timeLeftFilter.addEventListener('change', applyNewFilters);
+})();
+</script>
+
+
+
+
+
+
+
+
+<script id="bootstrap-mobile-case-sync">
+document.addEventListener('DOMContentLoaded', function () {
+    function sameCaseBoxes(value) {
+        return Array.from(document.querySelectorAll('.casebox'))
+            .filter(function (box) { return String(box.value) === String(value); });
+    }
+
+    document.querySelectorAll('.casebox').forEach(function (box) {
+        box.addEventListener('change', function () {
+            sameCaseBoxes(box.value).forEach(function (other) {
+                if (other !== box) other.checked = box.checked;
+            });
+            if (typeof refresh === 'function') refresh();
+        });
+    });
+
+    var mobileAll = document.getElementById('mobileAll');
+    if (mobileAll) {
+        mobileAll.addEventListener('change', function () {
+            if (!mobileAll.checked) {
+                // Mobile Unselect All clears the same persistent selection as desktop.
+                if (typeof clearBulkSelection === 'function') clearBulkSelection();
+                document.querySelectorAll('.casebox').forEach(function (box) { box.checked = false; });
+                var desktopAll = document.getElementById('all');
+                if (desktopAll) desktopAll.checked = false;
+                if (typeof refresh === 'function') refresh();
+                return;
+            }
+
+            document.querySelectorAll('.mobile-case-check').forEach(function (box) {
+                box.checked = true;
+                sameCaseBoxes(box.value).forEach(function (other) {
+                    other.checked = true;
+                });
+            });
+            var desktopAll = document.getElementById('all');
+            if (desktopAll) desktopAll.checked = true;
+            if (typeof refresh === 'function') refresh();
+        });
+    }
+});
+</script>
+
 </body>
 </html>

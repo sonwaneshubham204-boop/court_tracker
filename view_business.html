@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Business</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+.page{max-width:900px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:20px}.back{display:inline-block;padding:10px 16px;background:#6b7280;color:#fff;text-decoration:none;border-radius:7px;font-weight:600}.card{background:#fff;border-radius:10px;padding:22px;box-shadow:0 4px 14px rgba(0,0,0,.08);margin-bottom:18px}.title{text-align:center;margin:0 0 20px}.grid{display:grid;grid-template-columns:180px 1fr;gap:0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}.label,.value{padding:14px;border-bottom:1px solid #e5e7eb}.label{font-weight:700;background:#f8fafc}.full{white-space:pre-wrap;line-height:1.6}.grid>div:nth-last-child(-n+2){border-bottom:0}@media(max-width:600px){.top{flex-direction:column;align-items:stretch}.back{text-align:center}.grid{grid-template-columns:1fr}.label{border-bottom:0;padding-bottom:5px}.value{padding-top:5px}.grid>div:nth-last-child(-n+2){border-bottom:1px solid #e5e7eb}.grid>div:last-child{border-bottom:0}}
+</style>
+</head>
+<body>
+<div class="container"><div class="page">
+<div class="top"><h1>View Business</h1><a class="back" href="{{ url_for('case_detail', id=case.id) }}">← Case History</a></div>
+<div class="card">
+<h2 class="title">Daily Status</h2>
+<div class="grid">
+<div class="label">Court</div><div class="value">Court {{ case.court_no }}</div>
+<div class="label">CNR Number</div><div class="value">{{ case.crn_no or '-' }}</div>
+<div class="label">Case Number</div><div class="value">{{ case.case_no }}</div>
+<div class="label">Parties</div><div class="value">{{ case.parties }}</div>
+<div class="label">Business Date</div><div class="value">{{ hearing.hearing_date.strftime('%d-%m-%Y') }}</div>
+<div class="label">Presentee</div><div class="value full">{{ hearing.presentee or '-' }}</div>
+<div class="label">Business</div><div class="value full">{{ hearing.business or '-' }}</div>
+<div class="label">Notes</div><div class="value full">{{ hearing.notes or '-' }}</div>
+<div class="label">Next Purpose</div><div class="value">{{ hearing.outcome or '-' }}</div>
+<div class="label">Next Hearing Date</div><div class="value">{% if hearing.next_hearing_date %}{{ hearing.next_hearing_date.strftime('%d-%m-%Y') }}{% else %}-{% endif %}</div>
+</div></div></div></div>
+</body></html>

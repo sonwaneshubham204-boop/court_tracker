@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Add New Case</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+
+<style id="add-case-mobile-fix">
+@media (max-width: 767px) {
+    html { width: 100% !important; }
+    body {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+    body {
+        padding: 22px 16px 36px !important;
+        font-size: 17px !important;
+        line-height: 1.45 !important;
+    }
+
+    h1 {
+        font-size: 27px !important;
+        line-height: 1.2 !important;
+        margin: 0 0 22px !important;
+    }
+
+    form {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    label {
+        display: block !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        margin-bottom: 7px !important;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+        width: 100% !important;
+        min-height: 52px !important;
+        padding: 11px 13px !important;
+        font-size: 17px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    button[type="submit"] {
+        min-height: 52px !important;
+        padding: 10px 20px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+    }
+
+    #other_stage_box {
+        width: 100% !important;
+    }
+
+    form > br {
+        line-height: 1 !important;
+    }
+
+    a {
+        font-size: 14px !important;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+    <h1>Add New Case</h1>
+
+
+    <form method="POST">
+
+
+        <!-- CASE NUMBER -->
+
+        <label>Case Number:</label>
+        <br>
+
+        <input
+            type="text"
+            name="case_no"
+            required
+        >
+
+        <br><br>
+
+
+        <!-- CRN NUMBER -->
+
+        <label>CRN Number:</label>
+        <br>
+
+        <input
+            type="text"
+            name="crn_no"
+            placeholder="Enter CRN Number"
+        >
+
+        <br><br>
+
+
+        <!-- COURT NUMBER -->
+
+        <label>Court Number:</label>
+        <br>
+
+        <select
+            name="court_no"
+            required
+        >
+
+            <option value="">
+                Select Court
+            </option>
+
+            <option value="1">
+                Court 1
+            </option>
+
+            <option value="2">
+                Court 2
+            </option>
+
+            <option value="3">
+                Court 3
+            </option>
+
+        </select>
+
+        <br><br>
+
+
+        <!-- NAME OF PARTIES -->
+
+        <label>Name of Parties:</label>
+        <br>
+
+        <input
+            type="text"
+            name="parties"
+            required
+        >
+
+        <br><br>
+
+
+        <!-- NAME OF ADVOCATE -->
+
+        <label>Name of Advocate:</label>
+        <br>
+
+        <input
+            type="text"
+            name="advocate_name"
+            placeholder="Enter Advocate Name"
+        >
+
+        <br><br>
+
+
+        <!-- CASE STAGE -->
+
+        <label>Case Stage:</label>
+        <br>
+
+        <select
+            name="case_stage"
+            id="case_stage"
+            required
+            onchange="toggleOtherStage()"
+        >
+
+            <option value="">
+                Select Case Stage
+            </option>
+
+            <option value="Notice">
+                Notice
+            </option>
+
+            <option value="Admission">
+                Admission
+            </option>
+
+            <option value="Hearing">
+                Hearing
+            </option>
+
+            <option value="Evidence">
+                Evidence
+            </option>
+
+            <option value="Cross Examination">
+                Cross Examination
+            </option>
+
+            <option value="Arguments">
+                Arguments
+            </option>
+
+            <option value="Final Arguments">
+                Final Arguments
+            </option>
+
+            <option value="Final Hearing">
+                Final Hearing
+            </option>
+
+            <option value="Judgment">
+                Judgment
+            </option>
+
+            <option value="Order">
+                Order
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+        <br><br>
+
+
+        <!-- OTHER CASE STAGE -->
+
+        <div
+            id="other_stage_box"
+            style="display: none;"
+        >
+
+            <label>
+                Specify Other Case Stage:
+            </label>
+
+            <br>
+
+            <input
+                type="text"
+                name="case_stage_other"
+                id="case_stage_other"
+                placeholder="Enter other case stage"
+            >
+
+            <br><br>
+
+        </div>
+
+
+        <!-- CASE DISPOSED -->
+
+        <label>Case Disposed:</label>
+        <br>
+
+        <select
+            name="case_disposed"
+        >
+
+            <option value="No">
+                No
+            </option>
+
+            <option value="Yes">
+                Yes
+            </option>
+
+        </select>
+
+        <br><br>
+
+
+        <!-- NEXT HEARING DATE -->
+
+        <label for="decision_date">Decision Date:</label>
+        <input type="date" id="decision_date" name="decision_date">
+
+        <label>Next Hearing Date:</label>
+        <br>
+
+        <input
+            type="date"
+            name="next_hearing_date"
+        >
+
+        <br><br>
+
+
+        <!-- SAVE BUTTON -->
+
+        <button type="submit">
+
+            Save Case
+
+        </button>
+
+
+    </form>
+
+
+    <br>
+
+
+    <a href="/">
+
+        Back to Dashboard
+
+    </a>
+
+    |
+
+    <a href="/cases">
+
+        View All Cases
+
+    </a>
+
+
+    <!-- JAVASCRIPT FOR OTHER CASE STAGE -->
+
+    <script>
+
+        function toggleOtherStage() {
+
+            var caseStage =
+                document.getElementById(
+                    "case_stage"
+                );
+
+            var otherStageBox =
+                document.getElementById(
+                    "other_stage_box"
+                );
+
+            var otherStageInput =
+                document.getElementById(
+                    "case_stage_other"
+                );
+
+
+            if (
+                caseStage.value === "Other"
+            ) {
+
+                otherStageBox.style.display =
+                    "block";
+
+                otherStageInput.required =
+                    true;
+
+            }
+
+            else {
+
+                otherStageBox.style.display =
+                    "none";
+
+                otherStageInput.required =
+                    false;
+
+                otherStageInput.value =
+                    "";
+
+            }
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

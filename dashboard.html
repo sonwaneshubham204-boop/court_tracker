@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Court Tracker Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+:root{--navy:#173b6c;--blue:#2563eb;--bg:#eef3f8;--card:#fff;--text:#111827;--line:#cbd5e1}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Cambria,Georgia,serif;color:var(--text);background:linear-gradient(180deg,#edf3fa 0%,#f8fafc 100%)}
+.container{width:min(1180px,calc(100% - 32px));margin:28px auto 60px}
+.topbar{padding:26px 28px;margin-bottom:22px;border-radius:0 0 20px 20px;background:linear-gradient(135deg,#173b6c,#315fbb);box-shadow:0 12px 28px rgba(23,59,108,.22)}
+.topbar h1{margin:0 0 20px;color:#fff;font-size:clamp(26px,4vw,38px)}
+.nav{display:flex;flex-wrap:wrap;gap:10px}
+.nav a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border:1px solid rgba(255,255,255,.35);border-radius:9px;background:#fff;color:#111827!important;text-decoration:none;font-weight:700}
+.nav a:hover{background:#f1f5f9;color:#000!important}
+.stats-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{display:block;min-width:0;padding:18px 20px;border:1px solid var(--line);border-radius:14px;background:var(--card);box-shadow:0 7px 18px rgba(15,23,42,.08);color:#111827!important;text-decoration:none}
+.stat-card:before{content:"";display:block;width:42px;height:4px;margin-bottom:13px;border-radius:99px;background:var(--blue)}
+.stat-card:nth-child(2):before{background:#7c3aed}.stat-card:nth-child(3):before{background:#0f766e}.stat-card:nth-child(4):before{background:#059669}.stat-card:nth-child(5):before{background:#ea580c}.stat-card:nth-child(6):before{background:#ca8a04}.stat-card:nth-child(7):before{background:#16a34a}.stat-card:nth-child(8):before{background:#dc2626}.stat-card:nth-child(9):before{background:#2563eb}.stat-card:nth-child(10):before{background:#315989}.stat-card:nth-child(11):before{background:#198754}.stat-card:nth-child(12):before{background:#7c3aed}
+.stat-card h3{margin:0 0 10px;color:#111827!important;font-size:16px;font-weight:800}
+.number{font-size:34px;line-height:1;font-weight:800;color:var(--navy)}
+.dashboard-group{margin:0 0 20px}.dashboard-group>h2{margin:0 0 10px;color:#173b6c;font-size:21px}.dashboard-group .stats-container{margin-bottom:0}.dashboard-group.all-cases .stat-card:nth-child(1):before{background:#ea580c}.dashboard-group.all-cases .stat-card:nth-child(2):before{background:#ca8a04}.dashboard-group.all-cases .stat-card:nth-child(3):before{background:#16a34a}.dashboard-group.all-cases .stat-card:nth-child(4):before{background:#dc2626}.dashboard-group.all-cases .stat-card:nth-child(5):before{background:#2563eb}.dashboard-group.all-cases .stat-card:nth-child(6):before{background:#315989}.dashboard-group.enquiries .stat-card:nth-child(1):before{background:#198754}.dashboard-group.enquiries .stat-card:nth-child(2):before{background:#7c3aed}
+.section{padding:22px;margin-top:20px;border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:16px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.07)}
+.section.overdue{border-left-color:#dc2626}.section.today{border-left-color:#ea580c}.section.tomorrow{border-left-color:#ca8a04}.section.upcoming{border-left-color:#16a34a}
+.section h2{margin:0 0 18px;color:#111827!important}
+.table-container{overflow-x:auto;border:1px solid #cbd5e1;border-radius:11px}
+table{width:100%;min-width:720px;border-collapse:collapse;background:#fff}
+th{padding:14px;text-align:left;color:#fff;background:linear-gradient(90deg,#173b6c,#3f3bb7);font-size:13px}
+td{padding:14px;border-top:1px solid #dbe3ec;color:#111827!important;background:#fff;vertical-align:middle}
+tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef5ff}td:nth-child(4){white-space:nowrap}
+.stage-list{display:flex;flex-wrap:wrap;gap:10px}
+.stage-list a{display:inline-flex;padding:10px 14px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#111827!important;text-decoration:none;font-weight:700}
+.court-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.court-stage-card{min-width:0;padding:14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}.court-stage-card h3{margin:0 0 9px;color:#173b6c}.court-stage-card ul{margin:0;padding-left:20px}.court-stage-card li{margin:4px 0}.court-stage-card li a{display:block;padding:5px 2px;color:#173b6c!important;font-weight:700;text-decoration:none;overflow-wrap:anywhere}.court-stage-card li a:hover,.court-stage-card li a:focus{text-decoration:underline}.court-stage-card li a.selected-date-stage-highlight{color:#b00020!important}.matter-date-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-bottom:14px}.matter-date-form label{display:grid;gap:5px;font-weight:700}.matter-date-form input{min-height:40px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.matter-summary{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}.matter-summary div{padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc}.matter-summary b{display:block;margin-bottom:4px}.section.today tbody tr.today-hearing-row td{background:#173b6c!important;color:#fff!important;border-color:rgba(255,255,255,.22)}.section.today tbody tr.today-hearing-row .open-btn{background:#fff;color:#173b6c!important}
+.open-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;border-radius:8px;background:linear-gradient(135deg,#173b6c,#2563eb);color:#fff!important;text-decoration:none;font-weight:800;white-space:nowrap}
+.empty-message{margin:0;padding:14px 16px;border:1px dashed #86efac;border-radius:10px;background:#f0fdf4;color:#166534!important;font-weight:700}
+@media(max-width:768px){.container{width:calc(100% - 20px);margin:16px auto 40px}.topbar,.section{padding:18px}.nav{display:grid;grid-template-columns:1fr 1fr}.nav a{width:100%}.stats-container{grid-template-columns:1fr 1fr}}
+@media(max-width:430px){.nav,.stats-container{grid-template-columns:1fr}}
+
+/* ===== PHONE VIEW FIX ONLY — desktop layout unchanged ===== */
+@media (max-width: 900px){
+    html,body{width:100%;max-width:100%;overflow-x:hidden}
+    body{min-width:0}
+    .container{width:calc(100% - 16px)!important;margin:8px auto 28px!important}
+    .topbar{padding:16px!important;margin-bottom:14px!important}
+    .topbar h1{font-size:24px!important;line-height:1.25}
+    .nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+    .nav a{width:100%!important;min-width:0!important;padding:11px 8px!important;font-size:14px!important;text-align:center}
+    .stats-container{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-bottom:16px!important}
+    .stat-card{padding:14px!important}
+    .stat-card h3{font-size:14px!important;margin-bottom:8px!important}
+    .number{font-size:28px!important}
+    .section{padding:14px!important;margin-top:14px!important}
+    .section h2{font-size:19px!important;margin-bottom:12px!important}
+    .table-container{width:100%!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+    table{min-width:620px!important}
+    th,td{padding:10px!important}
+    .court-stage-grid{grid-template-columns:1fr}
+    .matter-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .matter-date-form .open-btn{width:auto}
+}
+@media (max-width: 480px){
+    .nav{grid-template-columns:1fr!important}
+    .stats-container{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    .topbar h1{font-size:22px!important}
+    .nav a{font-size:15px!important}
+    .section{padding:12px!important}
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header class="topbar">
+    <h1>⚖ Court Tracker Dashboard</h1>
+
+    <nav class="nav">
+        <a href="/cases">📂 All Cases</a>
+        <a href="/add-case">➕ Add New Case</a>
+        <a href="/import-excel">📥 Import Excel</a>
+        <a href="/export-excel">📤 Export Excel</a>
+        <a href="/enquiries">📋 Enquiries</a>
+        <a href="/logout">🚪 Logout</a>
+    </nav>
+</header>
+
+<section class="dashboard-group all-courts">
+<h2>All Courts</h2>
+<div class="stats-container">
+
+    <a href="/cases?court_no=1" class="stat-card">
+    <h3>🏛️ Court I</h3>
+    <div class="number">{{ court_1_count }}</div>
+</a>
+
+<a href="/cases?court_no=2" class="stat-card">
+    <h3>🏛️ Court II</h3>
+    <div class="number">{{ court_2_count }}</div>
+</a>
+
+<a href="/cases?court_no=3" class="stat-card">
+    <h3>🏛️ Court III</h3>
+    <div class="number">{{ court_3_count }}</div>
+</a>
+
+
+    <a href="/cases" class="stat-card">
+        <h3>Total Cases</h3>
+        <div class="number">{{ total_cases }}</div>
+    </a>
+</div>
+</section>
+
+<section class="dashboard-group all-cases">
+<h2>All Cases</h2>
+<div class="stats-container">
+    <a href="/cases?hearing_status=today" class="stat-card">
+        <h3>Today's Hearings</h3>
+        <div class="number">{{ todays_cases }}</div>
+    </a>
+
+    <a href="/cases?hearing_status=tomorrow" class="stat-card">
+        <h3>Tomorrow</h3>
+        <div class="number">{{ tomorrow_cases }}</div>
+    </a>
+
+    <a href="/cases?hearing_status=upcoming" class="stat-card">
+        <h3>Next 7 Days</h3>
+        <div class="number">{{ next_7_days_count }}</div>
+    </a>
+
+    <a href="/cases?hearing_status=past" class="stat-card">
+        <h3>Overdue</h3>
+        <div class="number">{{ past_cases }}</div>
+    </a>
+
+    <a href="/cases?hearing_status=undated" class="stat-card">
+        <h3>Undated</h3>
+        <div class="number">{{ undated_cases }}</div>
+    </a>
+
+    <!-- Disposed Cases -->
+    <a href="/cases?case_disposed=Yes" class="stat-card">
+        <h3>Disposed Cases</h3>
+        <div class="number">{{ disposed_cases }}</div>
+    </a>
+</div>
+</section>
+
+<section class="dashboard-group enquiries">
+<h2>Enquiries</h2>
+<div class="stats-container">
+    <a href="/enquiries?schedule=today" class="stat-card">
+        <h3>Today's Enquiries</h3>
+        <div class="number">{{ todays_enquiries }}</div>
+    </a>
+
+    <a href="/enquiries?schedule=next" class="stat-card">
+        <h3>Next Enquiries</h3>
+        <div class="number">{{ next_enquiries }}</div>
+    </a>
+</div>
+</section>
+
+<section class="section overdue">
+<h2>🔴 Overdue Hearings</h2>
+
+{% if overdue_hearings %}
+<div class="table-container">
+<table>
+<tr>
+    <th>Case Number</th>
+    <th>Parties</th>
+    <th>Court</th>
+    <th>Hearing Date</th>
+    <th>Action</th>
+</tr>
+
+{% for case in overdue_hearings %}
+<tr>
+    <td>{{ case.case_no }}</td>
+    <td>{{ case.parties }}</td>
+    <td>Court {{ case.court_no }}</td>
+    <td>{{ case.next_hearing_date.strftime("%d-%m-%Y") }}</td>
+    <td><a class="open-btn" href="/case/{{ case.id }}">Open Case</a></td>
+</tr>
+{% endfor %}
+</table>
+</div>
+
+{% else %}
+<p class="empty-message">✅ No overdue hearings.</p>
+{% endif %}
+</section>
+
+<section class="section today">
+<h2>🟠 Today's Hearings</h2>
+
+{% if todays_hearings %}
+<div class="table-container">
+<table>
+<tr>
+    <th>Case Number</th>
+    <th>Parties</th>
+    <th>Court</th>
+    <th>Action</th>
+</tr>
+
+{% for case in todays_hearings %}
+<tr class="today-hearing-row">
+    <td>{{ case.case_no }}</td>
+    <td>{{ case.parties }}</td>
+    <td>Court {{ case.court_no }}</td>
+    <td><a class="open-btn" href="/case/{{ case.id }}">Open Case</a></td>
+</tr>
+{% endfor %}
+</table>
+</div>
+
+{% else %}
+<p class="empty-message">✅ No hearings today.</p>
+{% endif %}
+</section>
+
+<section class="section tomorrow">
+<h2>🟡 Tomorrow's Hearings</h2>
+
+{% if tomorrow_hearings %}
+<div class="table-container">
+<table>
+<tr>
+    <th>Case Number</th>
+    <th>Parties</th>
+    <th>Court</th>
+    <th>Action</th>
+</tr>
+
+{% for case in tomorrow_hearings %}
+<tr>
+    <td>{{ case.case_no }}</td>
+    <td>{{ case.parties }}</td>
+    <td>Court {{ case.court_no }}</td>
+    <td><a class="open-btn" href="/case/{{ case.id }}">Open Case</a></td>
+</tr>
+{% endfor %}
+</table>
+</div>
+
+{% else %}
+<p class="empty-message">✅ No hearings tomorrow.</p>
+{% endif %}
+</section>
+
+<section class="section upcoming">
+<h2>🟢 Upcoming Hearings – Next 7 Days</h2>
+
+{% if upcoming_hearings %}
+<div class="table-container">
+<table>
+<tr>
+    <th>Case Number</th>
+    <th>Parties</th>
+    <th>Court</th>
+    <th>Hearing Date</th>
+    <th>Action</th>
+</tr>
+
+{% for case in upcoming_hearings %}
+<tr>
+    <td>{{ case.case_no }}</td>
+    <td>{{ case.parties }}</td>
+    <td>Court {{ case.court_no }}</td>
+    <td>{{ case.next_hearing_date.strftime("%d-%m-%Y") }}</td>
+    <td><a class="open-btn" href="/case/{{ case.id }}">Open Case</a></td>
+</tr>
+{% endfor %}
+</table>
+</div>
+
+{% else %}
+<p class="empty-message">✅ No upcoming hearings in the next 7 days.</p>
+{% endif %}
+</section>
+
+<section class="section">
+<h2>⚖ Case Stage</h2>
+
+<h3>📅 Matters on a Specific Date</h3>
+<form class="matter-date-form" method="get">
+    <label>Selected Date
+        <input type="date" name="matter_date" value="{{ selected_matter_date.isoformat() }}">
+    </label>
+    <button class="open-btn" type="submit">Show Matters</button>
+</form>
+<div class="matter-summary">
+    <div><b>Court I</b>{{ selected_date_court_counts[1] }}</div>
+    <div><b>Court II</b>{{ selected_date_court_counts[2] }}</div>
+    <div><b>Court III</b>{{ selected_date_court_counts[3] }}</div>
+    <div><b>Total Matters</b>{{ selected_date_total }}</div>
+</div>
+
+<div class="court-stage-grid">
+    {% for court_no in [1, 2, 3] %}
+    <div class="court-stage-card">
+        <h3>Court {{ ['I', 'II', 'III'][court_no - 1] }}</h3>
+        {% if court_stage_counts[court_no] %}
+        <ul>{% for stage, count in court_stage_counts[court_no] %}<li><a class="{% if stage in selected_date_stage_counts[court_no] %}selected-date-stage-highlight{% endif %}" href="{{ url_for('case_list', court_no=court_no, case_stage=stage, matter_date=selected_matter_date.isoformat()) }}">{{ stage }}: <strong>{{ count }}</strong></a></li>{% endfor %}</ul>
+        {% else %}<p>No cases recorded.</p>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+</section>
+
+<section class="section">
+<h2>📝 Recent Hearing Updates</h2>
+
+{% if recent_hearings %}
+<div class="table-container">
+<table>
+<tr>
+    <th>Case</th>
+    <th>Date</th>
+    <th>Outcome</th>
+    <th>Next Hearing</th>
+</tr>
+
+{% for hearing in recent_hearings %}
+<tr>
+    <td>{{ hearing.case.case_no }}</td>
+    <td>{{ hearing.hearing_date.strftime("%d-%m-%Y") }}</td>
+    <td>{{ hearing.outcome }}</td>
+    <td>
+        {% if hearing.next_hearing_date %}
+            {{ hearing.next_hearing_date.strftime("%d-%m-%Y") }}
+        {% else %}
+            -
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</table>
+</div>
+
+{% else %}
+<p>No hearing updates yet.</p>
+{% endif %}
+</section>
+
+</div>
+</body>
+</html>

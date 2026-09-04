@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Case - Court Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        .edit-page {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .edit-header h1 {
+            margin: 0;
+        }
+
+        .edit-form {
+            max-width: none;
+            margin: 0;
+            padding: 28px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            min-width: 0;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .edit-form label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        .edit-form input,
+        .edit-form select {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #other_stage_group {
+    display: none;
+}
+
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .form-actions button,
+        .form-actions a {
+            margin-top: 0;
+            min-height: 44px;
+        }
+
+        .cancel-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 18px;
+            background: #6b7280;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .cancel-btn:hover {
+            background: #4b5563;
+            color: white;
+        }
+
+        @media (max-width: 700px) {
+            .edit-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .edit-header a {
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            .edit-form {
+                padding: 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions button,
+            .form-actions a {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="edit-page">
+
+        <div class="edit-header">
+            <h1>✏️ Edit Case</h1>
+            <a href="/case/{{ case.id }}" class="cancel-btn">← Back to Case</a>
+        </div>
+
+        <form method="POST" class="edit-form">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="case_no">Case Number:</label>
+                    <input
+                        type="text"
+                        id="case_no"
+                        name="case_no"
+                        value="{{ case.case_no or '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="crn_no">CRN Number:</label>
+                    <input
+                        type="text"
+                        id="crn_no"
+                        name="crn_no"
+                        value="{{ case.crn_no or '' }}"
+                        placeholder="Enter CRN Number"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="court_no">Court Number:</label>
+                    <select id="court_no" name="court_no" required>
+                        <option value="">Select Court</option>
+                        <option value="1" {% if case.court_no == 1 %}selected{% endif %}>Court 1</option>
+                        <option value="2" {% if case.court_no == 2 %}selected{% endif %}>Court 2</option>
+                        <option value="3" {% if case.court_no == 3 %}selected{% endif %}>Court 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="advocate_name">Name of Advocate:</label>
+                    <input
+                        type="text"
+                        id="advocate_name"
+                        name="advocate_name"
+                        value="{{ case.advocate_name or '' }}"
+                        placeholder="Enter Advocate Name"
+                    >
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="parties">Name of Parties:</label>
+                    <input
+                        type="text"
+                        id="parties"
+                        name="parties"
+                        value="{{ case.parties or '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="case_stage">Case Stage:</label>
+                    <select
+                        id="case_stage"
+                        name="case_stage"
+                        required
+                        onchange="toggleOtherStage()"
+                    >
+                        <option value="">Select Case Stage</option>
+                        <option value="Notice" {% if case.case_stage == "Notice" %}selected{% endif %}>Notice</option>
+                        <option value="Admission" {% if case.case_stage == "Admission" %}selected{% endif %}>Admission</option>
+                        <option value="Hearing" {% if case.case_stage == "Hearing" %}selected{% endif %}>Hearing</option>
+                        <option value="Evidence" {% if case.case_stage == "Evidence" %}selected{% endif %}>Evidence</option>
+                        <option value="Cross Examination" {% if case.case_stage == "Cross Examination" %}selected{% endif %}>Cross Examination</option>
+                        <option value="Arguments" {% if case.case_stage == "Arguments" %}selected{% endif %}>Arguments</option>
+                        <option value="Final Arguments" {% if case.case_stage == "Final Arguments" %}selected{% endif %}>Final Arguments</option>
+                        <option value="Final Hearing" {% if case.case_stage == "Final Hearing" %}selected{% endif %}>Final Hearing</option>
+                        <option value="Judgment" {% if case.case_stage == "Judgment" %}selected{% endif %}>Judgment</option>
+                        <option value="Order" {% if case.case_stage == "Order" %}selected{% endif %}>Order</option>
+                        <option value="Other" {% if case.case_stage == "Other" %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="case_disposed">Case Disposed:</label>
+                    <select id="case_disposed" name="case_disposed">
+                        <option value="No" {% if case.case_disposed != "Yes" %}selected{% endif %}>No</option>
+                        <option value="Yes" {% if case.case_disposed == "Yes" %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="other_stage_group">
+                    <label for="case_stage_other">Other Case Stage:</label>
+                    <input
+                        type="text"
+                        id="case_stage_other"
+                        name="case_stage_other"
+                        value="{{ case.case_stage_other or '' }}"
+                        placeholder="Enter Case Stage"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="decision_date">Decision Date:</label>
+                    <input
+                        type="date"
+                        id="decision_date"
+                        name="decision_date"
+                        value="{% if case.decision_date %}{{ case.decision_date.strftime('%Y-%m-%d') }}{% endif %}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="next_hearing_date">Next Hearing Date:</label>
+                    <input
+                        type="date"
+                        id="next_hearing_date"
+                        name="next_hearing_date"
+                        value="{% if case.next_hearing_date %}{{ case.next_hearing_date.strftime('%Y-%m-%d') }}{% endif %}"
+                    >
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit">💾 Update Case</button>
+                <a href="/case/{{ case.id }}" class="cancel-btn">Cancel</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<script>
+function toggleOtherStage() {
+    const stage = document.getElementById("case_stage").value;
+    const group = document.getElementById("other_stage_group");
+    const input = document.getElementById("case_stage_other");
+
+    if (stage === "Other") {
+        group.style.display = "block";
+        input.required = true;
+    } else {
+        group.style.display = "none";
+        input.required = false;
+        input.value = "";
+    }
+}
+
+toggleOtherStage();
+</script>
+
+</body>
+</html>
