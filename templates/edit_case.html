@@ -1,6 +1,4 @@
-from pathlib import Path
-
-html = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -293,8 +291,3 @@ toggleOtherStage();
 
 </body>
 </html>
-'''
-
-out = Path("/mnt/data/edit_case.html")
-out.write_text(html, encoding="utf-8")
-print(out)
