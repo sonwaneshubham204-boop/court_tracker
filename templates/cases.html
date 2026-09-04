@@ -6,7 +6,6 @@
 <title>{{ title }}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
 * { box-sizing: border-box; }
@@ -979,18 +978,29 @@ td.action-cell .action-links {
 }
 </style>
 
-<style id="tailwind-compat-adjusted">
-/* Tailwind compatibility layer — adjusted to preserve the existing Court Tracker UI.
-   Tailwind is available for utility classes, but it must not redesign/override this page. */
-.cases-page {
-    font-family: Cambria, Georgia, serif !important;
+<style>
+/* OVERDUE ALIGNMENT FIX V2 — only Time Left / overdue presentation */
+.table-wrap table col.col-left {
+    width: 11% !important;
 }
-.cases-page .tw-keep-old-ui {
-    all: revert;
+.table-wrap th.time-left-head,
+.table-wrap td:nth-child(8) {
+    width: 11% !important;
+    min-width: 11% !important;
+    max-width: 11% !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
 }
-/* Keep the established old layout dimensions and controls stable. */
-.cases-page, .cases-page * {
-    box-sizing: border-box;
+.table-wrap td:nth-child(8) .overdue-text {
+    display: inline-block !important;
+    width: max-content !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
 }
 </style>
 </head>
