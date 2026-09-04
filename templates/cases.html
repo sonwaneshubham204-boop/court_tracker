@@ -1132,7 +1132,7 @@ td.action-cell .action-links {
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
-    <button type="button" onclick="shareSelectedOnWhatsApp()">📱 Share on WhatsApp</button>
+    <button type="button" onclick="shareSelectedViaWhatsApp()">📲 Share via WhatsApp</button>
 </div>
 
 
@@ -1147,8 +1147,6 @@ td.action-cell .action-links {
     {% for case in cases %}
     <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
         data-case-no="{{ case.case_no }}"
-        data-cnr="{{ case.crn_no or '' }}"
-        data-advocate="{{ case.advocate_name or '' }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
@@ -1298,8 +1296,6 @@ td.action-cell .action-links {
 {% for case in cases %}
 <tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
     data-case-no="{{ case.case_no }}"
-    data-cnr="{{ case.crn_no or '' }}"
-    data-advocate="{{ case.advocate_name or '' }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
@@ -1418,7 +1414,6 @@ if (hasActiveFilter) {
  * the search/filter behaviour or any case data.
  */
 const BULK_SELECTION_KEY = 'courtTrackerSelectedCaseIds';
-const BULK_SELECTION_DATA_KEY = 'courtTrackerSelectedCaseData';
 
 function getStoredSelectedIds() {
     try {
@@ -1432,60 +1427,10 @@ function getStoredSelectedIds() {
 
 function setStoredSelectedIds(ids) {
     try {
-        localStorage.setItem(
-            BULK_SELECTION_KEY,
-            JSON.stringify([...new Set(ids.map(String))])
-        );
-    } catch (e) {}
-}
-
-function getStoredSelectedCaseData() {
-    try {
-        const raw = localStorage.getItem(BULK_SELECTION_DATA_KEY);
-        const data = raw ? JSON.parse(raw) : {};
-        return data && typeof data === 'object' ? data : {};
+        localStorage.setItem(BULK_SELECTION_KEY, JSON.stringify([...new Set(ids.map(String))]));
     } catch (e) {
-        return {};
+        // Ignore storage errors; normal checkbox behaviour still works.
     }
-}
-
-function setStoredSelectedCaseData(data) {
-    try {
-        localStorage.setItem(BULK_SELECTION_DATA_KEY, JSON.stringify(data));
-    } catch (e) {}
-}
-
-function getRowCaseData(row) {
-    return {
-        caseNo: row.dataset.caseNo || '',
-        cnr: row.dataset.cnr || '',
-        parties: row.dataset.party || '',
-        advocate: row.dataset.advocate || '',
-        court: row.dataset.court || '',
-        stage: row.dataset.stage || '',
-        nextDate: row.dataset.nextDate || ''
-    };
-}
-
-function rememberCaseDataFromRow(row) {
-    const checkbox = row.querySelector('.casebox');
-    if (!checkbox) return;
-
-    const id = String(checkbox.value);
-    const data = getStoredSelectedCaseData();
-    data[id] = getRowCaseData(row);
-    setStoredSelectedCaseData(data);
-}
-
-function rememberAllRenderedCaseData() {
-    const data = getStoredSelectedCaseData();
-    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
-        const checkbox = row.querySelector('.casebox');
-        if (!checkbox) return;
-        const id = String(checkbox.value);
-        if (!data[id]) data[id] = getRowCaseData(row);
-    });
-    setStoredSelectedCaseData(data);
 }
 
 function addStoredSelectedId(id) {
@@ -1496,216 +1441,66 @@ function addStoredSelectedId(id) {
 
 function removeStoredSelectedId(id) {
     const target = String(id);
-    setStoredSelectedIds(
-        getStoredSelectedIds().filter(x => x !== target)
-    );
-
-    const data = getStoredSelectedCaseData();
-    delete data[target];
-    setStoredSelectedCaseData(data);
-}
-
-function formatWhatsAppDate(value) {
-    if (!value) return '';
-    const parts = String(value).split('-');
-    if (parts.length === 3 && parts[0].length === 4) {
-        return parts[2].padStart(2, '0') + '-' + parts[1].padStart(2, '0') + '-' + parts[0].slice(-2);
-    }
-    return value;
-}
-
-function shareSelectedOnWhatsApp() {
-    const ids = selected();
-    if (!ids.length) {
-        alert('Please select at least one case.');
-        return;
-    }
-
-    rememberAllRenderedCaseData();
-    const storedData = getStoredSelectedCaseData();
-
-    const message = ids.map((id, index) => {
-        const c = storedData[String(id)] || {};
-        return [
-            'Case ' + (index + 1),
-            'Case No: ' + (c.caseNo || ''),
-            'CNR No: ' + (c.cnr || ''),
-            'Parties: ' + (c.parties || ''),
-            'Advocate Name: ' + (c.advocate || ''),
-            'Court No: ' + (c.court || ''),
-            'Case Stage: ' + (c.stage || ''),
-            'Next Hearing Date: ' + formatWhatsAppDate(c.nextDate)
-        ].join('\n');
-    }).join('\n\n');
-
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if (isMobile) {
-        // Phone: first try the native share sheet so WhatsApp receives TEXT,
-        // not a web-page/window. If the browser cannot do that, fall back to
-        // copying the complete message for one paste.
-        if (navigator.share) {
-            navigator.share({ title: 'Court Tracker', text: message }).catch(function (err) {
-                if (err && err.name === 'AbortError') return;
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(message).then(function () {
-                        alert('Complete ' + ids.length + ' selected cases copied. Open WhatsApp and paste once.');
-                    });
-                }
-            });
-        } else if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(message).then(function () {
-                alert('Complete ' + ids.length + ' selected cases copied. Open WhatsApp and paste once.');
-            });
-        } else {
-            window.prompt('Copy ALL selected cases, then paste once in WhatsApp:', message);
-        }
-        return;
-    }
-
-    window.open('https://web.whatsapp.com/send?text=' + encodeURIComponent(message), '_blank');
+    setStoredSelectedIds(getStoredSelectedIds().filter(x => x !== target));
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
 
 function selected() {
-    return getStoredSelectedIds();
-}
-
-function applySelectedOnlyVisibility() {
-    const selectedIds = new Set(getStoredSelectedIds().map(String));
-    const hasSelection = selectedIds.size > 0;
-
-    document.querySelectorAll('.case-row, .mobile-case-card').forEach(function (row) {
-        const box = row.querySelector('.casebox');
-        if (!box) return;
-        const show = !hasSelection || selectedIds.has(String(box.value));
-
-        // Use !important so table/mobile CSS cannot override the selection rule.
-        if (show) {
-            row.style.removeProperty('display');
-        } else {
-            row.style.setProperty('display', 'none', 'important');
-        }
-    });
+    // Return the persistent selection, not only the checkboxes currently
+    // visible after a search/filter. This is what allows multi-search selection.
+    const stored = getStoredSelectedIds();
+    const visibleChecked = [...boxes()].filter(x => x.checked).map(x => String(x.value));
+    return [...new Set([...stored, ...visibleChecked])];
 }
 
 function refresh() {
     const n = selected().length;
-    const bulkbar = document.getElementById('bulkbar');
-    const selcount = document.getElementById('selcount');
+    document.getElementById('bulkbar').style.display = n ? 'block' : 'none';
+    document.getElementById('selcount').textContent = n;
+    // When selections are held across searches, show the held operation total.
+    // With no held selections, keep showing the current search result count.
     const totalResults = document.getElementById('totalresults');
-
-    if (bulkbar) bulkbar.style.display = n ? 'block' : 'none';
-    if (selcount) selcount.textContent = n;
-    if (totalResults) totalResults.textContent = {{ cases|length }};
-
-    applySelectedOnlyVisibility();
+    if (totalResults) totalResults.textContent = n ? n : {{ cases|length }};
 }
 
 function restoreStoredSelections() {
     const stored = new Set(getStoredSelectedIds());
-
-    boxes().forEach(function (x) {
+    boxes().forEach(x => {
         x.checked = stored.has(String(x.value));
     });
-
-    boxes().forEach(function (x) {
-        if (x.checked) {
-            const row = x.closest('.case-row, .mobile-case-card');
-            if (row) rememberCaseDataFromRow(row);
-        }
-    });
-
-    const allBox = document.getElementById('all');
-    if (allBox) {
-        const desktopBoxes = [...document.querySelectorAll('.table-wrap .casebox')];
-        allBox.checked = desktopBoxes.length > 0 && desktopBoxes.every(function (x) { return x.checked; });
-    }
-
-    const mobileAll = document.getElementById('mobileAll');
-    if (mobileAll) {
-        const mobileBoxes = [...document.querySelectorAll('.mobile-cases-bootstrap .casebox')];
-        mobileAll.checked = mobileBoxes.length > 0 && mobileBoxes.every(function (x) { return x.checked; });
-    }
-
     refresh();
 }
 
-boxes().forEach(function (x) {
-    x.addEventListener('change', function () {
-        const id = String(this.value);
-        const row = this.closest('.case-row, .mobile-case-card');
-
-        if (this.checked) {
-            addStoredSelectedId(id);
-            if (row) rememberCaseDataFromRow(row);
-        } else {
-            removeStoredSelectedId(id);
+boxes().forEach(x => x.addEventListener('change', function () {
+    if (this.checked) {
+        addStoredSelectedId(this.value);
+    } else {
+        removeStoredSelectedId(this.value);
+    }
+    // Keep duplicate desktop/mobile checkboxes synchronized.
+    boxes().forEach(other => {
+        if (other !== this && String(other.value) === String(this.value)) {
+            other.checked = this.checked;
         }
-
-        boxes().forEach(function (other) {
-            if (other !== x && String(other.value) === id) other.checked = x.checked;
-        });
-
-        refresh();
     });
-});
+    refresh();
+}));
 
 const allBox = document.getElementById('all');
 if (allBox) {
-    allBox.addEventListener('change', function (e) {
-        const idSet = new Set(getStoredSelectedIds());
-        const data = getStoredSelectedCaseData();
-
-        document.querySelectorAll('.table-wrap .casebox').forEach(function (x) {
+    allBox.addEventListener('change', e => {
+        const ids = getStoredSelectedIds();
+        const idSet = new Set(ids);
+        boxes().forEach(x => {
             x.checked = e.target.checked;
-            const id = String(x.value);
-            const row = x.closest('.case-row');
             if (e.target.checked) {
-                idSet.add(id);
-                if (row) data[id] = getRowCaseData(row);
+                idSet.add(String(x.value));
             } else {
-                idSet.delete(id);
-                delete data[id];
+                idSet.delete(String(x.value));
             }
         });
-
-        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(function (x) {
-            x.checked = e.target.checked;
-        });
-
         setStoredSelectedIds([...idSet]);
-        setStoredSelectedCaseData(data);
-        refresh();
-    });
-}
-
-const mobileAll = document.getElementById('mobileAll');
-if (mobileAll) {
-    mobileAll.addEventListener('change', function (e) {
-        const idSet = new Set(getStoredSelectedIds());
-        const data = getStoredSelectedCaseData();
-
-        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(function (x) {
-            x.checked = e.target.checked;
-            const id = String(x.value);
-            const row = x.closest('.mobile-case-card');
-            if (e.target.checked) {
-                idSet.add(id);
-                if (row) data[id] = getRowCaseData(row);
-            } else {
-                idSet.delete(id);
-                delete data[id];
-            }
-        });
-
-        document.querySelectorAll('.table-wrap .casebox').forEach(function (x) {
-            x.checked = e.target.checked;
-        });
-
-        setStoredSelectedIds([...idSet]);
-        setStoredSelectedCaseData(data);
         refresh();
     });
 }
@@ -1713,7 +1508,6 @@ if (mobileAll) {
 function clearBulkSelection() {
     try {
         localStorage.removeItem(BULK_SELECTION_KEY);
-        localStorage.removeItem(BULK_SELECTION_DATA_KEY);
     } catch (e) {}
 }
 
@@ -1758,6 +1552,57 @@ function bulkDelete() {
     }
 }
 
+/*
+ * WhatsApp sharing.
+ * Reuses selected() -- the exact same deduplicated id list already used by
+ * Update / Dispose / Delete -- so the shared case list is guaranteed to be
+ * identical on mobile and desktop, no matter which layout is visible or how
+ * many cases were selected via "Select All".
+ */
+function findCaseContainer(id) {
+    // Desktop and mobile each render one .casebox per case, wrapped in
+    // .case-row (desktop) or .mobile-case-card (mobile). Either one has the
+    // data-* attributes we need, so use whichever is present in the DOM.
+    const box = document.querySelector('.casebox[value="' + CSS.escape(String(id)) + '"]');
+    return box ? box.closest('.case-row, .mobile-case-card') : null;
+}
+
+function buildWhatsAppMessage(ids) {
+    const lines = [];
+    ids.forEach(id => {
+        const container = findCaseContainer(id);
+        if (!container) return; // case not present in current DOM
+        const caseNo = container.dataset.caseNo || ('Case #' + id);
+        const court = container.dataset.court || '';
+        const party = container.dataset.party || '';
+        const stage = container.dataset.stage || '';
+        const nextDate = container.dataset.nextDate || 'Not Scheduled';
+        lines.push(
+            (lines.length + 1) + '. ' + caseNo +
+            ' | ' + court +
+            ' | ' + party +
+            ' | ' + stage +
+            ' | ' + nextDate
+        );
+    });
+    return 'Court Cases (' + lines.length + '):\n\n' + lines.join('\n');
+}
+
+function shareSelectedViaWhatsApp() {
+    const ids = selected();
+    if (!ids.length) {
+        alert('Select at least one case (or use "Select All") before sharing.');
+        return;
+    }
+    const message = buildWhatsAppMessage(ids);
+    // https://wa.me/ is a universal link: it opens the WhatsApp app on
+    // mobile and WhatsApp Web on desktop via the SAME url scheme, so there
+    // is no separate "mobile-only" code path (and no OS-level deep-link
+    // length limit) that could truncate the list on phones.
+    const url = 'https://wa.me/?text=' + encodeURIComponent(message);
+    window.open(url, '_blank');
+}
+
 // A completed bulk operation consumes the current selection.
 const modalForm = document.getElementById('modalForm');
 if (modalForm) {
@@ -1792,20 +1637,8 @@ function applyHeaderFilters() {
     const party = document.getElementById('partyFilter').value;
     const stage = document.getElementById('stageFilter').value;
 
-    const selectedIds = new Set(getStoredSelectedIds());
-
-    // When cases are selected, selection is the ONLY visibility rule.
-    // Do not let header filters hide a selected case.
-    if (selectedIds.size > 0) {
-        applySelectedOnlyVisibility();
-        return;
-    }
-
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
-        const box = row.querySelector('.casebox');
-        const id = box ? String(box.value) : '';
-        const selectedVisible = selectedIds.size === 0 || selectedIds.has(id);
-        const show = selectedVisible &&
+        const show =
             (!caseNo || row.dataset.caseNo === caseNo) &&
             (!court || row.dataset.court === court) &&
             (!party || row.dataset.party === party) &&
@@ -1856,19 +1689,7 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
         const baseFilters = [...document.querySelectorAll('.header-filter')]
             .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
 
-        const selectedIds = new Set(getStoredSelectedIds());
-
-        // When cases are selected, selection is the ONLY visibility rule.
-        // Do not let date/time filters hide a selected case.
-        if (selectedIds.size > 0) {
-            applySelectedOnlyVisibility();
-            return;
-        }
-
         document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
-            const box = row.querySelector('.casebox');
-            const id = box ? String(box.value) : '';
-            const selectedVisible = selectedIds.size === 0 || selectedIds.has(id);
             const baseHidden = baseFilters.some(f => {
                 if (!f.value) return false;
                 if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
@@ -1878,8 +1699,7 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
                 return false;
             });
 
-            const show = selectedVisible &&
-                         !baseHidden &&
+            const show = !baseHidden &&
                          matches(row, nextDateFilter.value) &&
                          matches(row, timeLeftFilter.value);
 
@@ -1899,6 +1719,38 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
 
 
 
+<script id="bootstrap-mobile-case-sync">
+document.addEventListener('DOMContentLoaded', function () {
+    function sameCaseBoxes(value) {
+        return Array.from(document.querySelectorAll('.casebox'))
+            .filter(function (box) { return String(box.value) === String(value); });
+    }
+
+    document.querySelectorAll('.casebox').forEach(function (box) {
+        box.addEventListener('change', function () {
+            sameCaseBoxes(box.value).forEach(function (other) {
+                if (other !== box) other.checked = box.checked;
+            });
+            if (typeof refresh === 'function') refresh();
+        });
+    });
+
+    var mobileAll = document.getElementById('mobileAll');
+    if (mobileAll) {
+        mobileAll.addEventListener('change', function () {
+            document.querySelectorAll('.mobile-case-check').forEach(function (box) {
+                box.checked = mobileAll.checked;
+                sameCaseBoxes(box.value).forEach(function (other) {
+                    other.checked = mobileAll.checked;
+                });
+            });
+            var desktopAll = document.getElementById('all');
+            if (desktopAll) desktopAll.checked = mobileAll.checked;
+            if (typeof refresh === 'function') refresh();
+        });
+    }
+});
+</script>
 
 </body>
 </html>
