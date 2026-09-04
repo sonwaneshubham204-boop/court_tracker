@@ -1578,6 +1578,107 @@ function selected() {
     return getStoredSelectedIds();
 }
 
+function ensureSelectedCasesRendered() {
+    const selectedIds = getStoredSelectedIds();
+    if (!selectedIds.length) return;
+
+    const storedData = getStoredSelectedCaseData();
+
+    // If a selected case is no longer in the current server result
+    // (for example after a search), rebuild only that selected case
+    // from the data already saved when it was ticked.
+    selectedIds.forEach(function(id) {
+        const alreadyRendered = [...document.querySelectorAll('.casebox')]
+            .some(function(box) { return String(box.value) === String(id); });
+
+        if (alreadyRendered) return;
+
+        const c = storedData[String(id)];
+        if (!c) return;
+
+        const desktopBody = document.querySelector('.table-wrap tbody');
+        const mobileList = document.querySelector('.mobile-cases-bootstrap');
+        if (!desktopBody || !mobileList) return;
+
+        const safe = function(v) {
+            return String(v == null ? '' : v)
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+                .replace(/'/g,'&#39;');
+        };
+
+        const caseNo = safe(c.caseNo);
+        const cnr = safe(c.cnr);
+        const parties = safe(c.parties);
+        const advocate = safe(c.advocate);
+        const court = safe(c.court);
+        const stage = safe(c.stage);
+        const nextDate = safe(c.nextDate);
+
+        const tr = document.createElement('tr');
+        tr.className = 'case-row selected-restored-row';
+        tr.dataset.caseNo = c.caseNo || '';
+        tr.dataset.cnr = c.cnr || '';
+        tr.dataset.advocate = c.advocate || '';
+        tr.dataset.court = c.court || '';
+        tr.dataset.party = c.parties || '';
+        tr.dataset.stage = c.stage || '';
+        tr.dataset.nextDate = c.nextDate || '';
+        tr.dataset.disposed = 'false';
+        tr.innerHTML =
+            '<td><input class="casebox" type="checkbox" value="' + safe(id) + '" checked></td>' +
+            '<td>' + safe(id) + '</td>' +
+            '<td><a href="/case/' + encodeURIComponent(id) + '">' + caseNo + '</a></td>' +
+            '<td>' + safe(c.court) + '</td>' +
+            '<td>' + parties + '</td>' +
+            '<td>' + stage + '</td>' +
+            '<td>' + (nextDate ? formatWhatsAppDate(c.nextDate) : 'Not Scheduled') + '</td>' +
+            '<td>—</td>' +
+            '<td class="action-cell"><div class="action-links">' +
+                '<a href="/case/' + encodeURIComponent(id) + '">Open</a>' +
+                '<a href="/edit-case/' + encodeURIComponent(id) + '">Edit</a>' +
+                '<form action="/delete-case/' + encodeURIComponent(id) + '" method="POST">' +
+                    '<button type="submit" onclick="return confirm(\'Delete this case?\')">Delete</button>' +
+                '</form>' +
+            '</div></td>';
+        desktopBody.appendChild(tr);
+
+        const article = document.createElement('article');
+        article.className = 'card mobile-case-card selected-restored-card';
+        article.dataset.caseNo = c.caseNo || '';
+        article.dataset.cnr = c.cnr || '';
+        article.dataset.advocate = c.advocate || '';
+        article.dataset.court = c.court || '';
+        article.dataset.party = c.parties || '';
+        article.dataset.stage = c.stage || '';
+        article.dataset.nextDate = c.nextDate || '';
+        article.dataset.disposed = 'false';
+        article.innerHTML =
+            '<div class="card-body">' +
+                '<div class="mobile-case-head">' +
+                    '<input class="casebox mobile-case-check" type="checkbox" value="' + safe(id) + '" checked>' +
+                    '<a class="mobile-case-number" href="/case/' + encodeURIComponent(id) + '">' + caseNo + '</a>' +
+                '</div>' +
+                '<div class="mobile-case-meta d-flex flex-wrap gap-2 mb-3">' +
+                    '<span class="badge rounded-pill text-bg-light border text-dark">ID: ' + safe(id) + '</span>' +
+                    '<span class="badge rounded-pill text-bg-light border text-dark">' + safe(c.court) + '</span>' +
+                '</div>' +
+                '<div class="mobile-party-box mb-3">' + parties + '</div>' +
+                '<div class="row g-2">' +
+                    '<div class="col-6"><div class="mobile-detail-box"><span class="mobile-detail-label">Case Stage</span><div class="mobile-detail-value">' + stage + '</div></div></div>' +
+                    '<div class="col-6"><div class="mobile-detail-box"><span class="mobile-detail-label">Time Left</span><div class="mobile-detail-value">Selected</div></div></div>' +
+                    '<div class="col-12"><div class="mobile-detail-box"><span class="mobile-detail-label">Next Hearing</span><div class="mobile-detail-value">' + (nextDate ? formatWhatsAppDate(c.nextDate) : 'Not Scheduled') + '</div></div></div>' +
+                '</div>' +
+                '<div class="mobile-actions">' +
+                    '<a class="btn btn-primary" href="/case/' + encodeURIComponent(id) + '">Open</a>' +
+                    '<a class="btn btn-outline-primary" href="/edit-case/' + encodeURIComponent(id) + '">Edit</a>' +
+                    '<form action="/delete-case/' + encodeURIComponent(id) + '" method="POST"><button class="btn btn-danger" type="submit" onclick="return confirm(\'Delete this case?\')">Delete</button></form>' +
+                '</div>' +
+            '</div>';
+        mobileList.appendChild(article);
+    });
+}
+
 function applySelectedOnlyVisibility() {
     const selectedIds = new Set(getStoredSelectedIds());
 
@@ -1587,8 +1688,8 @@ function applySelectedOnlyVisibility() {
 
         const id = String(checkbox.value);
 
-        // No selection: show all loaded cases.
-        // Selection exists: show ONLY selected cases.
+        // No selection: show all cases.
+        // Selection exists: show ONLY the selected cases.
         row.style.display =
             selectedIds.size === 0 || selectedIds.has(id) ? '' : 'none';
     });
@@ -1608,6 +1709,7 @@ function refresh() {
         totalResults.textContent = {{ cases|length }};
     }
 
+    ensureSelectedCasesRendered();
     applySelectedOnlyVisibility();
 }
 
@@ -1625,7 +1727,26 @@ function restoreStoredSelections() {
         if (row) rememberCaseDataFromRow(row);
     });
 
-    const allBox = document.getElementById('all');
+    document.addEventListener('change', function(e) {
+    if (!e.target.classList.contains('casebox')) return;
+    if (e.target.dataset.restoredHandler === '1') return;
+    if (e.target.closest('.selected-restored-row, .selected-restored-card')) {
+        const id = String(e.target.value);
+        if (e.target.checked) {
+            addStoredSelectedId(id);
+            const row = e.target.closest('.case-row, .mobile-case-card');
+            if (row) rememberCaseDataFromRow(row);
+        } else {
+            removeStoredSelectedId(id);
+        }
+        boxes().forEach(function(other) {
+            if (other !== e.target && String(other.value) === id) other.checked = e.target.checked;
+        });
+        refresh();
+    }
+});
+
+const allBox = document.getElementById('all');
     if (allBox) {
         const desktopBoxes = [...document.querySelectorAll(
             '.table-wrap .casebox'
