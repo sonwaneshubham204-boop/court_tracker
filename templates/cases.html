@@ -7,131 +7,365 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 <style>
-.case-detail-page{max-width:1200px;margin:0 auto}
-.page-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}
-.page-header h1{margin:0}
-.back-button,.edit-button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:7px;text-decoration:none;font-weight:600;background:#6b7280;color:#fff}
-.edit-button{background:#2563eb}
-.section{background:#fff;border-radius:10px;padding:22px;margin-top:20px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
-.section h2{margin-top:0}
-.info-grid,.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px}
-.info-item{padding:12px;background:#f8fafc;border-radius:7px}
-.info-item.full,.form-group.full{grid-column:1/-1}
-.info-label{display:block;font-size:.9rem;font-weight:700;margin-bottom:4px}
-form{max-width:none;margin:0;padding:0;box-shadow:none;background:transparent}
-label{display:block;margin-bottom:6px;font-weight:600}
-input,select,textarea{width:100%;box-sizing:border-box}
-textarea{min-height:100px;resize:vertical}
-.form-actions{margin-top:18px}
-.table-container{overflow-x:auto;width:100%}
-table{width:100%;min-width:760px;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:10px;text-align:left;vertical-align:top}
-th{background:#b3122b;color:#fff}
-.file-info{margin-top:5px;font-size:14px;color:#555}
-.action-links{display:flex;flex-wrap:wrap;gap:8px}
-.action-links a,.delete-form button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 10px;margin:0;border-radius:6px;text-decoration:none;font-weight:600;background:#e5e7eb;color:#1f2937}
-.delete-form{display:inline;width:auto;margin:0;padding:0;background:transparent;box-shadow:none}
-.delete-form button{background:#dc2626;color:#fff}
-.empty-message{margin:0;color:#6b7280}
-.business-date-link{color:#15803d;font-weight:700;text-decoration:underline}
-.history-note{white-space:pre-wrap;max-width:280px}
-.other-outcome{display:none;margin-top:8px}
-@media(max-width:700px){.page-header{flex-direction:column;align-items:stretch}.page-header a{width:100%;box-sizing:border-box}.section{padding:16px}.info-grid,.form-grid{grid-template-columns:1fr}.info-item.full,.form-group.full{grid-column:auto}.form-actions button{width:100%}}
+/* =========================================================
+   COURT TRACKER — CASE DETAIL
+   Restored "AS BEFORE" UI
+   No WhatsApp / no redesign / functionality preserved
+   ========================================================= */
 
+html, body {
+    margin: 0;
+    padding: 0;
+}
 
-/* RESTORED CASE HISTORY UI — match previous screenshot exactly */
-html, body { margin:0; padding:0; }
 body {
-    background:#eef2f6 !important;
-    color:#111 !important;
+    background: #eef2f6 !important;
+    color: #111 !important;
     font-family: Georgia, "Times New Roman", serif !important;
 }
+
+/* Main page width and alignment */
 .container {
-    width:100% !important;
-    max-width:none !important;
-    margin:0 !important;
-    padding:0 !important;
-}
-.case-detail-page {
-    width:960px !important;
-    max-width:calc(100% - 32px) !important;
-    margin:0 auto !important;
-    padding:18px 0 30px !important;
-}
-.page-header {
-    margin:0 0 16px !important;
-}
-.page-header h1 {
-    font-size:25px !important;
-    font-weight:700 !important;
-}
-.section {
-    background:#fff !important;
-    border:1px solid #cfd7e3 !important;
-    border-left:4px solid #b3122b !important;
-    border-radius:8px !important;
-    padding:20px !important;
-    margin:16px 0 !important;
-    box-shadow:0 2px 7px rgba(0,0,0,.08) !important;
-}
-.section h2 {
-    margin:0 0 28px !important;
-    padding:0 !important;
-    border:0 !important;
-    font-size:20px !important;
-    line-height:1.25 !important;
-    font-weight:700 !important;
-}
-.info-grid, .form-grid {
-    display:grid !important;
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    column-gap:20px !important;
-    row-gap:24px !important;
-}
-.info-item {
-    padding:10px !important;
-    background:#f8fafc !important;
-    border-radius:5px !important;
-}
-label, .info-label {
-    display:block !important;
-    margin:0 0 7px !important;
-    font-family:Georgia,"Times New Roman",serif !important;
-    font-size:14px !important;
-    font-weight:700 !important;
-    color:#111 !important;
-}
-input, select, textarea {
-    width:100% !important;
-    box-sizing:border-box !important;
-    border:1px solid #c8d2df !important;
-    border-radius:6px !important;
-    background:#fff !important;
-    color:#111 !important;
-    font-family:Georgia,"Times New Roman",serif !important;
-    font-size:14px !important;
-    padding:10px 11px !important;
-}
-input[type=date], select { height:43px !important; }
-textarea {
-    min-height:80px !important;
-    height:80px !important;
-    resize:vertical !important;
-}
-.form-group.full { grid-column:1 / -1 !important; }
-.form-actions { margin-top:18px !important; }
-.form-actions button, .edit-button, .back-button {
-    font-family:Georgia,"Times New Roman",serif !important;
-}
-.table-container { overflow-x:auto !important; }
-@media(max-width:700px){
-    .case-detail-page { max-width:calc(100% - 20px) !important; padding:10px 0 20px !important; }
-    .section { padding:16px !important; }
-    .info-grid, .form-grid { grid-template-columns:1fr !important; row-gap:18px !important; }
-    .section h2 { margin-bottom:22px !important; }
-    textarea { height:90px !important; }
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
+.case-detail-page {
+    width: 960px !important;
+    max-width: calc(100% - 32px) !important;
+    margin: 0 auto !important;
+    padding: 18px 0 30px !important;
+}
+
+/* Page heading */
+.page-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 15px !important;
+    margin: 0 0 16px !important;
+}
+
+.page-header h1 {
+    margin: 0 !important;
+    font-size: 25px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+}
+
+/* Back / Edit buttons */
+.back-button,
+.edit-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    padding: 10px 16px !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    text-decoration: none !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+}
+
+.back-button {
+    background: #6b7280 !important;
+}
+
+.edit-button {
+    background: #2563eb !important;
+}
+
+/* Every major Case Detail card */
+.section {
+    display: block !important;
+    width: 100% !important;
+    background: #fff !important;
+    border: 1px solid #cfd7e3 !important;
+    border-left: 4px solid #b3122b !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    margin: 16px 0 !important;
+    box-shadow: 0 2px 7px rgba(0,0,0,.08) !important;
+}
+
+/* Section headings — exactly the old clean look */
+.section h2 {
+    margin: 0 0 28px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    font-size: 20px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+}
+
+/* Case information + forms */
+.info-grid,
+.form-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 20px !important;
+    row-gap: 24px !important;
+    width: 100% !important;
+}
+
+.info-item {
+    min-width: 0 !important;
+    padding: 10px !important;
+    background: #f8fafc !important;
+    border-radius: 5px !important;
+    overflow-wrap: anywhere !important;
+}
+
+.info-item.full,
+.form-group.full {
+    grid-column: 1 / -1 !important;
+}
+
+/* Labels */
+label,
+.info-label {
+    display: block !important;
+    margin: 0 0 7px !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+    font-weight: 700 !important;
+    color: #111 !important;
+}
+
+/* Forms */
+.case-detail-page form {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.form-group {
+    min-width: 0 !important;
+}
+
+/* Inputs / selects / textareas */
+input,
+select,
+textarea {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    border: 1px solid #c8d2df !important;
+    border-radius: 6px !important;
+    background: #fff !important;
+    color: #111 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+    padding: 10px 11px !important;
+}
+
+input[type="date"],
+select {
+    height: 43px !important;
+}
+
+textarea {
+    min-height: 80px !important;
+    height: 80px !important;
+    resize: vertical !important;
+}
+
+/* Save buttons */
+.form-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 18px !important;
+}
+
+.form-actions button {
+    font-family: Georgia, "Times New Roman", serif !important;
+    min-height: 40px !important;
+    padding: 9px 15px !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    background: #2563eb !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+}
+
+/* Case History / Evidence tables */
+.table-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+}
+
+table {
+    width: 100% !important;
+    min-width: 760px !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+}
+
+th,
+td {
+    border: 1px solid #ccc !important;
+    padding: 10px !important;
+    text-align: left !important;
+    vertical-align: top !important;
+    line-height: 1.45 !important;
+}
+
+th {
+    background: #b3122b !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+}
+
+.weekday {
+    display: block !important;
+    margin-top: 3px !important;
+    color: #666 !important;
+    font-size: 12px !important;
+}
+
+.business-date-link {
+    color: #15803d !important;
+    font-weight: 700 !important;
+    text-decoration: underline !important;
+}
+
+.history-note {
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    max-width: 280px !important;
+}
+
+/* History / Evidence action buttons */
+.action-links {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.action-links a,
+.delete-form button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 36px !important;
+    padding: 7px 10px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-weight: 700 !important;
+}
+
+.action-links a {
+    background: #e5e7eb !important;
+    color: #1f2937 !important;
+}
+
+.delete-form {
+    display: inline !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.delete-form button {
+    background: #dc2626 !important;
+    color: #fff !important;
+    cursor: pointer !important;
+}
+
+.file-info {
+    margin-top: 5px !important;
+    font-size: 14px !important;
+    color: #555 !important;
+}
+
+.empty-message {
+    margin: 0 !important;
+    color: #6b7280 !important;
+}
+
+/* Other Purpose stays hidden until selected */
+.other-outcome {
+    display: none;
+    margin-top: 8px !important;
+}
+
+/* Mobile — same structure, stacked cleanly */
+@media (max-width: 700px) {
+    .case-detail-page {
+        width: auto !important;
+        max-width: calc(100% - 20px) !important;
+        padding: 10px 0 20px !important;
+    }
+
+    .page-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .page-header h1 {
+        font-size: 22px !important;
+    }
+
+    .page-header a {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .section {
+        padding: 16px !important;
+        margin: 14px 0 !important;
+    }
+
+    .section h2 {
+        font-size: 18px !important;
+        margin-bottom: 22px !important;
+    }
+
+    .info-grid,
+    .form-grid {
+        grid-template-columns: 1fr !important;
+        row-gap: 18px !important;
+    }
+
+    .info-item.full,
+    .form-group.full {
+        grid-column: auto !important;
+    }
+
+    textarea {
+        height: 90px !important;
+    }
+
+    .form-actions button {
+        width: 100% !important;
+    }
+
+    table {
+        min-width: 700px !important;
+    }
+}
 </style>
 </head>
 
