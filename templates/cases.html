@@ -1541,14 +1541,21 @@ function shareSelectedOnWhatsApp() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // Keep the complete text intact. Do not send the long text through
-        // whatsapp:// or wa.me because Android can truncate/reject it.
-        if (navigator.clipboard && navigator.clipboard.writeText) {
+        // Phone: first try the native share sheet so WhatsApp receives TEXT,
+        // not a web-page/window. If the browser cannot do that, fall back to
+        // copying the complete message for one paste.
+        if (navigator.share) {
+            navigator.share({ title: 'Court Tracker', text: message }).catch(function (err) {
+                if (err && err.name === 'AbortError') return;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message).then(function () {
+                        alert('Complete ' + ids.length + ' selected cases copied. Open WhatsApp and paste once.');
+                    });
+                }
+            });
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(message).then(function () {
                 alert('Complete ' + ids.length + ' selected cases copied. Open WhatsApp and paste once.');
-                window.open('https://web.whatsapp.com/', '_blank');
-            }).catch(function () {
-                window.prompt('Copy ALL selected cases, then paste once in WhatsApp:', message);
             });
         } else {
             window.prompt('Copy ALL selected cases, then paste once in WhatsApp:', message);
@@ -1566,13 +1573,20 @@ function selected() {
 }
 
 function applySelectedOnlyVisibility() {
-    const selectedIds = new Set(getStoredSelectedIds());
+    const selectedIds = new Set(getStoredSelectedIds().map(String));
     const hasSelection = selectedIds.size > 0;
 
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(function (row) {
         const box = row.querySelector('.casebox');
         if (!box) return;
-        row.style.display = (!hasSelection || selectedIds.has(String(box.value))) ? '' : 'none';
+        const show = !hasSelection || selectedIds.has(String(box.value));
+
+        // Use !important so table/mobile CSS cannot override the selection rule.
+        if (show) {
+            row.style.removeProperty('display');
+        } else {
+            row.style.setProperty('display', 'none', 'important');
+        }
     });
 }
 
