@@ -3,252 +3,440 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ title }}</title>
+<title>Case Details</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 <style>
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; background:#f3f5f8; color:#1f2937; }
-    .page { max-width: 1450px; margin: 0 auto; padding: 24px; }
-    .nav { margin-bottom:18px; }
-    .nav a { margin-right:12px; color:#273c75; font-weight:600; text-decoration:none; }
-    .nav a:hover { text-decoration:underline; }
 
-    .search-card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 3px 16px rgba(0,0,0,.08); }
-    .search-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .search-main { flex:1 1 420px; min-width:240px; }
-    input, select, button { font:inherit; }
-    input[type=text], input[type=date], select {
-        width:100%; padding:11px 12px; border:1px solid #cbd5e1; border-radius:7px; background:white;
-    }
-    .btn { border:0; border-radius:7px; padding:11px 16px; cursor:pointer; font-weight:700; text-decoration:none; display:inline-block; }
-    .primary { background:#2454a6; color:white; }
-    .secondary { background:#e5e7eb; color:#111827; }
-    .danger { background:#b91c1c; color:white; }
-    .success { background:#15803d; color:white; }
-    .warning { background:#b45309; color:white; }
-    .toggle { margin-top:10px; border:0; background:none; color:#2454a6; cursor:pointer; font-weight:700; padding:4px 0; }
-    #moreFilters { display:none; margin-top:14px; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; }
-    #moreFilters.show { display:grid; }
+/* Court Tracker - case detail page: self-contained styling */
+.case-detail-page{
+    width:100% !important;
+    max-width:1200px !important;
+    margin:0 auto !important;
+    padding:18px !important;
+    font-family:Arial,Helvetica,sans-serif !important;
+    color:#1f2937 !important;
+    box-sizing:border-box !important;
+}
+.case-detail-page *{box-sizing:border-box !important;}
+.case-detail-page .page-header{
+    display:flex !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+    gap:16px !important;
+    margin:0 0 18px !important;
+}
+.case-detail-page .page-header h1{
+    margin:0 !important;
+    font-size:26px !important;
+    line-height:1.25 !important;
+    color:#111827 !important;
+}
+.case-detail-page .back-button,
+.case-detail-page .edit-button{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-height:40px !important;
+    padding:9px 15px !important;
+    border-radius:7px !important;
+    text-decoration:none !important;
+    font-weight:700 !important;
+    border:0 !important;
+}
+.case-detail-page .back-button{background:#6b7280 !important;color:#fff !important;}
+.case-detail-page .edit-button{background:#2563eb !important;color:#fff !important;}
+.case-detail-page .section{
+    display:block !important;
+    width:100% !important;
+    background:#fff !important;
+    border:1px solid #d7dee8 !important;
+    border-radius:10px !important;
+    padding:20px !important;
+    margin:0 0 18px !important;
+    box-shadow:0 2px 8px rgba(0,0,0,.06) !important;
+}
+.case-detail-page .section h2{
+    margin:0 0 16px !important;
+    padding:0 0 10px !important;
+    border-bottom:1px solid #e5e7eb !important;
+    font-size:20px !important;
+    line-height:1.3 !important;
+    color:#111827 !important;
+}
+.case-detail-page .info-grid,
+.case-detail-page .form-grid{
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:14px 18px !important;
+    width:100% !important;
+}
+.case-detail-page .info-item{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    padding:12px 14px !important;
+    background:#f8fafc !important;
+    border:1px solid #e5e7eb !important;
+    border-radius:7px !important;
+    line-height:1.5 !important;
+    overflow-wrap:anywhere !important;
+}
+.case-detail-page .info-item.full,
+.case-detail-page .form-group.full{grid-column:1/-1 !important;}
+.case-detail-page .info-label{
+    display:block !important;
+    margin:0 0 5px !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+    color:#4b5563 !important;
+}
+.case-detail-page form{
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+}
+.case-detail-page .form-group{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+}
+.case-detail-page label{
+    display:block !important;
+    margin:0 0 6px !important;
+    font-size:14px !important;
+    line-height:1.35 !important;
+    font-weight:700 !important;
+    color:#374151 !important;
+}
+.case-detail-page input[type="date"],
+.case-detail-page input[type="text"],
+.case-detail-page input[type="file"],
+.case-detail-page select,
+.case-detail-page textarea{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:10px 11px !important;
+    border:1px solid #cbd5e1 !important;
+    border-radius:6px !important;
+    background:#fff !important;
+    color:#111827 !important;
+    font:inherit !important;
+    line-height:1.35 !important;
+}
+.case-detail-page textarea{
+    min-height:105px !important;
+    resize:vertical !important;
+}
+.case-detail-page .form-actions{
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+    margin:16px 0 0 !important;
+}
+.case-detail-page .form-actions button{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-height:40px !important;
+    padding:9px 15px !important;
+    border:0 !important;
+    border-radius:7px !important;
+    background:#2563eb !important;
+    color:#fff !important;
+    font-weight:700 !important;
+    cursor:pointer !important;
+}
+.case-detail-page .table-container{
+    width:100% !important;
+    max-width:100% !important;
+    overflow-x:auto !important;
+    border:1px solid #d1d5db !important;
+    border-radius:7px !important;
+}
+.case-detail-page table{
+    width:100% !important;
+    min-width:760px !important;
+    border-collapse:collapse !important;
+    margin:0 !important;
+    background:#fff !important;
+}
+.case-detail-page th,
+.case-detail-page td{
+    border:1px solid #d1d5db !important;
+    padding:10px !important;
+    text-align:left !important;
+    vertical-align:top !important;
+    line-height:1.45 !important;
+}
+.case-detail-page th{
+    background:#b3122b !important;
+    color:#fff !important;
+    font-weight:700 !important;
+    white-space:nowrap !important;
+}
+.case-detail-page .weekday{
+    display:block !important;
+    margin-top:3px !important;
+    color:#6b7280 !important;
+    font-size:12px !important;
+}
+.case-detail-page .business-date-link{
+    color:#15803d !important;
+    font-weight:700 !important;
+    text-decoration:underline !important;
+}
+.case-detail-page .history-note{
+    white-space:pre-wrap !important;
+    overflow-wrap:anywhere !important;
+    max-width:320px !important;
+}
+.case-detail-page .action-links{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:7px !important;
+}
+.case-detail-page .action-links a,
+.case-detail-page .delete-form button{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-height:34px !important;
+    padding:6px 10px !important;
+    margin:0 !important;
+    border-radius:6px !important;
+    text-decoration:none !important;
+    font-weight:700 !important;
+    border:0 !important;
+}
+.case-detail-page .action-links a{background:#e5e7eb !important;color:#1f2937 !important;}
+.case-detail-page .delete-form{display:inline !important;width:auto !important;margin:0 !important;padding:0 !important;background:transparent !important;box-shadow:none !important;}
+.case-detail-page .delete-form button{background:#dc2626 !important;color:#fff !important;cursor:pointer !important;}
+.case-detail-page .file-info{margin-top:6px !important;font-size:13px !important;color:#6b7280 !important;}
+.case-detail-page .empty-message{margin:0 !important;color:#6b7280 !important;}
+.case-detail-page .other-outcome{display:none;margin-top:8px !important;}
 
-    .results { margin:24px 0 12px; font-size:27px; }
-    .bulkbar { display:none; background:#fff; padding:12px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:12px; gap:10px; align-items:center; flex-wrap:wrap; }
-    .bulkbar.show { display:flex; }
-    .selected-count { font-weight:700; margin-right:8px; }
+@media (max-width:700px){
+    .case-detail-page{padding:10px !important;}
+    .case-detail-page .page-header{flex-direction:column !important;align-items:stretch !important;gap:10px !important;}
+    .case-detail-page .page-header h1{font-size:22px !important;}
+    .case-detail-page .page-header a{width:100% !important;}
+    .case-detail-page .section{padding:14px !important;margin-bottom:14px !important;}
+    .case-detail-page .section h2{font-size:18px !important;}
+    .case-detail-page .info-grid,
+    .case-detail-page .form-grid{grid-template-columns:1fr !important;gap:12px !important;}
+    .case-detail-page .info-item.full,
+    .case-detail-page .form-group.full{grid-column:auto !important;}
+    .case-detail-page .form-actions button{width:100% !important;}
+    .case-detail-page table{min-width:700px !important;}
+}
 
-    .table-wrap { background:white; border-radius:12px; box-shadow:0 3px 16px rgba(0,0,0,.08); overflow:auto; }
-    table { width:100%; border-collapse:collapse; min-width:1050px; }
-    th, td { padding:13px 12px; border-bottom:1px solid #e5e7eb; text-align:left; vertical-align:middle; }
-    th { background:#b30f2d; color:white; white-space:nowrap; }
-    tr:hover td { background:#fafafa; }
-    a.case-link { font-weight:700; color:#234a91; }
-    .muted { color:#6b7280; }
-    .overdue { color:#b91c1c; font-weight:700; }
-    .today { color:#15803d; font-weight:700; }
-    .upcoming { color:#2454a6; font-weight:700; }
-    .row-actions a { margin-right:6px; }
-    .row-actions form { display:inline; }
-    .small-btn { padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; background:white; cursor:pointer; }
-    .flash { padding:12px 14px; margin-bottom:12px; border-radius:8px; background:#ecfdf5; color:#166534; }
-    @media(max-width:700px){ .page{padding:12px;} .results{font-size:23px;} }
 </style>
 </head>
+
 <body>
-<div class="page">
+<div class="container">
+<div class="case-detail-page">
 
-    <div class="nav">
-        <a href="/">Dashboard</a> |
-        <a href="/add-case">Add New Case</a> |
-        <a href="/export-excel">Export to Excel</a> |
-        <a href="/import-excel">Import from Excel</a> |
-        <a href="/analytics">Analytics</a>
+<div class="page-header">
+    <h1>⚖️ Case Details</h1>
+    <a class="back-button" href="/cases">← Back to All Cases</a>
+</div>
+
+<div class="section case-info">
+    <div class="info-grid">
+        <div class="info-item"><span class="info-label">Case Number</span>{{ case.case_no }}</div>
+        <div class="info-item"><span class="info-label">Court Number</span>Court {{ case.court_no }}</div>
+        <div class="info-item full"><span class="info-label">Parties</span>{{ case.parties }}</div>
+        <div class="info-item"><span class="info-label">Case Stage</span>{% if case.case_stage == "Other" and case.case_stage_other %}{{ case.case_stage_other }}{% else %}{{ case.case_stage }}{% endif %}</div>
+        <div class="info-item"><span class="info-label">Next Hearing Date</span>{% if case.next_hearing_date %}{{ case.next_hearing_date.strftime("%d-%m-%Y") }} — {{ case.next_hearing_date.strftime("%A") }}{% else %}Not Scheduled{% endif %}</div>
     </div>
+    <div class="form-actions"><a class="edit-button" href="/edit-case/{{ case.id }}">✏️ Edit Case</a></div>
+</div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="flash">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+<div class="section">
+<h2>📝 Add Case History</h2>
 
-    <form class="search-card" action="/cases" method="GET">
-        <div class="search-row">
-            <div class="search-main">
-                <input type="text" name="search" value="{{ search|default('') }}"
-                       placeholder="Search case number, party, CRN or advocate...">
-            </div>
+<form action="/case/{{ case.id }}/update-hearing" method="POST">
+<div class="form-grid">
 
-            <select name="court_no" style="width:150px">
-                <option value="">All Courts</option>
-                <option value="1" {% if court_no == "1" %}selected{% endif %}>Court 1</option>
-                <option value="2" {% if court_no == "2" %}selected{% endif %}>Court 2</option>
-                <option value="3" {% if court_no == "3" %}selected{% endif %}>Court 3</option>
-            </select>
+<div class="form-group">
+    <label>Business Date</label>
+    <input type="date" name="hearing_date" value="{{ today.strftime('%Y-%m-%d') }}">
+</div>
 
-            <select name="hearing_status" style="width:180px">
-                <option value="">All Cases</option>
-                <option value="past" {% if hearing_status == "past" %}selected{% endif %}>Past / Overdue</option>
-                <option value="today" {% if hearing_status == "today" %}selected{% endif %}>Today</option>
-                <option value="tomorrow" {% if hearing_status == "tomorrow" %}selected{% endif %}>Tomorrow</option>
-                <option value="upcoming" {% if hearing_status == "upcoming" %}selected{% endif %}>Upcoming</option>
-                <option value="undated" {% if hearing_status == "undated" %}selected{% endif %}>Undated</option>
-            </select>
+<div class="form-group">
+    <label>Purpose of Hearing</label>
+    <select name="outcome" id="outcome" required>
+        <option value="">Select Purpose</option>
+        <option value="Notice">Notice</option>
+        <option value="Hearing">Hearing</option>
+        <option value="Evidence Submitted">Evidence Submitted</option>
+        <option value="Arguments">Arguments</option>
+        <option value="Order Passed">Order Passed</option>
+        <option value="Adjourned">Adjourned</option>
+        <option value="Other">Other</option>
+    </select>
 
-            <button class="btn primary" type="submit">Search</button>
-            <a class="btn secondary" href="/cases">Clear</a>
-        </div>
-
-        <button class="toggle" type="button" onclick="document.getElementById('moreFilters').classList.toggle('show')">
-            ▼ More filters / Date range
-        </button>
-
-        <div id="moreFilters" {% if case_stage or date_from or date_to or case_disposed %}class="show"{% endif %}>
-            <select name="case_stage">
-                <option value="">All Stages</option>
-                {% set stages = ["Notice","Admission","Hearing","Evidence","Cross Examination","Arguments","Final Arguments","Final Hearing","Judgment","Order","Other"] %}
-                {% for stage in stages %}
-                <option value="{{ stage }}" {% if case_stage == stage %}selected{% endif %}>{{ stage }}</option>
-                {% endfor %}
-            </select>
-
-            <select name="case_disposed">
-                <option value="">All Status</option>
-                <option value="No" {% if case_disposed == "No" %}selected{% endif %}>Active</option>
-                <option value="Yes" {% if case_disposed == "Yes" %}selected{% endif %}>Disposed</option>
-            </select>
-
-            <input type="date" name="date_from" value="{{ date_from|default('') }}" title="Hearing Date From">
-            <input type="date" name="date_to" value="{{ date_to|default('') }}" title="Hearing Date To">
-        </div>
-    </form>
-
-    <h2 class="results">Total Results: {{ cases|length }}</h2>
-
-    <div id="bulkbar" class="bulkbar">
-        <span class="selected-count"><span id="selectedCount">0</span> selected</span>
-        <button type="button" class="btn primary" onclick="bulkAction('date')">📅 Change Next Hearing Date</button>
-        <button type="button" class="btn warning" onclick="bulkAction('stage')">⚖️ Change Case Stage</button>
-        <button type="button" class="btn success" onclick="bulkAction('dispose')">✅ Dispose Selected</button>
-        <button type="button" class="btn danger" onclick="bulkAction('delete')">🗑️ Delete Selected</button>
-    </div>
-
-    <div class="table-wrap">
-    {% if cases %}
-    <table>
-        <thead>
-        <tr>
-            <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
-            <th>ID</th>
-            <th>Case Number</th>
-            <th>Court</th>
-            <th>Name of Parties</th>
-            <th>Case Stage</th>
-            <th>Next Hearing Date</th>
-            <th>Time Left</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for case in cases %}
-        <tr>
-            <td><input class="case-check" type="checkbox" value="{{ case.id }}" onchange="updateBulkBar()"></td>
-            <td>{{ case.id }}</td>
-            <td><a class="case-link" href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
-            <td>Court {{ case.court_no }}</td>
-            <td>{{ case.parties }}</td>
-            <td>
-                {{ case.case_stage }}
-                {% if case.case_stage == "Other" and case.case_stage_other %}
-                    - {{ case.case_stage_other }}
-                {% endif %}
-            </td>
-            <td>
-                {% if case.next_hearing_date %}
-                    {{ case.next_hearing_date.strftime("%d-%m-%Y") }}
-                    <div class="muted" style="font-size:12px">{{ case.next_hearing_date.strftime("%A") }}</div>
-                {% else %}
-                    <span class="muted">Not Scheduled</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if case.case_disposed == "Yes" %}
-                    <span class="muted">Disposed{% if case.decision_date %}<br>{{ case.decision_date.strftime("%d-%m-%Y") }}{% endif %}</span>
-                {% elif case.next_hearing_date %}
-                    {% set days_left = (case.next_hearing_date - today).days %}
-                    {% if days_left < 0 %}<span class="overdue">{{ days_left|abs }} days overdue</span>
-                    {% elif days_left == 0 %}<span class="today">🔴 TODAY</span>
-                    {% elif days_left == 1 %}<span class="upcoming">Tomorrow</span>
-                    {% else %}<span class="upcoming">{{ days_left }} days left</span>{% endif %}
-                {% else %}
-                    <span class="muted">Undated</span>
-                {% endif %}
-            </td>
-            <td class="row-actions">
-                <a href="/case/{{ case.id }}">Open</a> |
-                <a href="/edit-case/{{ case.id }}">Edit</a> |
-                <form action="/delete-case/{{ case.id }}" method="POST">
-                    <button class="small-btn" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <div style="padding:25px"><h3>No cases found.</h3></div>
-    {% endif %}
+    <div id="otherOutcomeBox" class="other-outcome">
+        <label>Other Purpose</label>
+        <input type="text" name="other_outcome" id="otherOutcome" placeholder="Write the purpose...">
     </div>
 </div>
 
-<script>
-function selectedIds() {
-    return Array.from(document.querySelectorAll('.case-check:checked')).map(x => x.value);
-}
-function toggleAll(master) {
-    document.querySelectorAll('.case-check').forEach(x => x.checked = master.checked);
-    updateBulkBar();
-}
-function updateBulkBar() {
-    const ids = selectedIds();
-    document.getElementById('selectedCount').textContent = ids.length;
-    document.getElementById('bulkbar').classList.toggle('show', ids.length > 0);
-    const all = document.querySelectorAll('.case-check').length;
-    document.getElementById('selectAll').checked = all > 0 && ids.length === all;
-}
-function postBulk(url, fields) {
-    const ids = selectedIds();
-    if (!ids.length) return;
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url + '?ids=' + encodeURIComponent(ids.join(','));
-    Object.entries(fields || {}).forEach(([name, value]) => {
-        const input = document.createElement('input');
-        input.type = 'hidden'; input.name = name; input.value = value;
-        form.appendChild(input);
-    });
-    document.body.appendChild(form);
-    form.submit();
-}
-function bulkAction(type) {
-    if (!selectedIds().length) return;
+<div class="form-group">
+    <label>Next Hearing Date</label>
+    <input type="date" name="next_hearing_date">
+</div>
 
-    if (type === 'date') {
-        const value = prompt('Enter new next hearing date in YYYY-MM-DD format:');
-        if (value) postBulk('/bulk/date', {next_hearing_date:value});
-    }
-    if (type === 'stage') {
-        const value = prompt('Enter new case stage (e.g. Notice, Hearing, Arguments, Judgment, Other):');
-        if (value) postBulk('/bulk/stage', {case_stage:value});
-    }
-    if (type === 'dispose') {
-        const value = prompt('Enter Decision Date in YYYY-MM-DD format:');
-        if (value) postBulk('/bulk/dispose', {decision_date:value});
-    }
-    if (type === 'delete') {
-        if (confirm('Delete all selected cases? This cannot be undone.')) {
-            postBulk('/bulk/delete', {});
-        }
-    }
+<div class="form-group full">
+    <label>Presentee</label>
+    <textarea name="presentee" placeholder="Who was present..."></textarea>
+</div>
+
+<div class="form-group full">
+    <label>Business</label>
+    <textarea name="business" placeholder="Enter business / daily status..."></textarea>
+</div>
+
+<div class="form-group full">
+    <label>Notes</label>
+    <textarea name="notes" placeholder="Example: आज सुट्टी असल्यामुळे कामकाज झाले नाही..."></textarea>
+</div>
+
+</div>
+
+<div class="form-actions">
+    <button type="submit">💾 Save Case History</button>
+</div>
+</form>
+</div>
+
+<div class="section">
+<h2>📋 Case History</h2>
+
+{% if hearings %}
+<div class="table-container">
+<table>
+<tr>
+    <th>Business Date</th>
+    <th>Next Hearing Date</th>
+    <th>Purpose of Hearing</th>
+    <th>Notes</th>
+    <th>Action</th>
+</tr>
+
+{% for hearing in hearings %}
+<tr>
+    <td>
+        <a href="{{ url_for('view_business', case_id=case.id, hearing_id=hearing.id) }}" class="business-date-link">
+            {{ hearing.hearing_date.strftime("%d-%m-%Y") }}
+        </a>
+        <small class="weekday">{{ hearing.hearing_date.strftime("%A") }}</small>
+    </td>
+
+    <td>
+        {% if hearing.next_hearing_date %}
+            {{ hearing.next_hearing_date.strftime("%d-%m-%Y") }}
+            <small class="weekday">{{ hearing.next_hearing_date.strftime("%A") }}</small>
+        {% else %}
+            -
+        {% endif %}
+    </td>
+
+    <td>{{ hearing.outcome }}</td>
+    <td class="history-note">{{ hearing.notes or "-" }}</td>
+    <td>
+        <div class="action-links">
+            <a href="{{ url_for('edit_hearing', case_id=case.id, hearing_id=hearing.id) }}">✏️ Edit</a>
+            <form class="delete-form"
+                  action="{{ url_for('delete_hearing', case_id=case.id, hearing_id=hearing.id) }}"
+                  method="POST">
+                <button type="submit"
+                        onclick="return confirm('Are you sure you want to delete this case history?')">
+                    🗑 Delete
+                </button>
+            </form>
+        </div>
+    </td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% else %}
+<p class="empty-message">No case history available.</p>
+{% endif %}
+</div>
+
+<div class="section">
+<h2>📎 Add Evidence</h2>
+<form action="/case/{{ case.id }}/add-evidence" method="POST" enctype="multipart/form-data">
+<div class="form-grid">
+<div class="form-group"><label>Evidence Name</label><input type="text" name="evidence_name" placeholder="Example: CCTV Footage" required></div>
+<div class="form-group"><label>Evidence Type</label>
+<select name="evidence_type" required>
+<option value="">Select Evidence Type</option>
+<option value="Document">Document</option>
+<option value="Image">Image</option>
+<option value="Photograph">Photograph</option>
+<option value="Digital Evidence">Digital Evidence</option>
+<option value="Other">Other</option>
+</select></div>
+<div class="form-group"><label>Submitted Date</label><input type="date" name="submitted_date"></div>
+<div class="form-group"><label>Status</label><select name="status" required><option value="Pending">Pending</option><option value="Submitted">Submitted</option><option value="Accepted">Accepted</option><option value="Rejected">Rejected</option></select></div>
+<div class="form-group full"><label>Description</label><textarea name="description" placeholder="Enter evidence description..."></textarea></div>
+<div class="form-group full"><label>Attach Evidence File</label><input type="file" name="evidence_file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"><div class="file-info">Allowed files: PDF, PNG, JPG, JPEG, DOC, DOCX</div></div>
+</div>
+<div class="form-actions"><button type="submit">💾 Save Evidence</button></div>
+</form>
+</div>
+
+<div class="section">
+<h2>📁 Evidence List</h2>
+{% if evidences %}
+<div class="table-container"><table>
+<tr><th>Evidence Name</th><th>Type</th><th>Description</th><th>Submitted Date</th><th>Status</th><th>Attached File</th><th>Action</th></tr>
+{% for evidence in evidences %}
+<tr>
+<td>{{ evidence.evidence_name }}</td>
+<td>{{ evidence.evidence_type }}</td>
+<td>{{ evidence.description or "-" }}</td>
+<td>{% if evidence.submitted_date %}{{ evidence.submitted_date.strftime("%d-%m-%Y") }}{% else %}-{% endif %}</td>
+<td>{{ evidence.status }}</td>
+<td>{% if evidence.file_name %}<a href="/evidence/{{ evidence.id }}/file" target="_blank">📎 {{ evidence.original_filename }}</a>{% else %}No File{% endif %}</td>
+<td><div class="action-links"><a href="/evidence/{{ evidence.id }}/edit">✏️ Edit</a><form class="delete-form" action="/evidence/{{ evidence.id }}/delete" method="POST"><button type="submit" onclick="return confirm('Are you sure you want to delete this evidence?')">🗑 Delete</button></form></div></td>
+</tr>
+{% endfor %}
+</table></div>
+{% else %}
+<p class="empty-message">No evidence added yet.</p>
+{% endif %}
+</div>
+
+</div>
+</div>
+
+<script>
+const outcome = document.getElementById('outcome');
+const otherBox = document.getElementById('otherOutcomeBox');
+const otherInput = document.getElementById('otherOutcome');
+
+function toggleOther() {
+    const isOther = outcome.value === 'Other';
+    otherBox.style.display = isOther ? 'block' : 'none';
+    otherInput.required = isOther;
+    if (!isOther) otherInput.value = '';
 }
+
+outcome.addEventListener('change', toggleOther);
+toggleOther();
 </script>
+
 </body>
 </html>
