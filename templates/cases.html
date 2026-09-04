@@ -1538,271 +1538,116 @@ function shareSelectedOnWhatsApp() {
         ].join('\n');
     }).join('\n\n');
 
-    // PHONE: share the COMPLETE cases as TEXT only.
-    // IMPORTANT: do not use whatsapp:// or wa.me here. Those URL-based
-    // links are truncated by Android/browser/WhatsApp for long messages
-    // (which is why only ~35 cases were reaching WhatsApp).
-    // navigator.share({text}) sends a text payload, NOT a .txt attachment.
-    const encoded = encodeURIComponent(message);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isMobile) {
-        // MOBILE FIX: never send the long case list through navigator.share().
-        // Android/Chrome/WhatsApp may truncate large EXTRA_TEXT payloads.
-        // Copy the complete text first, then open WhatsApp; paste once.
-        function copied() {
-            alert('Complete ' + ids.length + ' cases copied. Open WhatsApp and paste once.');
-            setTimeout(function() {
-                try { window.location.href = 'whatsapp://send'; } catch (e) {}
-            }, 150);
-        }
-
+        // Keep the complete text intact. Do not send the long text through
+        // whatsapp:// or wa.me because Android can truncate/reject it.
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(message).then(copied).catch(function() {
-                window.prompt('Copy ALL ' + ids.length + ' selected cases, then paste once in WhatsApp:', message);
+            navigator.clipboard.writeText(message).then(function () {
+                alert('Complete ' + ids.length + ' selected cases copied. Open WhatsApp and paste once.');
+                window.open('https://web.whatsapp.com/', '_blank');
+            }).catch(function () {
+                window.prompt('Copy ALL selected cases, then paste once in WhatsApp:', message);
             });
         } else {
-            window.prompt('Copy ALL ' + ids.length + ' selected cases, then paste once in WhatsApp:', message);
+            window.prompt('Copy ALL selected cases, then paste once in WhatsApp:', message);
         }
         return;
     }
 
-    // PC: WhatsApp Web with the same complete text message.
-    window.open('https://web.whatsapp.com/send?text=' + encoded, '_blank');
+    window.open('https://web.whatsapp.com/send?text=' + encodeURIComponent(message), '_blank');
 }
 
 const boxes = () => document.querySelectorAll('.casebox');
 
 function selected() {
-    // Persistent selection is the single source of truth.
     return getStoredSelectedIds();
-}
-
-function ensureSelectedCasesRendered() {
-    const selectedIds = getStoredSelectedIds();
-    if (!selectedIds.length) return;
-
-    const storedData = getStoredSelectedCaseData();
-
-    // If a selected case is no longer in the current server result
-    // (for example after a search), rebuild only that selected case
-    // from the data already saved when it was ticked.
-    selectedIds.forEach(function(id) {
-        const alreadyRendered = [...document.querySelectorAll('.casebox')]
-            .some(function(box) { return String(box.value) === String(id); });
-
-        if (alreadyRendered) return;
-
-        const c = storedData[String(id)];
-        if (!c) return;
-
-        const desktopBody = document.querySelector('.table-wrap tbody');
-        const mobileList = document.querySelector('.mobile-cases-bootstrap');
-        if (!desktopBody || !mobileList) return;
-
-        const safe = function(v) {
-            return String(v == null ? '' : v)
-                .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-                .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-                .replace(/'/g,'&#39;');
-        };
-
-        const caseNo = safe(c.caseNo);
-        const cnr = safe(c.cnr);
-        const parties = safe(c.parties);
-        const advocate = safe(c.advocate);
-        const court = safe(c.court);
-        const stage = safe(c.stage);
-        const nextDate = safe(c.nextDate);
-
-        const tr = document.createElement('tr');
-        tr.className = 'case-row selected-restored-row';
-        tr.dataset.caseNo = c.caseNo || '';
-        tr.dataset.cnr = c.cnr || '';
-        tr.dataset.advocate = c.advocate || '';
-        tr.dataset.court = c.court || '';
-        tr.dataset.party = c.parties || '';
-        tr.dataset.stage = c.stage || '';
-        tr.dataset.nextDate = c.nextDate || '';
-        tr.dataset.disposed = 'false';
-        tr.innerHTML =
-            '<td><input class="casebox" type="checkbox" value="' + safe(id) + '" checked></td>' +
-            '<td>' + safe(id) + '</td>' +
-            '<td><a href="/case/' + encodeURIComponent(id) + '">' + caseNo + '</a></td>' +
-            '<td>' + safe(c.court) + '</td>' +
-            '<td>' + parties + '</td>' +
-            '<td>' + stage + '</td>' +
-            '<td>' + (nextDate ? formatWhatsAppDate(c.nextDate) : 'Not Scheduled') + '</td>' +
-            '<td>—</td>' +
-            '<td class="action-cell"><div class="action-links">' +
-                '<a href="/case/' + encodeURIComponent(id) + '">Open</a>' +
-                '<a href="/edit-case/' + encodeURIComponent(id) + '">Edit</a>' +
-                '<form action="/delete-case/' + encodeURIComponent(id) + '" method="POST">' +
-                    '<button type="submit" onclick="return confirm(\'Delete this case?\')">Delete</button>' +
-                '</form>' +
-            '</div></td>';
-        desktopBody.appendChild(tr);
-
-        const article = document.createElement('article');
-        article.className = 'card mobile-case-card selected-restored-card';
-        article.dataset.caseNo = c.caseNo || '';
-        article.dataset.cnr = c.cnr || '';
-        article.dataset.advocate = c.advocate || '';
-        article.dataset.court = c.court || '';
-        article.dataset.party = c.parties || '';
-        article.dataset.stage = c.stage || '';
-        article.dataset.nextDate = c.nextDate || '';
-        article.dataset.disposed = 'false';
-        article.innerHTML =
-            '<div class="card-body">' +
-                '<div class="mobile-case-head">' +
-                    '<input class="casebox mobile-case-check" type="checkbox" value="' + safe(id) + '" checked>' +
-                    '<a class="mobile-case-number" href="/case/' + encodeURIComponent(id) + '">' + caseNo + '</a>' +
-                '</div>' +
-                '<div class="mobile-case-meta d-flex flex-wrap gap-2 mb-3">' +
-                    '<span class="badge rounded-pill text-bg-light border text-dark">ID: ' + safe(id) + '</span>' +
-                    '<span class="badge rounded-pill text-bg-light border text-dark">' + safe(c.court) + '</span>' +
-                '</div>' +
-                '<div class="mobile-party-box mb-3">' + parties + '</div>' +
-                '<div class="row g-2">' +
-                    '<div class="col-6"><div class="mobile-detail-box"><span class="mobile-detail-label">Case Stage</span><div class="mobile-detail-value">' + stage + '</div></div></div>' +
-                    '<div class="col-6"><div class="mobile-detail-box"><span class="mobile-detail-label">Time Left</span><div class="mobile-detail-value">Selected</div></div></div>' +
-                    '<div class="col-12"><div class="mobile-detail-box"><span class="mobile-detail-label">Next Hearing</span><div class="mobile-detail-value">' + (nextDate ? formatWhatsAppDate(c.nextDate) : 'Not Scheduled') + '</div></div></div>' +
-                '</div>' +
-                '<div class="mobile-actions">' +
-                    '<a class="btn btn-primary" href="/case/' + encodeURIComponent(id) + '">Open</a>' +
-                    '<a class="btn btn-outline-primary" href="/edit-case/' + encodeURIComponent(id) + '">Edit</a>' +
-                    '<form action="/delete-case/' + encodeURIComponent(id) + '" method="POST"><button class="btn btn-danger" type="submit" onclick="return confirm(\'Delete this case?\')">Delete</button></form>' +
-                '</div>' +
-            '</div>';
-        mobileList.appendChild(article);
-    });
 }
 
 function applySelectedOnlyVisibility() {
     const selectedIds = new Set(getStoredSelectedIds());
+    const hasSelection = selectedIds.size > 0;
 
-    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
-        const checkbox = row.querySelector('.casebox');
-        if (!checkbox) return;
-
-        const id = String(checkbox.value);
-
-        // No selection: show all cases.
-        // Selection exists: show ONLY the selected cases.
-        row.style.display =
-            selectedIds.size === 0 || selectedIds.has(id) ? '' : 'none';
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(function (row) {
+        const box = row.querySelector('.casebox');
+        if (!box) return;
+        row.style.display = (!hasSelection || selectedIds.has(String(box.value))) ? '' : 'none';
     });
 }
 
 function refresh() {
     const n = selected().length;
-
-    document.getElementById('bulkbar').style.display =
-        n ? 'block' : 'none';
-
-    document.getElementById('selcount').textContent = n;
-
-    // Total Results always remains the actual server result count.
+    const bulkbar = document.getElementById('bulkbar');
+    const selcount = document.getElementById('selcount');
     const totalResults = document.getElementById('totalresults');
-    if (totalResults) {
-        totalResults.textContent = {{ cases|length }};
-    }
 
-    ensureSelectedCasesRendered();
+    if (bulkbar) bulkbar.style.display = n ? 'block' : 'none';
+    if (selcount) selcount.textContent = n;
+    if (totalResults) totalResults.textContent = {{ cases|length }};
+
     applySelectedOnlyVisibility();
 }
 
 function restoreStoredSelections() {
     const stored = new Set(getStoredSelectedIds());
 
-    boxes().forEach(x => {
+    boxes().forEach(function (x) {
         x.checked = stored.has(String(x.value));
     });
 
-    // Capture data for cases that are currently rendered and selected.
-    boxes().forEach(x => {
-        if (!x.checked) return;
-        const row = x.closest('.case-row, .mobile-case-card');
-        if (row) rememberCaseDataFromRow(row);
+    boxes().forEach(function (x) {
+        if (x.checked) {
+            const row = x.closest('.case-row, .mobile-case-card');
+            if (row) rememberCaseDataFromRow(row);
+        }
     });
 
-    document.addEventListener('change', function(e) {
-    if (!e.target.classList.contains('casebox')) return;
-    if (e.target.dataset.restoredHandler === '1') return;
-    if (e.target.closest('.selected-restored-row, .selected-restored-card')) {
-        const id = String(e.target.value);
-        if (e.target.checked) {
-            addStoredSelectedId(id);
-            const row = e.target.closest('.case-row, .mobile-case-card');
-            if (row) rememberCaseDataFromRow(row);
-        } else {
-            removeStoredSelectedId(id);
-        }
-        boxes().forEach(function(other) {
-            if (other !== e.target && String(other.value) === id) other.checked = e.target.checked;
-        });
-        refresh();
-    }
-});
-
-const allBox = document.getElementById('all');
+    const allBox = document.getElementById('all');
     if (allBox) {
-        const desktopBoxes = [...document.querySelectorAll(
-            '.table-wrap .casebox'
-        )];
-        allBox.checked =
-            desktopBoxes.length > 0 &&
-            desktopBoxes.every(x => x.checked);
+        const desktopBoxes = [...document.querySelectorAll('.table-wrap .casebox')];
+        allBox.checked = desktopBoxes.length > 0 && desktopBoxes.every(function (x) { return x.checked; });
     }
 
     const mobileAll = document.getElementById('mobileAll');
     if (mobileAll) {
-        const mobileBoxes = [...document.querySelectorAll(
-            '.mobile-cases-bootstrap .casebox'
-        )];
-        mobileAll.checked =
-            mobileBoxes.length > 0 &&
-            mobileBoxes.every(x => x.checked);
+        const mobileBoxes = [...document.querySelectorAll('.mobile-cases-bootstrap .casebox')];
+        mobileAll.checked = mobileBoxes.length > 0 && mobileBoxes.every(function (x) { return x.checked; });
     }
 
     refresh();
 }
 
-boxes().forEach(x => x.addEventListener('change', function () {
-    const id = String(this.value);
-    const row = this.closest('.case-row, .mobile-case-card');
+boxes().forEach(function (x) {
+    x.addEventListener('change', function () {
+        const id = String(this.value);
+        const row = this.closest('.case-row, .mobile-case-card');
 
-    if (this.checked) {
-        addStoredSelectedId(id);
-        if (row) rememberCaseDataFromRow(row);
-    } else {
-        removeStoredSelectedId(id);
-    }
-
-    // Synchronize desktop + mobile copies of the same case.
-    boxes().forEach(other => {
-        if (other !== this && String(other.value) === id) {
-            other.checked = this.checked;
+        if (this.checked) {
+            addStoredSelectedId(id);
+            if (row) rememberCaseDataFromRow(row);
+        } else {
+            removeStoredSelectedId(id);
         }
-    });
 
-    refresh();
-}));
+        boxes().forEach(function (other) {
+            if (other !== x && String(other.value) === id) other.checked = x.checked;
+        });
+
+        refresh();
+    });
+});
 
 const allBox = document.getElementById('all');
-
 if (allBox) {
-    allBox.addEventListener('change', e => {
+    allBox.addEventListener('change', function (e) {
         const idSet = new Set(getStoredSelectedIds());
         const data = getStoredSelectedCaseData();
 
-        // Select/unselect only cases currently loaded by the page.
-        document.querySelectorAll('.table-wrap .casebox').forEach(x => {
+        document.querySelectorAll('.table-wrap .casebox').forEach(function (x) {
             x.checked = e.target.checked;
             const id = String(x.value);
             const row = x.closest('.case-row');
-
             if (e.target.checked) {
                 idSet.add(id);
                 if (row) data[id] = getRowCaseData(row);
@@ -1812,8 +1657,7 @@ if (allBox) {
             }
         });
 
-        // Keep mobile copies synchronized.
-        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(x => {
+        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(function (x) {
             x.checked = e.target.checked;
         });
 
@@ -1824,18 +1668,15 @@ if (allBox) {
 }
 
 const mobileAll = document.getElementById('mobileAll');
-
 if (mobileAll) {
-    mobileAll.addEventListener('change', e => {
+    mobileAll.addEventListener('change', function (e) {
         const idSet = new Set(getStoredSelectedIds());
         const data = getStoredSelectedCaseData();
 
-        // Mobile Select All / Unselect updates the same persistent selection.
-        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(x => {
+        document.querySelectorAll('.mobile-cases-bootstrap .casebox').forEach(function (x) {
             x.checked = e.target.checked;
             const id = String(x.value);
             const row = x.closest('.mobile-case-card');
-
             if (e.target.checked) {
                 idSet.add(id);
                 if (row) data[id] = getRowCaseData(row);
@@ -1845,8 +1686,7 @@ if (mobileAll) {
             }
         });
 
-        // Keep desktop copies synchronized.
-        document.querySelectorAll('.table-wrap .casebox').forEach(x => {
+        document.querySelectorAll('.table-wrap .casebox').forEach(function (x) {
             x.checked = e.target.checked;
         });
 
@@ -1939,6 +1779,14 @@ function applyHeaderFilters() {
     const stage = document.getElementById('stageFilter').value;
 
     const selectedIds = new Set(getStoredSelectedIds());
+
+    // When cases are selected, selection is the ONLY visibility rule.
+    // Do not let header filters hide a selected case.
+    if (selectedIds.size > 0) {
+        applySelectedOnlyVisibility();
+        return;
+    }
+
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
         const box = row.querySelector('.casebox');
         const id = box ? String(box.value) : '';
@@ -1995,6 +1843,14 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
             .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
 
         const selectedIds = new Set(getStoredSelectedIds());
+
+        // When cases are selected, selection is the ONLY visibility rule.
+        // Do not let date/time filters hide a selected case.
+        if (selectedIds.size > 0) {
+            applySelectedOnlyVisibility();
+            return;
+        }
+
         document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
             const box = row.querySelector('.casebox');
             const id = box ? String(box.value) : '';
