@@ -1057,39 +1057,11 @@ def toggle_case_highlight(id):
 def court_cases(court_no):
 
     if court_no not in [1, 2, 3]:
+        return "Invalid Court Number", 404
 
-        return "Invalid Court Number"
-
-
-    cases = sort_cases_naturally(Case.query.filter_by(
-        court_no=court_no
-    ).all())
-
-
-    return render_template(
-
-        "cases.html",
-
-        cases=cases,
-
-        today=date.today(),
-
-        title=f"Court {court_no} Cases",
-
-        search="",
-
-        court_no=str(court_no),
-
-        case_stage="",
-
-        hearing_status="",
-
-        highlighted_only="",
-
-        date_from="",
-
-        date_to=""
-    )
+    # Use the main /cases filter so Court cards get the exact same
+    # filtering, dropdowns, selection logic and UI as the normal Cases page.
+    return redirect(url_for("case_list", court_no=str(court_no)))
 
 
 # =========================================================
