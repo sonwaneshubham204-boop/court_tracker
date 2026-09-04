@@ -1,5 +1,4 @@
-from pathlib import Path
-html = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -39,7 +38,4 @@ html = '''<!DOCTYPE html>
 <div class="form-actions"><button type="submit">💾 Update Evidence</button><a href="/case/{{ evidence.case_id }}" class="cancel-btn">Cancel</a></div>
 </form>
 </div></div>
-</body></html>'''
-p=Path("/mnt/data/edit_evidence.html")
-p.write_text(html,encoding="utf-8")
-print(p)
+</body></html>
