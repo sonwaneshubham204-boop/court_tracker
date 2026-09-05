@@ -1806,8 +1806,24 @@ async function shareCasesWhatsApp() {
             buildWhatsAppCaseText(item, index + 1)
         ).join('\n\n');
 
-        // Phone: native share is the only browser API that can hand the full
-        // text to WhatsApp without putting the message into a URL.
+        // Phone: very large text payloads can be truncated by WhatsApp's
+        // native share target. For large case lists, copy the COMPLETE
+        // message first and open WhatsApp so the user can paste it intact.
+        // Keep native share only for short messages.
+        const mobileLargeShare = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+            && message.length > 4000;
+
+        if (mobileLargeShare) {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(message);
+                window.location.href = 'whatsapp://send';
+                setTimeout(() => {
+                    alert('All cases copied. Open the WhatsApp chat and Paste the complete cases message.');
+                }, 800);
+                return;
+            }
+        }
+
         if (navigator.share) {
             await navigator.share({ title: 'Court Cases', text: message });
             return;
