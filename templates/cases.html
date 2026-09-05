@@ -1086,7 +1086,8 @@ td.action-cell .action-links {
     <b id="selcount">0</b> selected:
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
-    <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
+    <button type="button" onclick="bulkDelete()">🗑️ Delete Selected</button>
+    <button type="button" id="showSelectedBtn" onclick="toggleSelectedView()">☑️ Selected</button>
 </div>
 
 
@@ -1674,5 +1675,145 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+
+<script id="selected-case-excel-filter">
+(function () {
+    // Selection and display are separate things.
+    // A checkbox only ADDS/REMOVES a case from the persistent selection.
+    // Search can be changed repeatedly without clearing earlier selections.
+    // The "Selected" button is the only control that switches the table to
+    // the accumulated selected-case view.
+    var selectedOnlyView = false;
+
+    function getSelectedIdsForDisplay() {
+        if (typeof getStoredSelectedIds === 'function') {
+            return new Set(getStoredSelectedIds().map(String));
+        }
+        return new Set(Array.from(document.querySelectorAll('.casebox:checked')).map(function (box) {
+            return String(box.value);
+        }));
+    }
+
+    function dateMatches(row, value) {
+        if (!value) return true;
+        var disposed = row.dataset.disposed === 'true', raw = row.dataset.nextDate;
+        if (value === 'disposed') return disposed;
+        if (value === 'undated') return !raw && !disposed;
+        if (!raw) return false;
+        var today = new Date(); today.setHours(0,0,0,0);
+        var hearing = new Date(raw + 'T00:00:00'); hearing.setHours(0,0,0,0);
+        var diff = Math.round((hearing - today) / 86400000);
+        if (value === 'today') return diff === 0;
+        if (value === 'tomorrow') return diff === 1;
+        if (value === 'next7') return diff >= 0 && diff <= 7;
+        if (value === 'next30') return diff >= 0 && diff <= 30;
+        if (value === 'future') return diff > 30;
+        if (value === 'past' || value === 'overdue') return diff < 0;
+        return true;
+    }
+
+    function normalFiltersMatch(row) {
+        var ids = ['caseNoFilter','courtFilter','partyFilter','stageFilter'];
+        for (var i=0;i<ids.length;i++) {
+            var el=document.getElementById(ids[i]);
+            if (el && el.value && row.dataset[{caseNoFilter:'caseNo',courtFilter:'court',partyFilter:'party',stageFilter:'stage'}[ids[i]]] !== el.value) return false;
+        }
+        var n=document.getElementById('nextDateFilter'), t=document.getElementById('timeLeftFilter');
+        if(n && !dateMatches(row,n.value)) return false;
+        if(t && !dateMatches(row,t.value)) return false;
+        return true;
+    }
+
+    function rowMatchesSearch(row, term) {
+        if (!term) return true;
+        term = term.toLowerCase();
+        return row.textContent.toLowerCase().indexOf(term) !== -1;
+    }
+
+    function rowIsSelected(row, selectedIds) {
+        return Array.from(row.querySelectorAll('.casebox')).some(function(box) {
+            return selectedIds.has(String(box.value));
+        });
+    }
+
+    function applySelectedCaseFilter() {
+        var searchBox = document.querySelector('input[name="search"]');
+        var searchTerm = searchBox ? searchBox.value.trim() : '';
+        var selectedIds = getSelectedIdsForDisplay();
+        var hasSelection = selectedIds.size > 0;
+
+        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(function(row) {
+            var displayMatch;
+            if (selectedOnlyView && hasSelection) {
+                // Selected view: show every case selected either manually from
+                // the full list OR through any search.
+                displayMatch = rowIsSelected(row, selectedIds);
+            } else {
+                // Normal view: show the complete list or the current search.
+                displayMatch = rowMatchesSearch(row, searchTerm);
+            }
+            row.style.display = (normalFiltersMatch(row) && displayMatch) ? '' : 'none';
+        });
+
+        var btn = document.getElementById('showSelectedBtn');
+        if (btn) {
+            btn.textContent = selectedOnlyView ? '☑️ Selected (Showing)' : '☑️ Selected';
+        }
+    }
+
+    window.toggleSelectedView = function () {
+        var selectedIds = getSelectedIdsForDisplay();
+        if (!selectedIds.size) {
+            selectedOnlyView = false;
+            alert('No cases selected.');
+            applySelectedCaseFilter();
+            return;
+        }
+        selectedOnlyView = !selectedOnlyView;
+        applySelectedCaseFilter();
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchForm = document.querySelector('form.search-card');
+        var searchBox = document.querySelector('input[name="search"]');
+
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Searching never clears or changes the persistent selection.
+                // It simply shows the new search result so it can be selected.
+                selectedOnlyView = false;
+                applySelectedCaseFilter();
+            });
+        }
+
+        // Start in the normal full-list/current-search view.
+        applySelectedCaseFilter();
+
+        document.querySelectorAll('.casebox').forEach(function(box) {
+            box.addEventListener('change', function() {
+                // Selection changes do NOT hide the rest of the list.
+                // This allows manual selection from the full list as well as
+                // selection of additional cases through repeated searches.
+                applySelectedCaseFilter();
+            });
+        });
+
+        document.querySelectorAll('.header-filter').forEach(function(filter) {
+            filter.addEventListener('change', function() {
+                selectedOnlyView = false;
+                applySelectedCaseFilter();
+            });
+        });
+
+        if (searchBox) {
+            searchBox.addEventListener('input', function() {
+                selectedOnlyView = false;
+                applySelectedCaseFilter();
+            });
+        }
+    });
+})();
+</script>
 </body>
 </html>
