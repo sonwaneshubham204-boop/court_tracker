@@ -1923,7 +1923,7 @@ function applySelectedView() {
         const box = row.querySelector('.casebox');
         if (!box) return;
         if (active) {
-            row.style.setProperty('display', ids.has(String(box.value)) ? 'block' : 'none', 'important');
+            row.style.setProperty('display', ids.has(String(box.value)) ? (row.classList.contains('case-row') ? 'table-row' : 'block') : 'none', 'important');
         } else {
             row.style.removeProperty('display');
         }
@@ -1958,7 +1958,7 @@ function applySelectedViewState() {
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
         const box = row.querySelector('.casebox');
         if (!box) return;
-        row.style.setProperty('display', ids.has(String(box.value)) ? 'block' : 'none', 'important');
+        row.style.setProperty('display', ids.has(String(box.value)) ? (row.classList.contains('case-row') ? 'table-row' : 'block') : 'none', 'important');
     });
 }
 
@@ -2033,7 +2033,7 @@ try {
         document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
             const box = row.querySelector('.casebox');
             if (!box) return;
-            row.style.setProperty('display', ids.has(String(box.value)) ? 'block' : 'none', 'important');
+            row.style.setProperty('display', ids.has(String(box.value)) ? (row.classList.contains('case-row') ? 'table-row' : 'block') : 'none', 'important');
         });
     }
 } catch (e) {}
