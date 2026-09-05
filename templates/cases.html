@@ -600,6 +600,36 @@ td.action-cell .action-links {
 
 
 
+<style id="selected-highlight-controls">
+.selected-view-btn,.highlight-selected-btn {
+    border:0!important;border-radius:7px!important;padding:8px 12px!important;
+    margin:3px!important;cursor:pointer!important;font-weight:700!important;
+    white-space:nowrap!important;
+}
+.selected-view-btn { background:#6d4fc2!important;color:#fff!important; }
+.selected-view-btn.active { background:#4b2f8f!important; }
+.highlight-selected-btn {
+    background:#ffd21f!important;
+    color:#000000!important;
+    border:1px solid #d6a900!important;
+}
+.highlight-selected-btn:hover {
+    background:#f5c400!important;
+    color:#000000!important;
+}
+@media (max-width:767.98px){
+    #bulkbar .selected-view-btn,#bulkbar .highlight-selected-btn{
+        display:block!important;width:100%!important;margin:6px 0 0!important;min-height:40px!important;
+    }
+}
+</style>
+<style id="highlight-selected-text-fix">
+.highlight-selected-btn,
+.highlight-selected-btn * {
+    color:#000000!important;
+}
+</style>
+
 <style id="bootstrap-mobile-cases">
 /* Bootstrap-based responsive presentation: desktop remains unchanged */
 .mobile-cases-bootstrap { display:none; }
@@ -994,8 +1024,37 @@ td.action-cell .action-links {
 }
 </style>
 
+<style id="highlighted-case-visibility-fix">
+/* ONLY: clearly show highlighted cases. Today-case styling remains unchanged. */
+.table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) td {
+    background: #fff3a3 !important;
+    color: #000000 !important;
+    border-color: #c9aa32 !important;
+}
+.table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) td a,
+.table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) .weekday {
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+.mobile-case-card.highlighted-case:not(.today-hearing-case),
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .card-body,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-box {
+    background: #fff3a3 !important;
+    color: #000000 !important;
+    border-color: #c9aa32 !important;
+}
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-case-number,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-label,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-value,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-party-box {
+    color: #000000 !important;
+}
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-party-box {
+    background: #fff3a3 !important;
+}
+</style>
 <style id="highlighted-case-colour-only">
-/* ONLY highlighted cases: make the existing highlighted-case class clearly visible. */
+/* Highlighted cases only — Today cases keep their existing blue styling. */
 html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) > td {
     background-color: #fff176 !important;
     color: #000000 !important;
@@ -1022,7 +1081,6 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     }
 }
 </style>
-
 </head>
 
 <body>
@@ -1117,6 +1175,8 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
+    <button type="button" id="selectedViewBtn" class="selected-view-btn">☑ Selected</button>
+    <button type="button" id="highlightSelectedBtn" class="highlight-selected-btn">⭐ Highlight Selected</button>
 </div>
 
 
@@ -1453,6 +1513,7 @@ function restoreStoredSelections() {
     boxes().forEach(x => {
         x.checked = stored.has(String(x.value));
     });
+    rememberVisibleHighlightStates();
     refresh();
 }
 
@@ -1561,6 +1622,99 @@ if (modalForm) {
         clearBulkSelection();
     });
 }
+
+
+/* Selected view + Highlight Selected — only the requested controls. */
+const HIGHLIGHT_STATE_KEY = 'courtTrackerSelectedHighlightStates';
+
+function getHighlightStates() {
+    try {
+        const raw = localStorage.getItem(HIGHLIGHT_STATE_KEY);
+        const value = raw ? JSON.parse(raw) : {};
+        return value && typeof value === 'object' ? value : {};
+    } catch (e) { return {}; }
+}
+
+function setHighlightStates(value) {
+    try { localStorage.setItem(HIGHLIGHT_STATE_KEY, JSON.stringify(value)); } catch (e) {}
+}
+
+function rememberVisibleHighlightStates() {
+    const states = getHighlightStates();
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (box) states[String(box.value)] = row.classList.contains('highlighted-case');
+    });
+    setHighlightStates(states);
+}
+
+function applySelectedView() {
+    const ids = new Set(getStoredSelectedIds());
+    const btn = document.getElementById('selectedViewBtn');
+    const active = btn.classList.toggle('active');
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (box) row.style.display = (!active || ids.has(String(box.value))) ? '' : 'none';
+    });
+}
+
+async function highlightSelectedCases() {
+    const ids = getStoredSelectedIds();
+    if (!ids.length) {
+        alert('Please select at least one case.');
+        return;
+    }
+
+    rememberVisibleHighlightStates();
+    const states = getHighlightStates();
+
+    // One option: if all selected cases are highlighted, click => Unhighlight All.
+    // Otherwise click => Highlight All.
+    const allHighlighted = ids.every(id => states[id] === true);
+    const wantHighlighted = !allHighlighted;
+
+    const requests = [];
+    ids.forEach(id => {
+        const isHighlighted = states[id] === true;
+        if (isHighlighted !== wantHighlighted) {
+            requests.push(
+                fetch('/case/' + encodeURIComponent(id) + '/toggle-highlight', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                }).then(r => {
+                    if (!r.ok) throw new Error('Highlight update failed');
+                    states[id] = wantHighlighted;
+                })
+            );
+        }
+    });
+
+    const btn = document.getElementById('highlightSelectedBtn');
+    btn.disabled = true;
+    try {
+        await Promise.all(requests);
+        setHighlightStates(states);
+        window.location.reload();
+    } catch (e) {
+        btn.disabled = false;
+        alert('Unable to update selected highlights. Please try again.');
+    }
+}
+function updateHighlightSelectedLabel() {
+    const btn = document.getElementById('highlightSelectedBtn');
+    if (!btn) return;
+
+    const ids = getStoredSelectedIds();
+    const states = getHighlightStates();
+    const allHighlighted = ids.length > 0 && ids.every(id => states[id] === true);
+
+    btn.textContent = allHighlighted ? '⭐ Unhighlight Selected' : '⭐ Highlight Selected';
+}
+
+updateHighlightSelectedLabel();
+
+document.getElementById('selectedViewBtn')?.addEventListener('click', applySelectedView);
+document.getElementById('highlightSelectedBtn')?.addEventListener('click', highlightSelectedCases);
 
 // Restore selections after every page/search load.
 restoreStoredSelections();
