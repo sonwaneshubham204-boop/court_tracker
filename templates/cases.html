@@ -1191,7 +1191,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
     <button type="button" id="selectedViewBtn" class="selected-view-btn" onclick="applySelectedView()">☑ Selected</button>
     <button type="button" id="highlightSelectedBtn" class="highlight-selected-btn">⭐ Highlight Selected</button>
-    <button type="button" id="whatsappShareBtn" onclick="shareCasesWhatsApp()">📲 Share WhatsApp</button>
+    <button type="button" id="whatsappShareBtn" onclick="shareCasesWhatsApp()" title="Ticked Cases Will Share; Select All = All Cases">📲 Share WhatsApp</button>
 </div>
 
 
@@ -1826,7 +1826,7 @@ async function shareCasesWhatsApp() {
 
         const message = items.map((item, index) =>
             buildWhatsAppCaseText(item, index + 1)
-        ).join('\\n\\n');
+        ).join('\n\n');
 
         // On phones, use the native share sheet so the complete message can
         // be handed to WhatsApp without URL-length limits.
@@ -1839,27 +1839,16 @@ async function shareCasesWhatsApp() {
             }
         }
 
-        // On PC, keep the complete message intact by copying it first and
-        // opening WhatsApp Web. The user can paste the full message there.
+        // On PC, copy the complete message first, then open WhatsApp Web.
+        // This avoids URL-length limits that can truncate large All Cases messages.
         if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(message);
             window.open('https://web.whatsapp.com/', '_blank');
-            alert('Complete case list copied. Paste it in WhatsApp Web.');
+            alert('Cases copied. In WhatsApp Web, paste the message and send.');
             return;
         }
-
-        // Final fallback for browsers without Clipboard API.
-        const area = document.createElement('textarea');
-        area.value = message;
-        area.style.position = 'fixed';
-        area.style.opacity = '0';
-        document.body.appendChild(area);
-        area.focus();
-        area.select();
-        document.execCommand('copy');
-        area.remove();
         window.open('https://web.whatsapp.com/', '_blank');
-        alert('Complete case list copied. Paste it in WhatsApp Web.');
+        alert('Please paste the prepared cases message in WhatsApp Web and send.');
     } catch (e) {
         alert('Unable to prepare cases for WhatsApp. Please try again.');
     } finally {
