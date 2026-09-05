@@ -1810,18 +1810,35 @@ async function shareCasesWhatsApp() {
         // native share target. For large case lists, copy the COMPLETE
         // message first and open WhatsApp so the user can paste it intact.
         // Keep native share only for short messages.
-        const mobileLargeShare = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-            && message.length > 4000;
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-        if (mobileLargeShare) {
-            if (navigator.clipboard && window.isSecureContext) {
-                await navigator.clipboard.writeText(message);
-                window.location.href = 'whatsapp://send';
-                setTimeout(() => {
-                    alert('All cases copied. Open the WhatsApp chat and Paste the complete cases message.');
-                }, 800);
+        /*
+         * MOBILE: WhatsApp can truncate a very large text payload passed
+         * through the browser/OS share target. Share the COMPLETE case list
+         * as a text file instead. The file contains every case in the same
+         * formatted text, so no cases are lost (18/35/etc. limits avoided).
+         */
+        if (isMobile && typeof navigator.share === 'function') {
+            const file = new File(
+                [message],
+                'Court_Tracker_Cases.txt',
+                { type: 'text/plain' }
+            );
+
+            if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Court Tracker Cases',
+                    text: 'Complete Court Tracker case list',
+                    files: [file]
+                });
                 return;
             }
+
+            await navigator.share({
+                title: 'Court Tracker Cases',
+                text: message
+            });
+            return;
         }
 
         if (navigator.share) {
