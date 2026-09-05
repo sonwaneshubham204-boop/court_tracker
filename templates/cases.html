@@ -1658,16 +1658,22 @@ function applySelectedView() {
     const btn = document.getElementById('selectedViewBtn');
     const active = btn.classList.toggle('active');
 
+    if (active && ids.size) {
+        const params = new URLSearchParams(window.location.search);
+        // Any server-side search/filter can hide selected cases. First load
+        // the complete cases list, then filter it locally by selected IDs.
+        if ([...params.keys()].some(k => k !== 'selected') || !params.has('selected')) {
+            window.location.href = '/cases?selected=1';
+            return;
+        }
+    }
+
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
         const box = row.querySelector('.casebox');
         if (!box) return;
-
-        if (!active) {
-            row.style.display = '';
-            return;
-        }
-
-        row.style.display = ids.has(String(box.value)) ? '' : 'none';
+        row.style.display = active
+            ? (ids.has(String(box.value)) ? '' : 'none')
+            : '';
     });
 }
 
@@ -1731,6 +1737,20 @@ document.getElementById('highlightSelectedBtn')?.addEventListener('click', highl
 
 // Restore selections after every page/search load.
 restoreStoredSelections();
+
+// When Selected view was requested, the server has returned the full /cases
+// list. Now hide every case except the persistently selected ones.
+if (new URLSearchParams(window.location.search).get('selected') === '1') {
+    const selectedBtn = document.getElementById('selectedViewBtn');
+    if (selectedBtn) selectedBtn.classList.add('active');
+
+    const ids = new Set(getStoredSelectedIds());
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (!box) return;
+        row.style.display = ids.has(String(box.value)) ? '' : 'none';
+    });
+}
 
 // Simple dropdown filters in the red table header
 const headerFilters = [
