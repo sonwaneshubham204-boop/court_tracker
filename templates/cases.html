@@ -1176,7 +1176,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
-    <button type="button" id="selectedViewBtn" class="selected-view-btn">☑ Selected</button>
+    <button type="button" id="selectedViewBtn" class="selected-view-btn" onclick="applySelectedView()">☑ Selected</button>
     <button type="button" id="highlightSelectedBtn" class="highlight-selected-btn">⭐ Highlight Selected</button>
 </div>
 
@@ -1698,9 +1698,11 @@ function applySelectedView() {
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
         const box = row.querySelector('.casebox');
         if (!box) return;
-        row.style.display = active
-            ? (ids.has(String(box.value)) ? '' : 'none')
-            : '';
+        if (active) {
+            row.style.setProperty('display', ids.has(String(box.value)) ? 'block' : 'none', 'important');
+        } else {
+            row.style.removeProperty('display');
+        }
     });
 }
 
@@ -1724,7 +1726,7 @@ function applySelectedViewState() {
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
         const box = row.querySelector('.casebox');
         if (!box) return;
-        row.style.display = ids.has(String(box.value)) ? '' : 'none';
+        row.style.setProperty('display', ids.has(String(box.value)) ? 'block' : 'none', 'important');
     });
 }
 
@@ -1783,7 +1785,7 @@ function updateHighlightSelectedLabel() {
 
 updateHighlightSelectedLabel();
 
-document.getElementById('selectedViewBtn')?.addEventListener('click', applySelectedView);
+// Selected button uses its direct click handler so it works reliably on mobile touch.
 document.getElementById('highlightSelectedBtn')?.addEventListener('click', highlightSelectedCases);
 
 // Restore selections after every page/search load.
@@ -1799,7 +1801,7 @@ try {
         document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
             const box = row.querySelector('.casebox');
             if (!box) return;
-            row.style.display = ids.has(String(box.value)) ? '' : 'none';
+            row.style.setProperty('display', ids.has(String(box.value)) ? 'block' : 'none', 'important');
         });
     }
 } catch (e) {}
