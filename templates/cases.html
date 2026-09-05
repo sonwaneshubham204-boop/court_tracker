@@ -608,14 +608,26 @@ td.action-cell .action-links {
 }
 .selected-view-btn { background:#6d4fc2!important;color:#fff!important; }
 .selected-view-btn.active { background:#4b2f8f!important; }
-.highlight-selected-btn { background:#f2b705!important;color:#241a00!important; }
-.highlight-selected-btn:hover { background:#d99f00!important; }
+.highlight-selected-btn {
+    background:#ffd21f!important;
+    color:#000000!important;
+    border:1px solid #d6a900!important;
+}
+.highlight-selected-btn:hover {
+    background:#f5c400!important;
+    color:#000000!important;
+}
 @media (max-width:767.98px){
     #bulkbar .selected-view-btn,#bulkbar .highlight-selected-btn{
         display:block!important;width:100%!important;margin:6px 0 0!important;min-height:40px!important;
     }
 }
 </style>
+.highlight-selected-btn,
+.highlight-selected-btn * {
+    color:#000000!important;
+}
+
 <style id="bootstrap-mobile-cases">
 /* Bootstrap-based responsive presentation: desktop remains unchanged */
 .mobile-cases-bootstrap { display:none; }
