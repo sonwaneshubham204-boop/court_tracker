@@ -1657,9 +1657,17 @@ function applySelectedView() {
     const ids = new Set(getStoredSelectedIds());
     const btn = document.getElementById('selectedViewBtn');
     const active = btn.classList.toggle('active');
+
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
         const box = row.querySelector('.casebox');
-        if (box) row.style.display = (!active || ids.has(String(box.value))) ? '' : 'none';
+        if (!box) return;
+
+        if (!active) {
+            row.style.display = '';
+            return;
+        }
+
+        row.style.display = ids.has(String(box.value)) ? '' : 'none';
     });
 }
 
