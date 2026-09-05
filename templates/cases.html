@@ -1743,69 +1743,37 @@ function buildWhatsAppCaseText(item, number) {
 function getCurrentCaseShareData() {
     const result = [];
     const seen = new Set();
-
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(el => {
         const item = caseShareDataFromElement(el);
-        if (!item || seen.has(item.id)) return;
-        seen.add(item.id);
+        if (!item || seen.has(String(item.id))) return;
+        seen.add(String(item.id));
         result.push(item);
     });
-
     return result;
 }
 
 async function getAllCasesForWhatsApp() {
-    // Always load the complete unfiltered Cases list from the server.
-    // This deliberately ignores Selected/Overdue/Today/etc. for ALL CASES.
-    const response = await fetch('/cases', { credentials: 'same-origin' });
+    const response = await fetch('/cases', { credentials: 'same-origin', cache: 'no-store' });
     if (!response.ok) throw new Error('Unable to load all cases');
-
     const html = await response.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const result = [];
     const seen = new Set();
-
     doc.querySelectorAll('.case-row, .mobile-case-card').forEach(el => {
         const item = caseShareDataFromElement(el);
-        if (!item || seen.has(item.id)) return;
-        seen.add(item.id);
+        if (!item || seen.has(String(item.id))) return;
+        seen.add(String(item.id));
         result.push(item);
     });
     return result;
 }
 
 async function getSelectedCaseShareData() {
-    // Selected IDs are persistent across searches/pages. Load the clean full
-    // Cases list once, then take ONLY those IDs. This avoids conflicts with
-    // whichever filter/view happens to be active on screen.
     const ids = getStoredSelectedIds();
     if (!ids.length) return [];
-
     const wanted = new Set(ids.map(String));
     const allItems = await getAllCasesForWhatsApp();
     return allItems.filter(item => wanted.has(String(item.id)));
-}
-
-function openWhatsAppWithCases(items) {
-    if (!items.length) {
-        alert('No cases available to share.');
-        return;
-    }
-
-    const message = items.map((item, index) => buildWhatsAppCaseText(item, index + 1)).join('\n\n');
-
-    // Prefer the native share sheet when available. This avoids URL-length
-    // limits on phones and lets the user choose WhatsApp with the complete text.
-    if (navigator.share) {
-        navigator.share({ text: message }).catch(function (err) {
-            if (err && err.name === 'AbortError') return;
-            window.location.href = 'https://wa.me/?text=' + encodeURIComponent(message);
-        });
-        return;
-    }
-
-    // Desktop fallback: WhatsApp Web/wa.me with the complete message.
-    window.location.href = 'https://wa.me/?text=' + encodeURIComponent(message);
 }
 
 async function shareCasesWhatsApp() {
@@ -1813,14 +1781,24 @@ async function shareCasesWhatsApp() {
     if (btn) btn.disabled = true;
     try {
         const selectedIds = getStoredSelectedIds();
-        const items = selectedIds.length
-            ? await getSelectedCaseShareData()
-            : await getAllCasesForWhatsApp();
+        const selectAllActive = !!(
+            (document.getElementById('all') && document.getElementById('all').checked) ||
+            (document.getElementById('mobileAll') && document.getElementById('mobileAll').checked)
+        );
 
+        // No tick = nothing to share. Select All is special: it must share
+        // the complete case list, not only the cases currently rendered on
+        // the phone screen.
+        if (!selectedIds.length && !selectAllActive) {
+            alert('Please tick at least one case. Select All Cases to share all cases.');
+            return;
+        }
+
+        const items = selectAllActive
+            ? await getAllCasesForWhatsApp()
+            : await getSelectedCaseShareData();
         if (!items.length) {
-            alert(selectedIds.length
-                ? 'Please select at least one case.'
-                : 'No cases available to share.');
+            alert('Please tick at least one case.');
             return;
         }
 
@@ -1828,29 +1806,27 @@ async function shareCasesWhatsApp() {
             buildWhatsAppCaseText(item, index + 1)
         ).join('\n\n');
 
-        // On phones, use the native share sheet so the complete message can
-        // be handed to WhatsApp without URL-length limits.
+        // Phone: native share is the only browser API that can hand the full
+        // text to WhatsApp without putting the message into a URL.
         if (navigator.share) {
-            try {
-                await navigator.share({ text: message });
-                return;
-            } catch (err) {
-                if (err && err.name === 'AbortError') return;
-            }
+            await navigator.share({ title: 'Court Cases', text: message });
+            return;
         }
 
-        // On PC, copy the complete message first, then open WhatsApp Web.
-        // This avoids URL-length limits that can truncate large All Cases messages.
+        // PC fallback: copy the complete message, then open WhatsApp Web.
         if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(message);
             window.open('https://web.whatsapp.com/', '_blank');
-            alert('Cases copied. In WhatsApp Web, paste the message and send.');
+            alert('Cases copied. Paste the message in WhatsApp Web and send.');
             return;
         }
+
         window.open('https://web.whatsapp.com/', '_blank');
         alert('Please paste the prepared cases message in WhatsApp Web and send.');
     } catch (e) {
-        alert('Unable to prepare cases for WhatsApp. Please try again.');
+        if (!(e && e.name === 'AbortError')) {
+            alert('Unable to prepare cases for WhatsApp. Please try again.');
+        }
     } finally {
         if (btn) btn.disabled = false;
     }
