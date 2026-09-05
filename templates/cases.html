@@ -1674,51 +1674,5 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-
-<script id="selected-case-excel-filter">
-(function () {
-    function getSelectedIdsForDisplay() {
-        if (typeof getStoredSelectedIds === 'function') return new Set(getStoredSelectedIds().map(String));
-        return new Set(Array.from(document.querySelectorAll('.casebox:checked')).map(function (box) { return String(box.value); }));
-    }
-    function dateMatches(row, value) {
-        if (!value) return true;
-        var disposed = row.dataset.disposed === 'true', raw = row.dataset.nextDate;
-        if (value === 'disposed') return disposed;
-        if (value === 'undated') return !raw && !disposed;
-        if (!raw) return false;
-        var today = new Date(); today.setHours(0,0,0,0);
-        var hearing = new Date(raw + 'T00:00:00'); hearing.setHours(0,0,0,0);
-        var diff = Math.round((hearing - today) / 86400000);
-        if (value === 'today') return diff === 0;
-        if (value === 'tomorrow') return diff === 1;
-        if (value === 'next7') return diff >= 0 && diff <= 7;
-        if (value === 'next30') return diff >= 0 && diff <= 30;
-        if (value === 'future') return diff > 30;
-        if (value === 'past' || value === 'overdue') return diff < 0;
-        return true;
-    }
-    function normalFiltersMatch(row) {
-        var ids = ['caseNoFilter','courtFilter','partyFilter','stageFilter'];
-        for (var i=0;i<ids.length;i++) { var el=document.getElementById(ids[i]); if(el && el.value && row.dataset[{caseNoFilter:'caseNo',courtFilter:'court',partyFilter:'party',stageFilter:'stage'}[ids[i]]] !== el.value) return false; }
-        var n=document.getElementById('nextDateFilter'), t=document.getElementById('timeLeftFilter');
-        if(n && !dateMatches(row,n.value)) return false; if(t && !dateMatches(row,t.value)) return false; return true;
-    }
-    function applySelectedCaseFilter() {
-        var searchBox=document.querySelector('input[name="search"]'), searchIsEmpty=!searchBox || !searchBox.value.trim();
-        var selectedIds=getSelectedIdsForDisplay(), hasSelection=selectedIds.size>0;
-        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(function(row){
-            var selectedMatch=!searchIsEmpty || !hasSelection || Array.from(row.querySelectorAll('.casebox')).some(function(box){return selectedIds.has(String(box.value));});
-            row.style.display=(normalFiltersMatch(row) && selectedMatch)?'':'none';
-        });
-    }
-    document.addEventListener('DOMContentLoaded',function(){
-        applySelectedCaseFilter();
-        document.querySelectorAll('.casebox').forEach(function(box){box.addEventListener('change',applySelectedCaseFilter);});
-        document.querySelectorAll('.header-filter').forEach(function(filter){filter.addEventListener('change',applySelectedCaseFilter);});
-        var searchBox=document.querySelector('input[name="search"]'); if(searchBox) searchBox.addEventListener('input',function(){if(!this.value.trim()) applySelectedCaseFilter();});
-    });
-})();
-</script>
 </body>
 </html>
