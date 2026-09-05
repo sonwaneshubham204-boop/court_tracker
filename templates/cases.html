@@ -1668,17 +1668,32 @@ function rememberVisibleHighlightStates() {
 function applySelectedView() {
     const ids = new Set(getStoredSelectedIds());
     const btn = document.getElementById('selectedViewBtn');
-    const active = btn.classList.toggle('active');
+    if (!btn) return;
+
+    const active = !btn.classList.contains('active');
 
     if (active && ids.size) {
+        try {
+            localStorage.setItem('courtTrackerSelectedView', '1');
+        } catch (e) {}
+
+        // Selected must work independently of search/highlight/filter URLs.
+        // Reload the normal cases list, then show only the stored selections.
         const params = new URLSearchParams(window.location.search);
-        // Any server-side search/filter can hide selected cases. First load
-        // the complete cases list, then filter it locally by selected IDs.
-        if ([...params.keys()].some(k => k !== 'selected') || !params.has('selected')) {
-            window.location.href = '/cases?selected=1';
+        if ([...params.keys()].length) {
+            window.location.href = '/cases';
             return;
         }
+    } else if (active && !ids.size) {
+        alert('Please select at least one case.');
+        return;
+    } else {
+        try {
+            localStorage.removeItem('courtTrackerSelectedView');
+        } catch (e) {}
     }
+
+    btn.classList.toggle('active', active);
 
     document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
         const box = row.querySelector('.casebox');
@@ -1686,6 +1701,30 @@ function applySelectedView() {
         row.style.display = active
             ? (ids.has(String(box.value)) ? '' : 'none')
             : '';
+    });
+}
+
+function applySelectedViewState() {
+    const btn = document.getElementById('selectedViewBtn');
+    if (!btn) return;
+
+    let active = false;
+    try {
+        active = localStorage.getItem('courtTrackerSelectedView') === '1';
+    } catch (e) {}
+
+    if (!active) {
+        btn.classList.remove('active');
+        return;
+    }
+
+    const ids = new Set(getStoredSelectedIds());
+    btn.classList.add('active');
+
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (!box) return;
+        row.style.display = ids.has(String(box.value)) ? '' : 'none';
     });
 }
 
@@ -1750,19 +1789,20 @@ document.getElementById('highlightSelectedBtn')?.addEventListener('click', highl
 // Restore selections after every page/search load.
 restoreStoredSelections();
 
-// When Selected view was requested, the server has returned the full /cases
-// list. Now hide every case except the persistently selected ones.
-if (new URLSearchParams(window.location.search).get('selected') === '1') {
-    const selectedBtn = document.getElementById('selectedViewBtn');
-    if (selectedBtn) selectedBtn.classList.add('active');
+// Restore Selected view after loading the clean, unfiltered /cases list.
+try {
+    if (localStorage.getItem('courtTrackerSelectedView') === '1') {
+        const selectedBtn = document.getElementById('selectedViewBtn');
+        if (selectedBtn) selectedBtn.classList.add('active');
 
-    const ids = new Set(getStoredSelectedIds());
-    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
-        const box = row.querySelector('.casebox');
-        if (!box) return;
-        row.style.display = ids.has(String(box.value)) ? '' : 'none';
-    });
-}
+        const ids = new Set(getStoredSelectedIds());
+        document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+            const box = row.querySelector('.casebox');
+            if (!box) return;
+            row.style.display = ids.has(String(box.value)) ? '' : 'none';
+        });
+    }
+} catch (e) {}
 
 // Simple dropdown filters in the red table header
 const headerFilters = [
@@ -1773,6 +1813,12 @@ const headerFilters = [
 ];
 
 function applyHeaderFilters() {
+    const selectedBtn = document.getElementById('selectedViewBtn');
+    if (selectedBtn && selectedBtn.classList.contains('active')) {
+        applySelectedViewState();
+        return;
+    }
+
     const caseNo = document.getElementById('caseNoFilter').value;
     const court = document.getElementById('courtFilter').value;
     const party = document.getElementById('partyFilter').value;
@@ -1827,6 +1873,12 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
     }
 
     function applyNewFilters() {
+        const selectedBtn = document.getElementById('selectedViewBtn');
+        if (selectedBtn && selectedBtn.classList.contains('active')) {
+            if (typeof applySelectedViewState === 'function') applySelectedViewState();
+            return;
+        }
+
         const baseFilters = [...document.querySelectorAll('.header-filter')]
             .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
 
@@ -1900,8 +1952,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof refresh === 'function') refresh();
         });
     }
-});
-</script>
+    applySelectedViewState();
+});</script>
 
 </body>
 </html>
