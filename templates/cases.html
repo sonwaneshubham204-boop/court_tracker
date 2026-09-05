@@ -131,7 +131,7 @@ th {
 }
 
 /* LOCKED: only Name of Parties font slightly larger */
-td:nth-child(5) {
+td:nth-child(6) {
     font-size: 17px !important;
     line-height: 1.35 !important;
 }
@@ -199,7 +199,8 @@ table { width: 100%; min-width: 0; table-layout: fixed; }
 /* Total = 100% */
 table col.col-check  { width: 4%; }
 table col.col-id     { width: 5%; }
-table col.col-case   { width: 15%; }
+table col.col-case   { width: 13%; }
+table col.col-crn    { width: 8%; }
 table col.col-court  { width: 9%; }
 table col.col-parties{ width: 20%; }
 table col.col-stage  { width: 11%; }
@@ -214,9 +215,9 @@ th, td {
 }
 th:nth-child(3), td:nth-child(3),
 th:nth-child(4), td:nth-child(4),
-th:nth-child(7), td:nth-child(7),
 th:nth-child(8), td:nth-child(8),
-th:nth-child(9), td:nth-child(9) {
+th:nth-child(9), td:nth-child(9),
+th:nth-child(10), td:nth-child(10) {
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -1271,7 +1272,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
 <div class="table-wrap">
 <table>
 <colgroup>
-    <col class="col-check"><col class="col-id"><col class="col-case"><col class="col-court">
+    <col class="col-check"><col class="col-id"><col class="col-case"><col class="col-crn"><col class="col-court">
     <col class="col-parties"><col class="col-stage"><col class="col-date"><col class="col-left"><col class="col-action">
 </colgroup>
 <thead>
@@ -1284,6 +1285,9 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
             <option value="">All</option>
             {% for case in cases %}<option value="{{ case.case_no }}">{{ case.case_no }}</option>{% endfor %}
         </select>
+    </th>
+    <th>
+        <span class="header-label">CRN No</span>
     </th>
     <th>
         <span class="header-label">Court</span>
@@ -1348,6 +1352,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
     <td>{{ case.id }}</td>
     <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
+    <td>{{ case.crn_no or '—' }}</td>
     <td>Court {{ case.court_no }}</td>
     <td>{{ case.parties|format_vs }}</td>
     <td>
