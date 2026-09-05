@@ -1710,6 +1710,14 @@ function applySelectedViewState() {
     const btn = document.getElementById('selectedViewBtn');
     if (!btn) return;
 
+    // Any explicit Cases-page filter (including Overdue/Past) must show
+    // the complete filtered result, not be restricted by the Selected view.
+    if (window.location.search) {
+        try { localStorage.removeItem('courtTrackerSelectedView'); } catch (e) {}
+        btn.classList.remove('active');
+        return;
+    }
+
     let active = false;
     try {
         active = localStorage.getItem('courtTrackerSelectedView') === '1';
@@ -1817,8 +1825,11 @@ const headerFilters = [
 function applyHeaderFilters() {
     const selectedBtn = document.getElementById('selectedViewBtn');
     if (selectedBtn && selectedBtn.classList.contains('active')) {
-        applySelectedViewState();
-        return;
+        selectedBtn.classList.remove('active');
+        try { localStorage.removeItem('courtTrackerSelectedView'); } catch (e) {}
+        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+            row.style.removeProperty('display');
+        });
     }
 
     const caseNo = document.getElementById('caseNoFilter').value;
@@ -1877,8 +1888,11 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
     function applyNewFilters() {
         const selectedBtn = document.getElementById('selectedViewBtn');
         if (selectedBtn && selectedBtn.classList.contains('active')) {
-            if (typeof applySelectedViewState === 'function') applySelectedViewState();
-            return;
+            selectedBtn.classList.remove('active');
+            try { localStorage.removeItem('courtTrackerSelectedView'); } catch (e) {}
+            document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+                row.style.removeProperty('display');
+            });
         }
 
         const baseFilters = [...document.querySelectorAll('.header-filter')]
@@ -1902,8 +1916,16 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
         });
     }
 
-    nextDateFilter.addEventListener('change', applyNewFilters);
-    timeLeftFilter.addEventListener('change', applyNewFilters);
+    nextDateFilter.addEventListener('change', function () {
+        // Each date-status click is independent.
+        timeLeftFilter.value = '';
+        applyNewFilters();
+    });
+    timeLeftFilter.addEventListener('change', function () {
+        // Each time-left click is independent.
+        nextDateFilter.value = '';
+        applyNewFilters();
+    });
 })();
 </script>
 
