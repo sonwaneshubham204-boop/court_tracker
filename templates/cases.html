@@ -1240,16 +1240,28 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
                     </div>
                 </div>
 
-                <div class="col-12">
-                    <div class="mobile-detail-box">
-                        <span class="mobile-detail-label">Next Hearing</span>
-                        <div class="mobile-detail-value">
-                            {% if case.next_hearing_date %}
+                <div class="col-6">
+    <div class="mobile-detail-box">
+     <span class="mobile-detail-label">
+      Next Hearing
+     </span>
+     <div class="mobile-detail-value">
+      {% if case.next_hearing_date %}
                                 {{ case.next_hearing_date.strftime("%d-%m-%Y") }} — {{ case.next_hearing_date.strftime("%A") }}
                             {% else %}Not Scheduled{% endif %}
-                        </div>
-                    </div>
-                </div>
+     </div>
+    </div>
+   </div>
+   <div class="col-6">
+    <div class="mobile-detail-box">
+     <span class="mobile-detail-label">
+      CRN No
+     </span>
+     <div class="mobile-detail-value">
+      {{ case.crn_no or '—' }}
+     </div>
+    </div>
+   </div>
             </div>
 
             <div class="mobile-actions">
