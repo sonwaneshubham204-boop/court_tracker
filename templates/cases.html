@@ -1191,12 +1191,9 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
     <button type="button" id="selectedViewBtn" class="selected-view-btn" onclick="applySelectedView()">☑ Selected</button>
     <button type="button" id="highlightSelectedBtn" class="highlight-selected-btn">⭐ Highlight Selected</button>
+    <button type="button" id="whatsappShareBtn" onclick="shareCasesWhatsApp()">📲 Share WhatsApp</button>
 </div>
 
-<div id="whatsappbar" class="whatsapp-share-bar">
-    <button type="button" id="whatsappAllBtn" onclick="shareAllCasesWhatsApp()">📲 WhatsApp All Cases</button>
-    <button type="button" id="whatsappSelectedBtn" onclick="shareSelectedCasesWhatsApp()">📲 WhatsApp Selected Cases</button>
-</div>
 
 
 
@@ -1796,35 +1793,75 @@ function openWhatsAppWithCases(items) {
     }
 
     const message = items.map((item, index) => buildWhatsAppCaseText(item, index + 1)).join('\n\n');
-    const url = 'https://wa.me/?text=' + encodeURIComponent(message);
-    // Use direct navigation so the same user click works reliably on both
-    // mobile WhatsApp and WhatsApp Web/Desktop browsers.
-    window.location.href = url;
-}
 
-async function shareAllCasesWhatsApp() {
-    const btn = document.getElementById('whatsappAllBtn');
-    if (btn) btn.disabled = true;
-    try {
-        const items = await getAllCasesForWhatsApp();
-        openWhatsAppWithCases(items);
-    } finally {
-        if (btn) btn.disabled = false;
+    // Prefer the native share sheet when available. This avoids URL-length
+    // limits on phones and lets the user choose WhatsApp with the complete text.
+    if (navigator.share) {
+        navigator.share({ text: message }).catch(function (err) {
+            if (err && err.name === 'AbortError') return;
+            window.location.href = 'https://wa.me/?text=' + encodeURIComponent(message);
+        });
+        return;
     }
+
+    // Desktop fallback: WhatsApp Web/wa.me with the complete message.
+    window.location.href = 'https://wa.me/?text=' + encodeURIComponent(message);
 }
 
-async function shareSelectedCasesWhatsApp() {
-    const btn = document.getElementById('whatsappSelectedBtn');
+async function shareCasesWhatsApp() {
+    const btn = document.getElementById('whatsappShareBtn');
     if (btn) btn.disabled = true;
     try {
-        const items = await getSelectedCaseShareData();
+        const selectedIds = getStoredSelectedIds();
+        const items = selectedIds.length
+            ? await getSelectedCaseShareData()
+            : await getAllCasesForWhatsApp();
+
         if (!items.length) {
-            alert('Please select at least one case.');
+            alert(selectedIds.length
+                ? 'Please select at least one case.'
+                : 'No cases available to share.');
             return;
         }
-        openWhatsAppWithCases(items);
+
+        const message = items.map((item, index) =>
+            buildWhatsAppCaseText(item, index + 1)
+        ).join('\\n\\n');
+
+        // On phones, use the native share sheet so the complete message can
+        // be handed to WhatsApp without URL-length limits.
+        if (navigator.share) {
+            try {
+                await navigator.share({ text: message });
+                return;
+            } catch (err) {
+                if (err && err.name === 'AbortError') return;
+            }
+        }
+
+        // On PC, keep the complete message intact by copying it first and
+        // opening WhatsApp Web. The user can paste the full message there.
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(message);
+            window.open('https://web.whatsapp.com/', '_blank');
+            alert('Complete case list copied. Paste it in WhatsApp Web.');
+            return;
+        }
+
+        // Final fallback for browsers without Clipboard API.
+        const area = document.createElement('textarea');
+        area.value = message;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.focus();
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+        window.open('https://web.whatsapp.com/', '_blank');
+        alert('Complete case list copied. Paste it in WhatsApp Web.');
     } catch (e) {
-        alert('Unable to load selected cases. Please try again.');
+        alert('Unable to prepare cases for WhatsApp. Please try again.');
     } finally {
         if (btn) btn.disabled = false;
     }
