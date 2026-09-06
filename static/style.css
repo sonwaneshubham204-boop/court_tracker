@@ -1269,3 +1269,304 @@ body:has(.page) .page .value {
     color:#172033 !important;
     -webkit-text-fill-color:#172033 !important;
 }
+
+
+/* =========================================================
+   COURT TRACKER — SCREENSHOT VISUAL FIX FINAL
+   ONLY visual styling: colours, contrast, borders and list
+   presentation. Existing functionality/layout/JS/routes/
+   database/CRUD/data are untouched.
+========================================================= */
+
+/* ---------- COURT CASES: SEARCH / FILTER AREA ---------- */
+body:has(.cases-page) .search-card{
+    background:#27364a !important;
+    border:1px solid #64748b !important;
+    box-shadow:0 8px 20px rgba(15,23,42,.28) !important;
+}
+
+body:has(.cases-page) .search-card .compact-search input{
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #cbd5e1 !important;
+    outline:none !important;
+}
+
+body:has(.cases-page) .search-card .compact-search input::placeholder{
+    color:#64748b !important;
+    -webkit-text-fill-color:#64748b !important;
+}
+
+body:has(.cases-page) .search-card .filter-toggle{
+    background:#f8fafc !important;
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    border:1px solid #cbd5e1 !important;
+    box-shadow:0 2px 6px rgba(0,0,0,.18) !important;
+}
+
+body:has(.cases-page) .search-card .search-btn{
+    background:#2563eb !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #60a5fa !important;
+    box-shadow:0 2px 6px rgba(37,99,235,.30) !important;
+}
+
+body:has(.cases-page) .search-card .highlight-filter{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:700 !important;
+    text-decoration:none !important;
+}
+
+body:has(.cases-page) .search-card .clear-btn{
+    background:#475569 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #94a3b8 !important;
+}
+
+/* Expanded filter panel: readable labels + clearly outlined controls. */
+body:has(.cases-page) .filters-panel{
+    border-top:1px solid #64748b !important;
+}
+
+body:has(.cases-page) .filter-field label{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+body:has(.cases-page) .filter-field input,
+body:has(.cases-page) .filter-field select{
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #94a3b8 !important;
+    border-radius:7px !important;
+    outline:none !important;
+}
+
+/* Total Results stays readable on the white page background. */
+body:has(.cases-page) .cases-page > h2{
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+
+/* Table header and all header filters retain the existing red theme
+   but receive a clean visible grid. */
+body:has(.cases-page) .table-wrap th{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.35) !important;
+}
+body:has(.cases-page) .table-wrap td{
+    border:1px solid rgba(255,255,255,.20) !important;
+}
+body:has(.cases-page) .header-filter{
+    background:rgba(255,255,255,.10) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.55) !important;
+}
+
+/* ---------- CASE DETAILS / ADD CASE HISTORY ---------- */
+body:has(.case-detail-page) .case-detail-page .section{
+    border:1px solid #64748b !important;
+    box-shadow:0 7px 18px rgba(15,23,42,.22) !important;
+}
+
+body:has(.case-detail-page) .case-detail-page .section h2{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55) !important;
+}
+
+body:has(.case-detail-page) .case-detail-page .form-group > label,
+body:has(.case-detail-page) .case-detail-page .other-outcome label{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+body:has(.case-detail-page) .case-detail-page input,
+body:has(.case-detail-page) .case-detail-page select,
+body:has(.case-detail-page) .case-detail-page textarea{
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #94a3b8 !important;
+    border-radius:7px !important;
+    outline:none !important;
+    box-shadow:inset 0 1px 2px rgba(15,23,42,.08) !important;
+}
+
+body:has(.case-detail-page) .case-detail-page input::placeholder,
+body:has(.case-detail-page) .case-detail-page textarea::placeholder{
+    color:#64748b !important;
+    -webkit-text-fill-color:#64748b !important;
+}
+
+/* ---------- CASE DETAILS: INFORMATION BOXES ---------- */
+body:has(.case-detail-page) .case-detail-page .info-item{
+    background:#f8fafc !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #cbd5e1 !important;
+    box-shadow:0 2px 7px rgba(15,23,42,.10) !important;
+}
+
+body:has(.case-detail-page) .case-detail-page .info-label{
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+
+/* History/evidence tables: strong grid without changing structure. */
+body:has(.case-detail-page) .case-detail-page .table-container{
+    border:1px solid #94a3b8 !important;
+    box-shadow:0 3px 10px rgba(15,23,42,.12) !important;
+}
+body:has(.case-detail-page) .case-detail-page th{
+    background:#b3122b !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.40) !important;
+}
+body:has(.case-detail-page) .case-detail-page td{
+    background:#f8fafc !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #cbd5e1 !important;
+}
+
+/* ---------- DASHBOARD: CARDS / SECTIONS ---------- */
+body:has(.dashboard-group) .stat-card,
+body:has(.dashboard-group) .section{
+    border-top:1px solid rgba(255,255,255,.30) !important;
+    border-right:1px solid rgba(255,255,255,.30) !important;
+    border-bottom:1px solid rgba(255,255,255,.30) !important;
+}
+
+body:has(.dashboard-group) .stat-card h3{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+body:has(.dashboard-group) .section h2,
+body:has(.dashboard-group) .section h3{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55) !important;
+}
+
+/* Case Stage / selected-date light cards: dark text on light cards. */
+body:has(.dashboard-group) .court-stage-card{
+    background:#f8fafc !important;
+    border:1px solid #cbd5e1 !important;
+    box-shadow:0 2px 8px rgba(15,23,42,.12) !important;
+}
+body:has(.dashboard-group) .court-stage-card h3,
+body:has(.dashboard-group) .court-stage-card li a{
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+
+/* Selected date summary cards. */
+body:has(.dashboard-group) .matter-summary div{
+    background:#f8fafc !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #cbd5e1 !important;
+    box-shadow:0 2px 7px rgba(15,23,42,.10) !important;
+}
+body:has(.dashboard-group) .matter-summary b{
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+
+/* ---------- DASHBOARD: UPCOMING 7 DAYS ---------- */
+body:has(.dashboard-group) .section.upcoming .table-container{
+    border:1px solid #64748b !important;
+    border-radius:11px !important;
+    overflow-x:auto !important;
+    box-shadow:0 6px 16px rgba(15,23,42,.24) !important;
+}
+
+body:has(.dashboard-group) .section.upcoming table{
+    background:#172b43 !important;
+}
+
+body:has(.dashboard-group) .section.upcoming th{
+    background:linear-gradient(90deg,#173b6c,#315fbb) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.35) !important;
+}
+
+body:has(.dashboard-group) .section.upcoming td{
+    background:#29425c !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.25) !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.35) !important;
+}
+
+body:has(.dashboard-group) .section.upcoming tbody tr:nth-child(even) td{
+    background:#34536f !important;
+}
+
+body:has(.dashboard-group) .section.upcoming tbody tr:hover td{
+    background:#3f6790 !important;
+}
+
+body:has(.dashboard-group) .section.upcoming .open-btn{
+    background:linear-gradient(135deg,#2563eb,#0ea5e9) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.40) !important;
+}
+
+/* Empty-state boxes: readable text + proper outline. */
+body:has(.dashboard-group) .empty-message{
+    background:#f0fdf4 !important;
+    color:#166534 !important;
+    -webkit-text-fill-color:#166534 !important;
+    border:1px solid #86efac !important;
+}
+
+/* ---------- VIEW BUSINESS ---------- */
+body:has(.page) .page .card{
+    border:1px solid #cbd5e1 !important;
+    box-shadow:0 6px 16px rgba(15,23,42,.14) !important;
+}
+body:has(.page) .page .grid{
+    border:1px solid #94a3b8 !important;
+}
+body:has(.page) .page .label,
+body:has(.page) .page .value{
+    border-bottom:1px solid #cbd5e1 !important;
+}
+body:has(.page) .page .label{
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.page) .page .value{
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------- GENERAL FORM OUTLINES ---------- */
+body:has(.edit-form) .edit-form input,
+body:has(.edit-form) .edit-form select,
+body:has(.edit-form) .edit-form textarea,
+body:has(.form-grid) .form-grid input,
+body:has(.form-grid) .form-grid select,
+body:has(.form-grid) .form-grid textarea{
+    border:1px solid #94a3b8 !important;
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    outline:none !important;
+}
