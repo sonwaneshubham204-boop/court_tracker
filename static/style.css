@@ -31,7 +31,12 @@ body{
     min-height:100vh;
     font-family:Cambria,Georgia,serif !important;
     font-size:1rem;
-    background:var(--bg);
+    background-color:var(--bg);
+    background-image:url("court_tracker_background.jpg") !important;
+    background-size:cover !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+    background-attachment:fixed !important;
     color:var(--text);
     line-height:1.5;
 }
