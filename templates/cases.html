@@ -1101,6 +1101,7 @@ td.action-cell .action-links {
     {% for case in cases %}
     <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
         data-case-no="{{ case.case_no }}"
+        data-crn="{{ case.crn_no or '' }}"
         data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
@@ -1181,7 +1182,7 @@ td.action-cell .action-links {
 <div class="table-wrap">
 <table>
 <colgroup>
-    <col class="col-check"><col class="col-id"><col class="col-case"><col class="col-court">
+    <col class="col-check"><col class="col-id"><col class="col-case"><col class="col-crn"><col class="col-court">
     <col class="col-parties"><col class="col-stage"><col class="col-date"><col class="col-left"><col class="col-action">
 </colgroup>
 <thead>
@@ -1193,6 +1194,13 @@ td.action-cell .action-links {
         <select class="header-filter" id="caseNoFilter" aria-label="Filter Case Number">
             <option value="">All</option>
             {% for case in cases %}<option value="{{ case.case_no }}">{{ case.case_no }}</option>{% endfor %}
+        </select>
+    </th>
+    <th>
+        <span class="header-label">CRN No</span>
+        <select class="header-filter" id="crnFilter" aria-label="Filter CRN No">
+            <option value="">All</option>
+            {% for case in cases %}<option value="{{ case.crn_no }}">{{ case.crn_no }}</option>{% endfor %}
         </select>
     </th>
     <th>
@@ -1250,6 +1258,7 @@ td.action-cell .action-links {
 {% for case in cases %}
 <tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
     data-case-no="{{ case.case_no }}"
+    data-crn="{{ case.crn_no or '' }}"
     data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
@@ -1258,6 +1267,7 @@ td.action-cell .action-links {
     <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
     <td>{{ case.id }}</td>
     <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
+    <td>{{ case.crn_no or '—' }}</td>
     <td>Court {{ case.court_no }}</td>
     <td>{{ case.parties|format_vs }}</td>
     <td>
@@ -1538,6 +1548,7 @@ restoreStoredSelections();
 // Simple dropdown filters in the red table header
 const headerFilters = [
     document.getElementById('caseNoFilter'),
+    document.getElementById('crnFilter'),
     document.getElementById('courtFilter'),
     document.getElementById('partyFilter'),
     document.getElementById('stageFilter')
@@ -1545,6 +1556,7 @@ const headerFilters = [
 
 function applyHeaderFilters() {
     const caseNo = document.getElementById('caseNoFilter').value;
+    const crn = document.getElementById('crnFilter').value;
     const court = document.getElementById('courtFilter').value;
     const party = document.getElementById('partyFilter').value;
     const stage = document.getElementById('stageFilter').value;
@@ -1552,6 +1564,7 @@ function applyHeaderFilters() {
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
         const show =
             (!caseNo || row.dataset.caseNo === caseNo) &&
+            (!crn || row.dataset.crn === crn) &&
             (!court || row.dataset.court === court) &&
             (!party || row.dataset.party === party) &&
             (!stage || row.dataset.stage === stage);
@@ -1605,6 +1618,7 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
             const baseHidden = baseFilters.some(f => {
                 if (!f.value) return false;
                 if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
+                if (f.id === 'crnFilter') return row.dataset.crn !== f.value;
                 if (f.id === 'courtFilter') return row.dataset.court !== f.value;
                 if (f.id === 'partyFilter') return row.dataset.party !== f.value;
                 if (f.id === 'stageFilter') return row.dataset.stage !== f.value;
