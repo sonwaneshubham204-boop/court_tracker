@@ -687,3 +687,816 @@ body:has(.dashboard-group) {
     background-image:linear-gradient(135deg,#eef2ff 0%,#f8fafc 48%,#e0f2fe 100%) !important;
     background-color:#f8fafc !important;
 }
+
+
+/* =========================================================
+   DASHBOARD VISUAL POLISH — ONLY
+   Improve readability, hierarchy and attractive presentation.
+   No functionality, data, routes, JS or structure changes.
+========================================================= */
+
+/* Main dashboard shell */
+body:has(.dashboard-group) .container{
+    width:min(1180px,calc(100% - 32px)) !important;
+    margin:28px auto 60px !important;
+}
+
+/* Header: strong visual hierarchy */
+body:has(.dashboard-group) .topbar{
+    padding:26px 28px !important;
+    margin-bottom:24px !important;
+    border-radius:0 0 18px 18px !important;
+    background:linear-gradient(135deg,#173b6c 0%,#315fbb 58%,#4f46e5 100%) !important;
+    border-bottom:5px solid #a60f27 !important;
+    box-shadow:0 12px 28px rgba(23,59,108,.22) !important;
+}
+body:has(.dashboard-group) .topbar h1{
+    margin:0 0 20px !important;
+    font-size:clamp(28px,4vw,40px) !important;
+    line-height:1.15 !important;
+    font-weight:900 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    letter-spacing:.2px !important;
+}
+body:has(.dashboard-group) .nav{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:10px !important;
+    background:transparent !important;
+}
+body:has(.dashboard-group) .nav a{
+    min-height:42px !important;
+    padding:10px 16px !important;
+    border:1px solid rgba(255,255,255,.42) !important;
+    border-radius:9px !important;
+    background:#ffffff !important;
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    font-weight:800 !important;
+    box-shadow:0 3px 9px rgba(15,23,42,.16) !important;
+}
+body:has(.dashboard-group) .nav a:hover{
+    background:#eef2ff !important;
+    color:#3730a3 !important;
+}
+
+/* Group headings: clearly visible, larger and colourful */
+body:has(.dashboard-group) .dashboard-group{
+    margin:0 0 22px !important;
+}
+body:has(.dashboard-group) .dashboard-group > h2{
+    display:inline-block !important;
+    margin:0 0 12px !important;
+    padding:5px 12px !important;
+    border-radius:8px !important;
+    font-size:24px !important;
+    line-height:1.2 !important;
+    font-weight:900 !important;
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    background:rgba(255,255,255,.90) !important;
+    border:1px solid #bfdbfe !important;
+    box-shadow:0 3px 9px rgba(30,64,175,.10) !important;
+}
+body:has(.dashboard-group) .dashboard-group.all-cases > h2{
+    color:#5b21b6 !important;
+    -webkit-text-fill-color:#5b21b6 !important;
+    border-color:#ddd6fe !important;
+}
+body:has(.dashboard-group) .dashboard-group.enquiries > h2{
+    color:#047857 !important;
+    -webkit-text-fill-color:#047857 !important;
+    border-color:#a7f3d0 !important;
+}
+
+/* Stat cards: readable text, stronger spacing and clean contrast */
+body:has(.dashboard-group) .stat-card{
+    padding:18px 20px !important;
+    border:1px solid rgba(148,163,184,.55) !important;
+    border-radius:14px !important;
+    background:rgba(15,23,42,.78) !important;
+    color:#ffffff !important;
+    box-shadow:0 7px 18px rgba(15,23,42,.20) !important;
+    backdrop-filter:blur(5px) !important;
+}
+body:has(.dashboard-group) .stat-card h3,
+body:has(.dashboard-group) .stat-card h3 *{
+    margin:0 0 10px !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-size:16px !important;
+    line-height:1.25 !important;
+    font-weight:800 !important;
+}
+body:has(.dashboard-group) .stat-card .number,
+body:has(.dashboard-group) .stat-card .number *{
+    color:#dbeafe !important;
+    -webkit-text-fill-color:#dbeafe !important;
+    font-size:34px !important;
+    line-height:1 !important;
+    font-weight:900 !important;
+    text-shadow:0 2px 4px rgba(0,0,0,.35) !important;
+}
+
+/* Content sections: remove dull/low-contrast appearance */
+body:has(.dashboard-group) .section{
+    padding:22px !important;
+    margin-top:20px !important;
+    border:1px solid rgba(148,163,184,.55) !important;
+    border-left:6px solid #64748b !important;
+    border-radius:16px !important;
+    background:rgba(15,23,42,.78) !important;
+    color:#ffffff !important;
+    box-shadow:0 8px 22px rgba(15,23,42,.20) !important;
+    backdrop-filter:blur(5px) !important;
+}
+body:has(.dashboard-group) .section.overdue{border-left-color:#ef4444 !important}
+body:has(.dashboard-group) .section.today{border-left-color:#f97316 !important}
+body:has(.dashboard-group) .section.tomorrow{border-left-color:#f59e0b !important}
+body:has(.dashboard-group) .section.upcoming{border-left-color:#22c55e !important}
+
+body:has(.dashboard-group) .section h2,
+body:has(.dashboard-group) .section h3{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.45) !important;
+}
+body:has(.dashboard-group) .section h2{
+    font-size:22px !important;
+    line-height:1.25 !important;
+    margin:0 0 18px !important;
+}
+body:has(.dashboard-group) .section p,
+body:has(.dashboard-group) .section label,
+body:has(.dashboard-group) .section li{
+    color:#f8fafc !important;
+    -webkit-text-fill-color:#f8fafc !important;
+}
+
+/* Tables: stronger headers and readable rows */
+body:has(.dashboard-group) .table-container{
+    border:1px solid rgba(255,255,255,.25) !important;
+    border-radius:11px !important;
+    overflow-x:auto !important;
+}
+body:has(.dashboard-group) table{
+    width:100% !important;
+}
+body:has(.dashboard-group) th{
+    padding:13px 14px !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    background:linear-gradient(90deg,#173b6c,#4f46e5) !important;
+    font-weight:900 !important;
+}
+body:has(.dashboard-group) td{
+    padding:13px 14px !important;
+    color:#f8fafc !important;
+    -webkit-text-fill-color:#f8fafc !important;
+    background:rgba(255,255,255,.08) !important;
+    border-top:1px solid rgba(255,255,255,.18) !important;
+}
+body:has(.dashboard-group) tbody tr:nth-child(even) td{
+    background:rgba(255,255,255,.13) !important;
+}
+body:has(.dashboard-group) tbody tr:hover td{
+    background:rgba(96,165,250,.20) !important;
+}
+
+/* Empty-state messages: visible instead of dull */
+body:has(.dashboard-group) .section li,
+body:has(.dashboard-group) .section .empty,
+body:has(.dashboard-group) .section .message{
+    font-weight:700 !important;
+}
+
+/* Stage cards and matter summary */
+body:has(.dashboard-group) .court-stage-card,
+body:has(.dashboard-group) .matter-summary div{
+    background:rgba(255,255,255,.10) !important;
+    border:1px solid rgba(255,255,255,.22) !important;
+    border-radius:10px !important;
+    color:#ffffff !important;
+}
+body:has(.dashboard-group) .court-stage-card h3{
+    color:#bfdbfe !important;
+    -webkit-text-fill-color:#bfdbfe !important;
+    font-weight:900 !important;
+}
+body:has(.dashboard-group) .court-stage-card li a,
+body:has(.dashboard-group) .stage-list a{
+    color:#dbeafe !important;
+    -webkit-text-fill-color:#dbeafe !important;
+    font-weight:800 !important;
+}
+body:has(.dashboard-group) .stage-list a{
+    background:rgba(255,255,255,.10) !important;
+    border-color:rgba(255,255,255,.25) !important;
+}
+
+/* Dashboard date controls: clear and visible */
+body:has(.dashboard-group) .matter-date-form{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    align-items:end !important;
+    gap:12px !important;
+}
+body:has(.dashboard-group) .matter-date-form label{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+}
+body:has(.dashboard-group) .matter-date-form input{
+    min-height:44px !important;
+    padding:9px 11px !important;
+    border:1px solid #cbd5e1 !important;
+    border-radius:8px !important;
+    background:#ffffff !important;
+    color:#111827 !important;
+    -webkit-text-fill-color:#111827 !important;
+}
+body:has(.dashboard-group) .matter-date-form .open-btn{
+    min-height:44px !important;
+    border-radius:8px !important;
+    background:#2563eb !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+}
+
+
+/* =========================================================
+   FINAL UI HARDENING — VISUAL ONLY
+   No HTML, JS, routes, database, forms or functionality changed.
+========================================================= */
+
+/* Prevent visual overflow without changing page behaviour */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+img, video, svg, canvas {
+    max-width: 100%;
+}
+button, input, select, textarea {
+    font: inherit;
+}
+
+/* Dashboard remains proportional on normal desktop widths */
+body:has(.dashboard-group) .container,
+body:has(.dashboard-group) .topbar {
+    max-width: 1180px !important;
+}
+body:has(.dashboard-group) .dashboard-group,
+body:has(.dashboard-group) .section {
+    width: 100% !important;
+}
+
+/* Dashboard cards stay clean and readable at smaller widths */
+@media (max-width: 767px) {
+    body:has(.dashboard-group) .container {
+        width: calc(100% - 20px) !important;
+        margin: 12px auto 36px !important;
+    }
+
+    body:has(.dashboard-group) .topbar {
+        width: calc(100% - 20px) !important;
+        margin: 10px auto 16px !important;
+        padding: 18px !important;
+        border-radius: 14px !important;
+    }
+
+    body:has(.dashboard-group) .topbar h1 {
+        font-size: 25px !important;
+        margin-bottom: 14px !important;
+    }
+
+    body:has(.dashboard-group) .nav {
+        gap: 7px !important;
+    }
+
+    body:has(.dashboard-group) .nav a {
+        min-height: 38px !important;
+        padding: 8px 11px !important;
+        font-size: 13px !important;
+    }
+
+    body:has(.dashboard-group) .dashboard-group > h2 {
+        font-size: 20px !important;
+        margin-bottom: 10px !important;
+    }
+
+    body:has(.dashboard-group) .stat-card {
+        padding: 15px !important;
+        border-radius: 12px !important;
+    }
+
+    body:has(.dashboard-group) .stat-card h3,
+    body:has(.dashboard-group) .stat-card h3 * {
+        font-size: 14px !important;
+    }
+
+    body:has(.dashboard-group) .stat-card .number,
+    body:has(.dashboard-group) .stat-card .number * {
+        font-size: 28px !important;
+    }
+
+    body:has(.dashboard-group) .section {
+        padding: 16px !important;
+        margin-top: 14px !important;
+        border-radius: 13px !important;
+    }
+
+    body:has(.dashboard-group) .section h2 {
+        font-size: 19px !important;
+    }
+
+    body:has(.dashboard-group) .matter-date-form {
+        width: 100% !important;
+    }
+
+    body:has(.dashboard-group) .matter-date-form input,
+    body:has(.dashboard-group) .matter-date-form .open-btn {
+        min-height: 42px !important;
+    }
+
+    body:has(.dashboard-group) table {
+        min-width: 620px !important;
+    }
+}
+
+/* Avoid overly wide text blocks while preserving content */
+body:has(.dashboard-group) td,
+body:has(.dashboard-group) th {
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   CASE CLICK / DETAIL PAGES — ATTRACTIVE UI ONLY
+   Covers Case Details, Case History, Evidence, Edit Case,
+   Edit History, Edit Evidence and View Business.
+   No functionality, links, forms, data or JavaScript changed.
+========================================================= */
+
+/* Shared page surface */
+body:has(.case-detail-page),
+body:has(.edit-page),
+body:has(.edit-history-page),
+body:has(.page) {
+    color:#172033 !important;
+}
+
+/* CASE DETAILS */
+body:has(.case-detail-page) .case-detail-page {
+    width:min(1200px,calc(100% - 28px)) !important;
+    margin:26px auto 55px !important;
+}
+body:has(.case-detail-page) .page-header {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:16px !important;
+    margin-bottom:18px !important;
+    padding:20px 22px !important;
+    border-radius:15px !important;
+    background:linear-gradient(135deg,#173b6c,#315fbb,#4f46e5) !important;
+    border-bottom:5px solid #a60f27 !important;
+    box-shadow:0 9px 22px rgba(15,23,42,.18) !important;
+}
+body:has(.case-detail-page) .page-header h1 {
+    margin:0 !important;
+    font-size:32px !important;
+    font-weight:900 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+body:has(.case-detail-page) .back-button {
+    display:inline-flex !important;
+    align-items:center !important;
+    min-height:42px !important;
+    padding:9px 14px !important;
+    border-radius:9px !important;
+    background:#ffffff !important;
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    font-weight:900 !important;
+    text-decoration:none !important;
+    box-shadow:0 3px 9px rgba(15,23,42,.16) !important;
+}
+
+/* All Case Details sections */
+body:has(.case-detail-page) .section {
+    margin:18px 0 !important;
+    padding:22px !important;
+    border:1px solid #d5deea !important;
+    border-left:6px solid #4f46e5 !important;
+    border-radius:15px !important;
+    background:#ffffff !important;
+    color:#172033 !important;
+    box-shadow:0 7px 19px rgba(15,23,42,.10) !important;
+}
+body:has(.case-detail-page) .section > h2 {
+    margin:0 0 18px !important;
+    padding:8px 12px !important;
+    border-radius:8px !important;
+    background:#eef2ff !important;
+    border:1px solid #c7d2fe !important;
+    color:#3730a3 !important;
+    -webkit-text-fill-color:#3730a3 !important;
+    font-size:22px !important;
+    font-weight:900 !important;
+}
+body:has(.case-detail-page) .case-info {
+    border-left-color:#2563eb !important;
+}
+
+/* Case information cards */
+body:has(.case-detail-page) .info-grid {
+    gap:12px !important;
+}
+body:has(.case-detail-page) .info-item {
+    padding:14px 16px !important;
+    border:1px solid #dbe3ef !important;
+    border-radius:10px !important;
+    background:#f8fafc !important;
+    color:#172033 !important;
+    font-weight:750 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+body:has(.case-detail-page) .info-label {
+    display:block !important;
+    margin-bottom:6px !important;
+    color:#315fbb !important;
+    -webkit-text-fill-color:#315fbb !important;
+    font-size:13px !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+    letter-spacing:.35px !important;
+}
+body:has(.case-detail-page) .form-grid {
+    gap:16px !important;
+}
+body:has(.case-detail-page) .form-group label {
+    display:block !important;
+    margin-bottom:7px !important;
+    color:#1e3a8a !important;
+    -webkit-text-fill-color:#1e3a8a !important;
+    font-weight:900 !important;
+}
+body:has(.case-detail-page) .form-group input,
+body:has(.case-detail-page) .form-group select,
+body:has(.case-detail-page) .form-group textarea {
+    width:100% !important;
+    border:1px solid #cbd5e1 !important;
+    border-radius:9px !important;
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    padding:10px 12px !important;
+    box-shadow:inset 0 1px 2px rgba(15,23,42,.05) !important;
+}
+body:has(.case-detail-page) .form-group input:focus,
+body:has(.case-detail-page) .form-group select:focus,
+body:has(.case-detail-page) .form-group textarea:focus {
+    outline:none !important;
+    border-color:#4f46e5 !important;
+    box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
+}
+body:has(.case-detail-page) .form-group textarea {
+    min-height:105px !important;
+    resize:vertical !important;
+}
+body:has(.case-detail-page) .form-actions {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:10px !important;
+    margin-top:14px !important;
+}
+body:has(.case-detail-page) .form-actions a,
+body:has(.case-detail-page) .form-actions button {
+    min-height:44px !important;
+    padding:9px 15px !important;
+    border-radius:9px !important;
+    border:1px solid #2563eb !important;
+    background:#2563eb !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+    box-shadow:0 3px 8px rgba(37,99,235,.20) !important;
+}
+
+/* History and evidence tables */
+body:has(.case-detail-page) .table-container {
+    overflow-x:auto !important;
+    border:1px solid #d5deea !important;
+    border-radius:11px !important;
+}
+body:has(.case-detail-page) table {
+    width:100% !important;
+}
+body:has(.case-detail-page) th {
+    padding:12px !important;
+    background:linear-gradient(90deg,#173b6c,#4f46e5) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+    white-space:nowrap !important;
+}
+body:has(.case-detail-page) td {
+    padding:12px !important;
+    background:#ffffff !important;
+    color:#263449 !important;
+    -webkit-text-fill-color:#263449 !important;
+    border-top:1px solid #e2e8f0 !important;
+    vertical-align:top !important;
+}
+body:has(.case-detail-page) tbody tr:nth-child(even) td {
+    background:#f8fafc !important;
+}
+body:has(.case-detail-page) tbody tr:hover td {
+    background:#eef2ff !important;
+}
+body:has(.case-detail-page) .business-date-link,
+body:has(.case-detail-page) .action-links a,
+body:has(.case-detail-page) .case-history-actions a {
+    color:#2563eb !important;
+    -webkit-text-fill-color:#2563eb !important;
+    font-weight:900 !important;
+}
+body:has(.case-detail-page) .case-history-actions,
+body:has(.case-detail-page) .action-links {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:7px !important;
+    align-items:center !important;
+}
+body:has(.case-detail-page) .case-history-actions form,
+body:has(.case-detail-page) .action-links form {
+    margin:0 !important;
+}
+body:has(.case-detail-page) .case-history-actions button,
+body:has(.case-detail-page) .action-links button {
+    min-height:34px !important;
+    padding:6px 10px !important;
+    border-radius:7px !important;
+    background:#dc2626 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #b91c1c !important;
+    font-weight:800 !important;
+}
+body:has(.case-detail-page) .empty-message {
+    padding:14px !important;
+    border-radius:9px !important;
+    background:#f1f5f9 !important;
+    color:#475569 !important;
+    font-weight:800 !important;
+}
+body:has(.case-detail-page) .file-info {
+    margin-top:6px !important;
+    color:#475569 !important;
+    -webkit-text-fill-color:#475569 !important;
+    font-size:13px !important;
+    font-weight:700 !important;
+}
+
+/* EDIT CASE / EDIT EVIDENCE */
+body:has(.edit-page) .edit-page {
+    width:min(950px,calc(100% - 28px)) !important;
+    margin:26px auto 55px !important;
+}
+body:has(.edit-page) .edit-header,
+body:has(.edit-page) .page-header {
+    padding:20px 22px !important;
+    border-radius:15px !important;
+    background:linear-gradient(135deg,#173b6c,#315fbb,#4f46e5) !important;
+    border-bottom:5px solid #a60f27 !important;
+    box-shadow:0 9px 22px rgba(15,23,42,.18) !important;
+}
+body:has(.edit-page) h1 {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+}
+body:has(.edit-page) .edit-form {
+    margin-top:18px !important;
+    padding:22px !important;
+    border:1px solid #d5deea !important;
+    border-left:6px solid #4f46e5 !important;
+    border-radius:15px !important;
+    background:#ffffff !important;
+    box-shadow:0 7px 19px rgba(15,23,42,.10) !important;
+}
+body:has(.edit-page) .form-group label {
+    color:#1e3a8a !important;
+    -webkit-text-fill-color:#1e3a8a !important;
+    font-weight:900 !important;
+}
+body:has(.edit-page) .form-group input,
+body:has(.edit-page) .form-group select,
+body:has(.edit-page) .form-group textarea {
+    border:1px solid #cbd5e1 !important;
+    border-radius:9px !important;
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.edit-page) .form-group input:focus,
+body:has(.edit-page) .form-group select:focus,
+body:has(.edit-page) .form-group textarea:focus {
+    border-color:#4f46e5 !important;
+    box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
+}
+body:has(.edit-page) .clear-btn,
+body:has(.edit-page) #clear_decision_date,
+body:has(.edit-page) #clear_next_hearing_date {
+    min-height:40px !important;
+    padding:8px 13px !important;
+    border-radius:8px !important;
+    background:#6366f1 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #4f46e5 !important;
+    font-weight:900 !important;
+    box-shadow:0 3px 8px rgba(79,70,229,.20) !important;
+}
+
+/* EDIT HISTORY */
+body:has(.edit-history-page) .edit-history-page {
+    width:min(950px,calc(100% - 28px)) !important;
+    margin:26px auto 55px !important;
+}
+body:has(.edit-history-page) .history-card {
+    padding:24px !important;
+    border:1px solid #d5deea !important;
+    border-left:6px solid #4f46e5 !important;
+    border-radius:15px !important;
+    background:#ffffff !important;
+    box-shadow:0 8px 22px rgba(15,23,42,.11) !important;
+}
+body:has(.edit-history-page) .history-card h1 {
+    margin:0 0 20px !important;
+    padding:14px 16px !important;
+    border-radius:10px !important;
+    background:linear-gradient(135deg,#173b6c,#4f46e5) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+}
+body:has(.edit-history-page) label {
+    display:block !important;
+    margin-bottom:7px !important;
+    color:#1e3a8a !important;
+    -webkit-text-fill-color:#1e3a8a !important;
+    font-weight:900 !important;
+}
+body:has(.edit-history-page) input,
+body:has(.edit-history-page) textarea {
+    width:100% !important;
+    border:1px solid #cbd5e1 !important;
+    border-radius:9px !important;
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.edit-history-page) input:focus,
+body:has(.edit-history-page) textarea:focus {
+    border-color:#4f46e5 !important;
+    box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
+}
+body:has(.edit-history-page) .actions {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    gap:10px !important;
+    margin-top:16px !important;
+}
+body:has(.edit-history-page) .actions button,
+body:has(.edit-history-page) .actions a {
+    min-height:44px !important;
+    padding:9px 15px !important;
+    border-radius:9px !important;
+    font-weight:900 !important;
+}
+
+/* VIEW BUSINESS */
+body:has(.page) .page {
+    width:min(1050px,calc(100% - 28px)) !important;
+    margin:26px auto 55px !important;
+}
+body:has(.page) .page > .top {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:14px !important;
+    padding:20px 22px !important;
+    border-radius:15px !important;
+    background:linear-gradient(135deg,#173b6c,#315fbb,#4f46e5) !important;
+    border-bottom:5px solid #a60f27 !important;
+    box-shadow:0 9px 22px rgba(15,23,42,.18) !important;
+}
+body:has(.page) .page > .top h1 {
+    margin:0 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-size:30px !important;
+    font-weight:900 !important;
+}
+body:has(.page) .page > .top .back {
+    display:inline-flex !important;
+    align-items:center !important;
+    min-height:42px !important;
+    padding:9px 14px !important;
+    border-radius:9px !important;
+    background:#ffffff !important;
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    font-weight:900 !important;
+    text-decoration:none !important;
+}
+body:has(.page) .page > .card {
+    margin-top:18px !important;
+    padding:24px !important;
+    border:1px solid #d5deea !important;
+    border-left:6px solid #2563eb !important;
+    border-radius:15px !important;
+    background:#ffffff !important;
+    box-shadow:0 8px 22px rgba(15,23,42,.11) !important;
+}
+body:has(.page) .page > .card .title {
+    margin:0 0 18px !important;
+    padding:8px 12px !important;
+    border-radius:8px !important;
+    background:#eff6ff !important;
+    border:1px solid #bfdbfe !important;
+    color:#1d4ed8 !important;
+    -webkit-text-fill-color:#1d4ed8 !important;
+    font-size:22px !important;
+    font-weight:900 !important;
+}
+body:has(.page) .page > .card .label {
+    padding:11px 13px !important;
+    border:1px solid #dbe3ef !important;
+    border-radius:8px !important;
+    background:#f1f5f9 !important;
+    color:#1e3a8a !important;
+    -webkit-text-fill-color:#1e3a8a !important;
+    font-weight:900 !important;
+}
+body:has(.page) .page > .card .value {
+    padding:11px 13px !important;
+    border:1px solid #e2e8f0 !important;
+    border-radius:8px !important;
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    font-weight:700 !important;
+}
+
+/* Mobile: preserve content, improve visual fit */
+@media (max-width:767px) {
+    body:has(.case-detail-page) .case-detail-page,
+    body:has(.edit-page) .edit-page,
+    body:has(.edit-history-page) .edit-history-page,
+    body:has(.page) .page {
+        width:calc(100% - 18px) !important;
+        margin:12px auto 35px !important;
+    }
+
+    body:has(.case-detail-page) .page-header,
+    body:has(.edit-page) .edit-header,
+    body:has(.edit-page) .page-header,
+    body:has(.page) .page > .top {
+        padding:16px !important;
+        border-radius:12px !important;
+        flex-direction:column !important;
+        align-items:stretch !important;
+    }
+
+    body:has(.case-detail-page) .page-header h1,
+    body:has(.page) .page > .top h1 {
+        font-size:25px !important;
+    }
+
+    body:has(.case-detail-page) .section,
+    body:has(.edit-page) .edit-form,
+    body:has(.edit-history-page) .history-card,
+    body:has(.page) .page > .card {
+        padding:16px !important;
+        border-radius:12px !important;
+    }
+
+    body:has(.case-detail-page) .section > h2 {
+        font-size:19px !important;
+    }
+
+    body:has(.case-detail-page) table {
+        min-width:700px !important;
+    }
+
+    body:has(.case-detail-page) .table-container {
+        overflow-x:auto !important;
+        -webkit-overflow-scrolling:touch !important;
+    }
+}
