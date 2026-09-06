@@ -543,3 +543,124 @@ body:has(.dashboard-group) {
     opacity: 1 !important;
     -webkit-text-fill-color: #111827 !important;
 }
+
+
+/* =========================================================
+   HEADING / SUBHEADING VISIBILITY — ONLY
+   All main headings, subheadings and field labels are made
+   readable against their existing backgrounds.
+   No layout, spacing, controls, routes or functionality changed.
+========================================================= */
+
+/* General page headings and labels: dark on light page backgrounds */
+.add-case-page h1,
+.add-enquiry-page h1,
+.analytics-page h1,
+.enquiries-page h1,
+.enquiry-detail-page h1,
+.import-excel-page h1,
+.login-page h1,
+.view-business-page h1 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Dashboard: main/group headings on the light card/page areas */
+body:has(.dashboard-group) .dashboard-group > h2 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+body:has(.dashboard-group) .stat-card h3 {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+body:has(.dashboard-group) .section h2,
+body:has(.dashboard-group) .section h3 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Keep the existing Today's Hearings colored heading readable */
+body:has(.dashboard-group) .section.today h2 {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+/* Dashboard small heading/label text */
+body:has(.dashboard-group) .court-stage-card h3,
+body:has(.dashboard-group) .matter-summary b,
+body:has(.dashboard-group) .matter-date-form label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+
+/* Case Details: main heading, every subheading and every field label */
+body:has(.case-detail-page) .case-detail-page h1,
+body:has(.case-detail-page) .case-detail-page h2,
+body:has(.case-detail-page) .case-detail-page h3,
+body:has(.case-detail-page) .case-detail-page .info-label,
+body:has(.case-detail-page) .case-detail-page label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Case Details information-cell values */
+body:has(.case-detail-page) .case-detail-page .info-item {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* Edit Case: main heading and every field heading */
+body:has(.edit-page) .edit-page h1,
+body:has(.edit-page) .edit-page h2,
+body:has(.edit-page) .edit-page h3,
+body:has(.edit-page) .edit-page label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Other edit/form pages: labels visible on light backgrounds */
+body:has(.edit-form) .edit-form label,
+body:has(.form-grid) .form-grid label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+
+/* Enquiry Details headings and labels */
+body:has(.enquiry-detail-page) .enquiry-detail-page h1,
+body:has(.enquiry-detail-page) .enquiry-detail-page h2,
+body:has(.enquiry-detail-page) .enquiry-detail-page h3,
+body:has(.enquiry-detail-page) .enquiry-detail-page label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Cases page headings/labels: dark on its light controls/header area;
+   existing table/header colors remain untouched. */
+body:has(.cases-page) .cases-page h1,
+body:has(.cases-page) .cases-page h2,
+body:has(.cases-page) .cases-page h3,
+body:has(.cases-page) .cases-page .filter-field label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
