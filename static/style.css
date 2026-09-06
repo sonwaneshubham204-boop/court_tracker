@@ -1503,296 +1503,162 @@ body:has(.page) .page > .card .value {
 
 
 /* =========================================================
-   FINAL VISIBILITY / DECORATION FIX — FROM SUPPLIED SCREENSHOT
-   Visual styling only. No functionality, links, forms, data,
-   routes, JavaScript or page structure changed.
+   ADD NEW CASE — FINAL WHITE-TEXT VISIBILITY FIX
+   Scoped only to the Add New Case page structure.
+   Decoration only: no functionality, fields, actions,
+   JavaScript, routes, validation or database changes.
 ========================================================= */
 
-/* Keep dashboard/list sections visually strong */
-body:has(.dashboard-group) .section {
-    color:#f8fafc !important;
-}
-
-/* IMPORTANT: table body text must be visible on the white rows */
-body:has(.dashboard-group) .section table td,
-body:has(.dashboard-group) .section table td *,
-body:has(.dashboard-group) .section .table-container td,
-body:has(.dashboard-group) .section .table-container td * {
+/* Clean page background and readable default text */
+body:has(h1 + form) {
+    background:linear-gradient(135deg,#eef2ff 0%,#f8fafc 52%,#e0f2fe 100%) !important;
     color:#172033 !important;
     -webkit-text-fill-color:#172033 !important;
-    opacity:1 !important;
-    text-shadow:none !important;
-    font-weight:700 !important;
-}
-
-/* Clear, premium table header */
-body:has(.dashboard-group) .section table th,
-body:has(.dashboard-group) .section table th * {
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    opacity:1 !important;
-    font-weight:900 !important;
-    text-shadow:0 1px 2px rgba(0,0,0,.25) !important;
-}
-
-/* Light, alternating table rows for maximum readability */
-body:has(.dashboard-group) .section table tbody tr td {
-    background:#ffffff !important;
-    border-bottom:1px solid #dbe3ef !important;
-}
-body:has(.dashboard-group) .section table tbody tr:nth-child(even) td {
-    background:#f1f5f9 !important;
-}
-body:has(.dashboard-group) .section table tbody tr:hover td {
-    background:#e0e7ff !important;
-}
-
-/* Date / case text should never disappear into the background */
-body:has(.dashboard-group) .section table .business-date-link,
-body:has(.dashboard-group) .section table a {
-    color:#1d4ed8 !important;
-    -webkit-text-fill-color:#1d4ed8 !important;
-    font-weight:900 !important;
-    text-decoration:none !important;
-}
-body:has(.dashboard-group) .section table .weekday,
-body:has(.dashboard-group) .section table small {
-    color:#475569 !important;
-    -webkit-text-fill-color:#475569 !important;
-    font-weight:700 !important;
-}
-
-/* Open Case buttons: high contrast and consistently visible */
-body:has(.dashboard-group) .section table .open-btn,
-body:has(.dashboard-group) .section table a[class*="open"],
-body:has(.dashboard-group) .section table button {
-    display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    min-height:34px !important;
-    padding:7px 12px !important;
-    border-radius:7px !important;
-    background:linear-gradient(135deg,#173b6c,#2563eb) !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    border:1px solid #1d4ed8 !important;
-    font-weight:900 !important;
-    box-shadow:0 3px 8px rgba(29,78,216,.22) !important;
-    text-shadow:none !important;
-}
-body:has(.dashboard-group) .section table .open-btn:hover,
-body:has(.dashboard-group) .section table a[class*="open"]:hover,
-body:has(.dashboard-group) .section table button:hover {
-    background:linear-gradient(135deg,#1e3a8a,#4f46e5) !important;
-}
-
-/* Section headings remain colourful and easy to scan */
-body:has(.dashboard-group) .section h2 {
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    opacity:1 !important;
-}
-
-/* Upcoming / Tomorrow list containers */
-body:has(.dashboard-group) .section.tomorrow,
-body:has(.dashboard-group) .section.upcoming {
-    background:linear-gradient(145deg,rgba(15,23,42,.94),rgba(30,41,59,.92)) !important;
-}
-body:has(.dashboard-group) .section.tomorrow .table-container,
-body:has(.dashboard-group) .section.upcoming .table-container {
-    background:#ffffff !important;
-    box-shadow:0 4px 13px rgba(15,23,42,.18) !important;
-}
-
-/* Any muted text inside dashboard sections gets a readable tone */
-body:has(.dashboard-group) .section .muted,
-body:has(.dashboard-group) .section .text-muted {
-    color:#cbd5e1 !important;
-    -webkit-text-fill-color:#cbd5e1 !important;
-}
-
-/* Mobile remains readable without altering behaviour */
-@media (max-width:767px) {
-    body:has(.dashboard-group) .section table td {
-        font-size:13px !important;
-    }
-    body:has(.dashboard-group) .section table th {
-        font-size:13px !important;
-    }
-}
-
-
-/* =========================================================
-   ADD NEW CASE — VISIBILITY & ATTRACTIVE UI ONLY
-   Existing fields, options, actions, validation, routes,
-   JavaScript and functionality are intentionally untouched.
-   These rules only improve decoration and contrast.
-========================================================= */
-
-/* Add New Case page: use a clean, readable page surface */
-body:has(form[action="/add-case"]),
-body:has(.add-case-page),
-body:has(.add-case-form) {
-    color:#172033 !important;
+    padding:28px 20px 55px !important;
 }
 
 /* Main Add New Case heading */
-body:has(form[action="/add-case"]) h1,
-body:has(.add-case-page) h1,
-body:has(.add-case-form) h1 {
+body:has(h1 + form) > h1 {
+    width:min(1080px,100%) !important;
+    margin:0 auto 0 !important;
+    padding:20px 24px !important;
+    border-radius:16px 16px 0 0 !important;
+    background:linear-gradient(135deg,#173b6c 0%,#315fbb 58%,#4f46e5 100%) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-size:32px !important;
+    line-height:1.2 !important;
+    font-weight:900 !important;
+    letter-spacing:.1px !important;
+    box-shadow:0 8px 20px rgba(15,23,42,.14) !important;
+}
+
+/* The existing form becomes the clean white card */
+body:has(h1 + form) > form {
+    width:min(1080px,100%) !important;
+    margin:0 auto !important;
+    padding:28px 30px 30px !important;
+    border:1px solid #d5deea !important;
+    border-top:0 !important;
+    border-radius:0 0 16px 16px !important;
+    background:rgba(255,255,255,.98) !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    box-shadow:0 10px 25px rgba(15,23,42,.12) !important;
+}
+
+/* Every existing label */
+body:has(h1 + form) > form label {
+    display:inline-block !important;
+    margin:8px 0 7px !important;
     color:#173b6c !important;
     -webkit-text-fill-color:#173b6c !important;
-    font-size:clamp(28px,4vw,38px) !important;
-    font-weight:900 !important;
-    line-height:1.2 !important;
-    text-shadow:0 2px 4px rgba(23,59,108,.12) !important;
-}
-
-/* Form/card containers */
-body:has(form[action="/add-case"]) .card,
-body:has(form[action="/add-case"]) .form-card,
-body:has(form[action="/add-case"]) .section,
-body:has(form[action="/add-case"]) .add-case-form,
-body:has(.add-case-page) .card,
-body:has(.add-case-page) .form-card,
-body:has(.add-case-page) .section,
-body:has(.add-case-page) .add-case-form,
-body:has(.add-case-form) .card,
-body:has(.add-case-form) .form-card,
-body:has(.add-case-form) .section {
-    background:#ffffff !important;
-    color:#172033 !important;
-    border:1px solid #d5deea !important;
-    border-left:6px solid #4f46e5 !important;
-    border-radius:15px !important;
-    box-shadow:0 8px 22px rgba(15,23,42,.11) !important;
-}
-
-/* Every field label must be clearly visible */
-body:has(form[action="/add-case"]) label,
-body:has(.add-case-page) label,
-body:has(.add-case-form) label {
-    display:block !important;
-    color:#1e3a8a !important;
-    -webkit-text-fill-color:#1e3a8a !important;
-    font-weight:900 !important;
     font-size:15px !important;
+    font-weight:900 !important;
+    letter-spacing:.1px !important;
     opacity:1 !important;
-    text-shadow:none !important;
 }
 
-/* All normal form controls: dark text on white */
-body:has(form[action="/add-case"]) input,
-body:has(form[action="/add-case"]) select,
-body:has(form[action="/add-case"]) textarea,
-body:has(.add-case-page) input,
-body:has(.add-case-page) select,
-body:has(.add-case-page) textarea,
-body:has(.add-case-form) input,
-body:has(.add-case-form) select,
-body:has(.add-case-form) textarea {
+/* Existing text/date/select controls */
+body:has(h1 + form) > form input,
+body:has(h1 + form) > form select {
+    display:block !important;
+    width:100% !important;
+    min-height:46px !important;
+    padding:10px 13px !important;
+    border:1px solid #b8c4d4 !important;
+    border-radius:9px !important;
     background:#ffffff !important;
     color:#172033 !important;
     -webkit-text-fill-color:#172033 !important;
-    border:1px solid #b8c4d4 !important;
-    border-radius:9px !important;
-    box-shadow:inset 0 1px 2px rgba(15,23,42,.06) !important;
+    font-size:15px !important;
+    font-weight:600 !important;
     opacity:1 !important;
+    box-shadow:inset 0 1px 2px rgba(15,23,42,.05) !important;
 }
 
-/* Placeholder text */
-body:has(form[action="/add-case"]) input::placeholder,
-body:has(form[action="/add-case"]) textarea::placeholder,
-body:has(.add-case-page) input::placeholder,
-body:has(.add-case-page) textarea::placeholder,
-body:has(.add-case-form) input::placeholder,
-body:has(.add-case-form) textarea::placeholder {
+/* Placeholder */
+body:has(h1 + form) > form input::placeholder {
     color:#64748b !important;
     -webkit-text-fill-color:#64748b !important;
     opacity:1 !important;
 }
 
-/* Select options remain readable */
-body:has(form[action="/add-case"]) option,
-body:has(.add-case-page) option,
-body:has(.add-case-form) option {
+/* Dropdown options */
+body:has(h1 + form) > form select option {
     background:#ffffff !important;
     color:#172033 !important;
 }
 
-/* Focus state */
-body:has(form[action="/add-case"]) input:focus,
-body:has(form[action="/add-case"]) select:focus,
-body:has(form[action="/add-case"]) textarea:focus,
-body:has(.add-case-page) input:focus,
-body:has(.add-case-page) select:focus,
-body:has(.add-case-page) textarea:focus,
-body:has(.add-case-form) input:focus,
-body:has(.add-case-form) select:focus,
-body:has(.add-case-form) textarea:focus {
+/* Focus visibility */
+body:has(h1 + form) > form input:focus,
+body:has(h1 + form) > form select:focus {
     outline:none !important;
     border-color:#4f46e5 !important;
-    box-shadow:0 0 0 3px rgba(79,70,229,.15) !important;
+    box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
 }
 
-/* Buttons: attractive blue/purple contrast */
-body:has(form[action="/add-case"]) button,
-body:has(form[action="/add-case"]) .btn,
-body:has(.add-case-page) button,
-body:has(.add-case-page) .btn,
-body:has(.add-case-form) button,
-body:has(.add-case-form) .btn {
+/* Existing Save Case button — same action, better decoration */
+body:has(h1 + form) > form button[type="submit"] {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-height:46px !important;
+    margin-top:8px !important;
+    padding:10px 22px !important;
+    border:1px solid #1d4ed8 !important;
+    border-radius:9px !important;
     background:linear-gradient(135deg,#173b6c,#4f46e5) !important;
     color:#ffffff !important;
     -webkit-text-fill-color:#ffffff !important;
-    border:1px solid #315fbb !important;
-    border-radius:9px !important;
+    font-size:15px !important;
     font-weight:900 !important;
     box-shadow:0 4px 10px rgba(37,78,180,.20) !important;
+    cursor:pointer !important;
+}
+body:has(h1 + form) > form button[type="submit"]:hover {
+    background:linear-gradient(135deg,#1e3a8a,#3730a3) !important;
 }
 
-/* Secondary/back links */
-body:has(form[action="/add-case"]) a,
-body:has(.add-case-page) a,
-body:has(.add-case-form) a {
-    color:#1d4ed8 !important;
-    -webkit-text-fill-color:#1d4ed8 !important;
-    font-weight:800 !important;
+/* Keep the hidden Other Case Stage box visually consistent */
+body:has(h1 + form) > form #other_stage_box {
+    padding:12px 14px !important;
+    margin:2px 0 8px !important;
+    border:1px solid #ddd6fe !important;
+    border-left:4px solid #7c3aed !important;
+    border-radius:9px !important;
+    background:#faf5ff !important;
 }
 
-/* Help / muted text stays visible */
-body:has(form[action="/add-case"]) small,
-body:has(form[action="/add-case"]) .muted,
-body:has(form[action="/add-case"]) .help-text,
-body:has(.add-case-page) small,
-body:has(.add-case-page) .muted,
-body:has(.add-case-page) .help-text,
-body:has(.add-case-form) small,
-body:has(.add-case-form) .muted,
-body:has(.add-case-form) .help-text {
-    color:#475569 !important;
-    -webkit-text-fill-color:#475569 !important;
-    opacity:1 !important;
-}
-
-/* Keep the Add New Case page proportional on mobile */
+/* Mobile: same visual hierarchy, no functional changes */
 @media (max-width:767px) {
-    body:has(form[action="/add-case"]) .card,
-    body:has(form[action="/add-case"]) .form-card,
-    body:has(form[action="/add-case"]) .section,
-    body:has(.add-case-page) .card,
-    body:has(.add-case-page) .form-card,
-    body:has(.add-case-page) .section,
-    body:has(.add-case-form) .card,
-    body:has(.add-case-form) .form-card,
-    body:has(.add-case-form) .section {
-        padding:16px !important;
-        border-radius:13px !important;
+    body:has(h1 + form) {
+        padding:14px 10px 35px !important;
     }
 
-    body:has(form[action="/add-case"]) label,
-    body:has(.add-case-page) label,
-    body:has(.add-case-form) label {
+    body:has(h1 + form) > h1 {
+        padding:17px 16px !important;
+        font-size:26px !important;
+        border-radius:13px 13px 0 0 !important;
+    }
+
+    body:has(h1 + form) > form {
+        padding:18px 15px 22px !important;
+        border-radius:0 0 13px 13px !important;
+    }
+
+    body:has(h1 + form) > form label {
         font-size:14px !important;
+    }
+
+    body:has(h1 + form) > form input,
+    body:has(h1 + form) > form select {
+        min-height:48px !important;
+        font-size:16px !important;
+    }
+
+    body:has(h1 + form) > form button[type="submit"] {
+        width:100% !important;
+        min-height:48px !important;
     }
 }
