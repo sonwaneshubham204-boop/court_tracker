@@ -1806,3 +1806,45 @@ body:has(.cases-page) .cases-page table td:nth-child(4) {
         overflow-wrap:normal !important;
     }
 }
+
+
+/* COURT CASES — COMPACT ACTION COLUMN ONLY
+   Visual/layout change only. All actions and functionality remain unchanged. */
+@media (min-width:1200px) {
+    body:has(.cases-page) .cases-page table th:nth-child(10),
+    body:has(.cases-page) .cases-page table td:nth-child(10) {
+        width:150px !important;
+        min-width:150px !important;
+        max-width:150px !important;
+        padding-left:8px !important;
+        padding-right:8px !important;
+    }
+
+    body:has(.cases-page) .cases-page table td:nth-child(10) .action-btn,
+    body:has(.cases-page) .cases-page table td:nth-child(10) a,
+    body:has(.cases-page) .cases-page table td:nth-child(10) button {
+        max-width:100% !important;
+    }
+}
+
+
+/* CRN header dropdown — match the existing Case/Court/Stage dropdowns */
+body:has(.cases-page) .cases-page table th:nth-child(4) .header-filter,
+body:has(.cases-page) .cases-page #crnFilter {
+    display:block !important;
+    width:100% !important;
+    min-height:30px !important;
+    margin-top:6px !important;
+    padding:4px 6px !important;
+    border:1px solid #cbd5e1 !important;
+    border-radius:6px !important;
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    font-weight:700 !important;
+    font-size:12px !important;
+}
+body:has(.cases-page) .cases-page #crnFilter option {
+    background:#ffffff !important;
+    color:#172033 !important;
+}
