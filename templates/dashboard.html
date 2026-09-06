@@ -22,15 +22,15 @@ body{margin:0;min-height:100vh;font-family:Cambria,Georgia,serif;color:var(--tex
 .stat-card:nth-child(2):before{background:#7c3aed}.stat-card:nth-child(3):before{background:#0f766e}.stat-card:nth-child(4):before{background:#059669}.stat-card:nth-child(5):before{background:#ea580c}.stat-card:nth-child(6):before{background:#ca8a04}.stat-card:nth-child(7):before{background:#16a34a}.stat-card:nth-child(8):before{background:#dc2626}.stat-card:nth-child(9):before{background:#2563eb}.stat-card:nth-child(10):before{background:#315989}.stat-card:nth-child(11):before{background:#198754}.stat-card:nth-child(12):before{background:#7c3aed}
 .stat-card h3{margin:0 0 10px;color:#111827!important;font-size:16px;font-weight:800}
 .number{font-size:34px;line-height:1;font-weight:800;color:var(--navy)}
-.dashboard-group{margin:0 0 20px}.dashboard-group>h2{margin:0 0 10px;color:#173b6c!important;font-size:21px}.dashboard-group .stats-container{margin-bottom:0}.dashboard-group.all-cases .stat-card:nth-child(1):before{background:#ea580c}.dashboard-group.all-cases .stat-card:nth-child(2):before{background:#ca8a04}.dashboard-group.all-cases .stat-card:nth-child(3):before{background:#16a34a}.dashboard-group.all-cases .stat-card:nth-child(4):before{background:#dc2626}.dashboard-group.all-cases .stat-card:nth-child(5):before{background:#2563eb}.dashboard-group.all-cases .stat-card:nth-child(6):before{background:#315989}.dashboard-group.enquiries .stat-card:nth-child(1):before{background:#198754}.dashboard-group.enquiries .stat-card:nth-child(2):before{background:#7c3aed}
+.dashboard-group{margin:0 0 20px}.dashboard-group>h2{margin:0 0 10px;color:#173b6c;font-size:21px}.dashboard-group .stats-container{margin-bottom:0}.dashboard-group.all-cases .stat-card:nth-child(1):before{background:#ea580c}.dashboard-group.all-cases .stat-card:nth-child(2):before{background:#ca8a04}.dashboard-group.all-cases .stat-card:nth-child(3):before{background:#16a34a}.dashboard-group.all-cases .stat-card:nth-child(4):before{background:#dc2626}.dashboard-group.all-cases .stat-card:nth-child(5):before{background:#2563eb}.dashboard-group.all-cases .stat-card:nth-child(6):before{background:#315989}.dashboard-group.enquiries .stat-card:nth-child(1):before{background:#198754}.dashboard-group.enquiries .stat-card:nth-child(2):before{background:#7c3aed}
 .section{padding:22px;margin-top:20px;border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:16px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.07)}
 .section.overdue{border-left-color:#dc2626}.section.today{border-left-color:#ea580c}.section.tomorrow{border-left-color:#ca8a04}.section.upcoming{border-left-color:#16a34a}
-.section h2{margin:0 0 18px;color:#173b6c!important;text-shadow:0 1px 2px rgba(0,0,0,.15)}
-.section.today h2{display:inline-block;padding:4px 10px;background:linear-gradient(90deg,#173b6c,#2563eb);border-radius:0;color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.75)}
+.section h2{margin:0 0 18px;color:#ffffff!important;text-shadow:0 1px 2px rgba(0,0,0,.75)}
+.section.today h2{display:inline-block;padding:4px 10px;background:linear-gradient(90deg,#173b6c,#2563eb);border-radius:0;color:#fff!important}
 .table-container{overflow-x:auto;border:1px solid rgba(255,255,255,.35);border-radius:11px}
 table{width:100%;min-width:720px;border-collapse:collapse;background:transparent}
 th{padding:14px;text-align:left;color:#fff;background:linear-gradient(90deg,#173b6c,#3f3bb7);font-size:13px}
-td{padding:14px;border-top:1px solid rgba(255,255,255,.22);color:#172033!important;background:rgba(255,255,255,.10);vertical-align:middle}
+td{padding:14px;border-top:1px solid rgba(255,255,255,.22);color:#fff!important;background:rgba(255,255,255,.10);vertical-align:middle}
 tbody tr:nth-child(even) td{background:rgba(255,255,255,.14)}tbody tr:hover td{background:rgba(255,255,255,.18)}td:nth-child(4){white-space:nowrap}
 .stage-list{display:flex;flex-wrap:wrap;gap:10px}
 .stage-list a{display:inline-flex;padding:10px 14px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#111827!important;text-decoration:none;font-weight:700}
@@ -68,6 +68,48 @@ tbody tr:nth-child(even) td{background:rgba(255,255,255,.14)}tbody tr:hover td{b
     .topbar h1{font-size:22px!important}
     .nav a{font-size:15px!important}
     .section{padding:12px!important}
+}
+
+
+/* ===== DASHBOARD READABILITY FIX ONLY ===== */
+.dashboard-group > h2{
+    color:#ffffff !important;
+    font-weight:900 !important;
+    text-shadow:0 2px 4px rgba(0,0,0,.95), 0 0 2px rgba(0,0,0,.9);
+}
+.stat-card{
+    background:rgba(7,22,48,.78) !important;
+    border-color:rgba(255,255,255,.48) !important;
+}
+.stat-card h3{
+    color:#ffffff !important;
+    font-weight:900 !important;
+    text-shadow:0 2px 4px rgba(0,0,0,.95);
+}
+.stat-card .number{
+    color:#8fd7ff !important;
+    font-weight:900 !important;
+    text-shadow:0 2px 4px rgba(0,0,0,.95);
+}
+.section h2{
+    color:#ffffff !important;
+    font-weight:900 !important;
+    text-shadow:0 2px 4px rgba(0,0,0,.95), 0 0 2px rgba(0,0,0,.9);
+}
+.section.tomorrow h2,
+.section.upcoming h2,
+.section.overdue h2{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:7px;
+    background:rgba(7,22,48,.78);
+}
+.section.today h2{
+    font-weight:900 !important;
+    text-shadow:0 2px 4px rgba(0,0,0,.95);
+}
+.section .table-container{
+    box-shadow:0 2px 10px rgba(0,0,0,.18);
 }
 
 </style>
