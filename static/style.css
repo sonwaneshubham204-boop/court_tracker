@@ -539,3 +539,172 @@ body:has(.dashboard-group) {
     -webkit-text-fill-color: #111827 !important;
     opacity: 1 !important;
 }
+
+
+/* =========================================================
+   LOCKED SCREENSHOT VISUAL FIXES — ONLY
+   No functionality, routes, database, JS, CRUD or data changes.
+========================================================= */
+
+/* 1. COURT CASES — four options: larger, bold, purple/blue. */
+.cases-page .top-links a,
+.cases-page .top-links button{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
+    border:1px solid rgba(255,255,255,.42) !important;
+    font-weight:800 !important;
+    box-shadow:0 3px 10px rgba(37,99,235,.28) !important;
+}
+.cases-page .top-links a{
+    font-size:1rem !important;
+}
+
+/* Filter/Search/Clear controls share the same height and baseline. */
+.cases-page .compact-row,
+.cases-page .compact-search{
+    align-items:center !important;
+}
+.cases-page .compact-row > a,
+.cases-page .compact-row > button,
+.cases-page .compact-search > a,
+.cases-page .compact-search > button{
+    min-height:42px !important;
+    box-sizing:border-box !important;
+}
+
+/* Filter button specifically. */
+.cases-page .search-card .filter-toggle{
+    min-height:42px !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
+    border:1px solid rgba(255,255,255,.45) !important;
+    font-weight:800 !important;
+    box-shadow:0 3px 9px rgba(37,99,235,.28) !important;
+}
+
+/* 2. Search input and its action controls remain parallel. */
+.cases-page .search-card input{
+    min-height:42px !important;
+    box-sizing:border-box !important;
+}
+.cases-page .search-card .search-btn{
+    min-height:42px !important;
+    background:#2563eb !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #60a5fa !important;
+    font-weight:800 !important;
+}
+.cases-page .search-card .clear-btn{
+    min-height:42px !important;
+    background:#475569 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #94a3b8 !important;
+    font-weight:800 !important;
+}
+
+/* 3. TOMORROW'S HEARINGS — strong, readable section. */
+.dashboard-group .section.tomorrow{
+    border:1px solid rgba(255,255,255,.42) !important;
+    box-shadow:0 8px 20px rgba(15,23,42,.22) !important;
+}
+.dashboard-group .section.tomorrow h2{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55) !important;
+}
+.dashboard-group .section.tomorrow table{
+    border:1px solid rgba(255,255,255,.32) !important;
+    border-collapse:separate !important;
+    border-spacing:0 !important;
+}
+.dashboard-group .section.tomorrow th{
+    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.30) !important;
+}
+.dashboard-group .section.tomorrow td{
+    background:rgba(255,255,255,.12) !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.22) !important;
+}
+
+/* 4. SELECTED DATE — date text is clearly visible. */
+.dashboard-group .matter-date-form label{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:800 !important;
+}
+.dashboard-group .matter-date-form input[type="date"]{
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #94a3b8 !important;
+    font-weight:700 !important;
+    opacity:1 !important;
+}
+
+/* 5. RECENT HEARING UPDATES — actual dashboard section is .section
+   immediately containing the Recent Hearing Updates heading. */
+.dashboard-group .section:has(h2) h2{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+.dashboard-group .section:has(h2) table{
+    border:1px solid rgba(255,255,255,.30) !important;
+    border-collapse:separate !important;
+    border-spacing:0 !important;
+}
+.dashboard-group .section:has(h2) th{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid rgba(255,255,255,.30) !important;
+}
+.dashboard-group .section:has(h2) td{
+    border:1px solid rgba(255,255,255,.22) !important;
+}
+
+/* 6. EDIT CASE — exact Clear button IDs from the template. */
+.edit-page #clear_decision_date,
+.edit-page #clear_next_hearing_date{
+    display:inline-block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
+    border:1px solid #93c5fd !important;
+    font-weight:800 !important;
+    box-shadow:0 3px 8px rgba(37,99,235,.28) !important;
+}
+
+/* 7. ADD CASE HISTORY — section/form controls get clear outlines
+   and readable labels, without changing structure. */
+.case-detail-page .section{
+    border:1px solid #64748b !important;
+    box-shadow:0 7px 18px rgba(15,23,42,.18) !important;
+}
+.case-detail-page .section input,
+.case-detail-page .section select,
+.case-detail-page .section textarea{
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    border:1px solid #94a3b8 !important;
+}
+.case-detail-page .section input::placeholder,
+.case-detail-page .section textarea::placeholder{
+    color:#64748b !important;
+    -webkit-text-fill-color:#64748b !important;
+}
+.case-detail-page .section label{
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:700 !important;
+}
