@@ -497,32 +497,20 @@ body:has(.cases-page) .cases-page .weekday-dark {
     color: #ffffff !important;
 }
 
-/* ===== BACKGROUND ONLY ===== */
-html, body {
-    min-height: 100%;
-}
-body {
-    background: url("court_tracker_dashboard_background(1) (1).png") center center / cover no-repeat fixed !important;
-}
-
-/* ===== DASHBOARD CARD TEXT VISIBILITY FIX ONLY ===== */
-body .stat-card h3,
-body .stat-card h3 * {
-    color:#ffffff !important;
-    text-shadow:0 1px 3px rgba(0,0,0,.75) !important;
-    opacity:1 !important;
+/* ===== DASHBOARD BACKGROUND ONLY =====
+   Uses the supplied mountain-sky image.
+   No dashboard layout, cards, buttons, text, or functionality changed.
+*/
+body:has(.dashboard-group) {
+    background-image: url('/static/court_tracker_dashboard_background.png') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
 }
 
-body .stat-card h3 {
-    display:flex !important;
-    align-items:center !important;
-    gap:8px !important;
-    white-space:normal !important;
-}
-
-body .stat-card .number,
-body .stat-card .number * {
-    color:#8fd8ff !important;
-    text-shadow:0 1px 3px rgba(0,0,0,.75) !important;
-    opacity:1 !important;
+/* Readability fix only: prevent selection highlight on dashboard empty-state messages */
+.empty-message {
+    user-select: none;
+    -webkit-user-select: none;
 }
