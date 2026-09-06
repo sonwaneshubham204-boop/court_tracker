@@ -1319,3 +1319,71 @@ body:has(.cases-page) .cases-page .table-wrap td:nth-child(4) {
         min-width:1250px !important;
     }
 }
+
+
+/* =========================================================
+   CRN COLUMN — ONLY REQUESTED FIX
+   CRN No is inserted between Case Number and Court.
+   Existing UI/functionality is otherwise preserved.
+========================================================= */
+.table-wrap table col.col-check  { width:4% !important; }
+.table-wrap table col.col-id     { width:5% !important; }
+.table-wrap table col.col-case   { width:12% !important; }
+.table-wrap table col.col-crn    { width:12% !important; }
+.table-wrap table col.col-court  { width:8% !important; }
+.table-wrap table col.col-parties{ width:19% !important; }
+.table-wrap table col.col-stage  { width:10% !important; }
+.table-wrap table col.col-date   { width:11% !important; }
+.table-wrap table col.col-left   { width:5% !important; }
+.table-wrap table col.col-action { width:14% !important; }
+
+/* CRN: compact, single-line, no overlap into Court */
+.table-wrap th:nth-child(4),
+.table-wrap td:nth-child(4) {
+    white-space:nowrap !important;
+    word-break:normal !important;
+    overflow-wrap:normal !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+}
+
+/* Restore the intended wrapping after inserting CRN as column 4 */
+.table-wrap th:nth-child(3),
+.table-wrap td:nth-child(3),
+.table-wrap th:nth-child(6),
+.table-wrap td:nth-child(6),
+.table-wrap th:nth-child(7),
+.table-wrap td:nth-child(7),
+.table-wrap th:nth-child(8),
+.table-wrap td:nth-child(8),
+.table-wrap th:nth-child(9),
+.table-wrap td:nth-child(9) {
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    word-break:break-word !important;
+}
+
+/* Action remains a compact vertical button stack */
+.table-wrap th:nth-child(10),
+.table-wrap td:nth-child(10) {
+    overflow:visible !important;
+}
+
+/* CRN dropdown uses the exact existing header-filter appearance */
+.table-wrap th:nth-child(4) .header-filter {
+    display:block !important;
+    width:100% !important;
+    margin-top:6px !important;
+    padding:4px 22px 4px 6px !important;
+    border:1px solid rgba(255,255,255,.55) !important;
+    border-radius:4px !important;
+    background:rgba(255,255,255,.16) !important;
+    color:#fff !important;
+    font:inherit !important;
+    font-size:12px !important;
+    cursor:pointer !important;
+}
+.table-wrap th:nth-child(4) .header-filter option {
+    color:#111827 !important;
+    background:#fff !important;
+}
