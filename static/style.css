@@ -1322,68 +1322,58 @@ body:has(.cases-page) .cases-page .table-wrap td:nth-child(4) {
 
 
 /* =========================================================
-   CRN COLUMN — ONLY REQUESTED FIX
-   CRN No is inserted between Case Number and Court.
-   Existing UI/functionality is otherwise preserved.
+   CNR COLUMN — FINAL VISIBILITY / SPACE CORRECTION
+   Visual/table presentation only. Existing CNR data and
+   functionality are untouched.
 ========================================================= */
-.table-wrap table col.col-check  { width:4% !important; }
-.table-wrap table col.col-id     { width:5% !important; }
-.table-wrap table col.col-case   { width:12% !important; }
-.table-wrap table col.col-crn    { width:12% !important; }
-.table-wrap table col.col-court  { width:8% !important; }
-.table-wrap table col.col-parties{ width:19% !important; }
-.table-wrap table col.col-stage  { width:10% !important; }
-.table-wrap table col.col-date   { width:11% !important; }
-.table-wrap table col.col-left   { width:5% !important; }
-.table-wrap table col.col-action { width:14% !important; }
 
-/* CRN: compact, single-line, no overlap into Court */
-.table-wrap th:nth-child(4),
-.table-wrap td:nth-child(4) {
-    white-space:nowrap !important;
-    word-break:normal !important;
-    overflow-wrap:normal !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
+body:has(.cases-page) .cases-page .table-wrap table {
+    width:100% !important;
+    min-width:1250px !important;
+    max-width:none !important;
+    table-layout:fixed !important;
 }
 
-/* Restore the intended wrapping after inserting CRN as column 4 */
-.table-wrap th:nth-child(3),
-.table-wrap td:nth-child(3),
-.table-wrap th:nth-child(6),
-.table-wrap td:nth-child(6),
-.table-wrap th:nth-child(7),
-.table-wrap td:nth-child(7),
-.table-wrap th:nth-child(8),
-.table-wrap td:nth-child(8),
-.table-wrap th:nth-child(9),
-.table-wrap td:nth-child(9) {
-    white-space:normal !important;
+/* Explicitly allocate all 10 existing columns.
+   Total = 100%, with a dedicated 10% CNR column. */
+body:has(.cases-page) .cases-page .table-wrap col.col-check { width:4% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-id { width:5% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-case { width:14% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-crn { width:10% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-court { width:8% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-parties { width:20% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-stage { width:10% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-date { width:11% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-left { width:6% !important; }
+body:has(.cases-page) .cases-page .table-wrap col.col-action { width:12% !important; }
+
+/* CNR header/value is a real visible table cell */
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(4),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(4) {
+    display:table-cell !important;
+    visibility:visible !important;
+    opacity:1 !important;
     overflow-wrap:anywhere !important;
     word-break:break-word !important;
 }
 
-/* Action remains a compact vertical button stack */
-.table-wrap th:nth-child(10),
-.table-wrap td:nth-child(10) {
-    overflow:visible !important;
-}
+/* CNR ONLY: keep its existing position and give it its own horizontal space. */
+@media (min-width: 769px) {
+  .cases-page .table-wrap table {
+    table-layout: auto !important;
+    width: 100% !important;
+    min-width: 1400px !important;
+  }
 
-/* CRN dropdown uses the exact existing header-filter appearance */
-.table-wrap th:nth-child(4) .header-filter {
-    display:block !important;
-    width:100% !important;
-    margin-top:6px !important;
-    padding:4px 22px 4px 6px !important;
-    border:1px solid rgba(255,255,255,.55) !important;
-    border-radius:4px !important;
-    background:rgba(255,255,255,.16) !important;
-    color:#fff !important;
-    font:inherit !important;
-    font-size:12px !important;
-    cursor:pointer !important;
-}
-.table-wrap th:nth-child(4) .header-filter option {
-    color:#111827 !important;
-    background:#fff !important;
+  .cases-page .table-wrap table col.col-crn {
+    width: 190px !important;
+    min-width: 190px !important;
+  }
+
+  .cases-page .table-wrap table th:nth-child(4),
+  .cases-page .table-wrap table td:nth-child(4) {
+    width: 190px !important;
+    min-width: 190px !important;
+    white-space: nowrap !important;
+  }
 }
