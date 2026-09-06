@@ -511,24 +511,35 @@ body:has(.dashboard-group) {
 
 
 /* =========================================================
-   FINAL VISIBILITY FIX — HEADINGS / CELL TEXT ONLY
-   No layout, spacing, functionality, routes or controls changed.
+   MAIN HEADINGS + SUBHEADINGS — VISIBILITY ONLY
+   No layout, spacing, controls or functionality changed.
 ========================================================= */
 
-/* Edit Case: every field heading above its input */
-.edit-page .edit-form label {
+/* Case Details */
+.case-detail-page h1,
+.case-detail-page h2,
+.case-detail-page h3,
+.case-detail-page .section h2,
+.case-detail-page .section h3 {
     color: #111827 !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #111827 !important;
     text-shadow: none !important;
 }
 
-/* Case Details: text inside each information cell */
-.case-detail-page .case-info .info-item,
-.case-detail-page .case-info .info-item * {
+/* Edit Case */
+.edit-page h1,
+.edit-page h2,
+.edit-page h3 {
     color: #111827 !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #111827 !important;
     text-shadow: none !important;
 }
 
-/* Case Details: labels specifically */
-.case-detail-page .case-info .info-label {
-    color: #334155 !important;
+/* Field labels on Edit Case */
+.edit-page label {
+    color: #111827 !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #111827 !important;
 }
