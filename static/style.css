@@ -1671,3 +1671,138 @@ body:has(.cases-page) .cases-page table td:nth-child(4) {
     word-break:normal !important;
     overflow-wrap:normal !important;
 }
+
+
+/* COURT CASES — GIVE CRN MORE ROOM BY REDUCING THE SPACE BEFORE IT
+   Visual-only: shift the CRN column left and widen it enough for one line. */
+body:has(.cases-page) .cases-page table th:nth-child(3),
+body:has(.cases-page) .cases-page table td:nth-child(3) {
+    width:92px !important;
+    min-width:92px !important;
+    max-width:92px !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+}
+body:has(.cases-page) .cases-page table th:nth-child(4),
+body:has(.cases-page) .cases-page table td:nth-child(4) {
+    width:165px !important;
+    min-width:165px !important;
+    max-width:165px !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+    white-space:nowrap !important;
+    word-break:normal !important;
+    overflow-wrap:normal !important;
+}
+
+
+/* =========================================================
+   COURT CASES — FINAL COLUMN PROPORTION FIX
+   CRN gets enough room without overlapping the next column.
+   Page/table may use additional width on desktop.
+   Visual/layout only; no functionality changed.
+========================================================= */
+
+@media (min-width: 1200px) {
+    body:has(.cases-page) .cases-page {
+        max-width: 1440px !important;
+        width: calc(100% - 28px) !important;
+    }
+
+    body:has(.cases-page) .cases-page table {
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+
+    /* Checkbox + ID */
+    body:has(.cases-page) .cases-page table th:nth-child(1),
+    body:has(.cases-page) .cases-page table td:nth-child(1) {
+        width:44px !important;
+        min-width:44px !important;
+    }
+    body:has(.cases-page) .cases-page table th:nth-child(2),
+    body:has(.cases-page) .cases-page table td:nth-child(2) {
+        width:58px !important;
+        min-width:58px !important;
+    }
+
+    /* Case Number — slightly reduced */
+    body:has(.cases-page) .cases-page table th:nth-child(3),
+    body:has(.cases-page) .cases-page table td:nth-child(3) {
+        width:150px !important;
+        min-width:150px !important;
+        max-width:150px !important;
+        padding-left:9px !important;
+        padding-right:9px !important;
+    }
+
+    /* CRN — enough width for the complete value on one line */
+    body:has(.cases-page) .cases-page table th:nth-child(4),
+    body:has(.cases-page) .cases-page table td:nth-child(4) {
+        width:185px !important;
+        min-width:185px !important;
+        max-width:185px !important;
+        padding-left:9px !important;
+        padding-right:9px !important;
+        white-space:nowrap !important;
+        word-break:normal !important;
+        overflow-wrap:normal !important;
+    }
+
+    /* Remaining columns keep balanced proportions */
+    body:has(.cases-page) .cases-page table th:nth-child(5),
+    body:has(.cases-page) .cases-page table td:nth-child(5) {
+        width:95px !important;
+        min-width:95px !important;
+    }
+    body:has(.cases-page) .cases-page table th:nth-child(6),
+    body:has(.cases-page) .cases-page table td:nth-child(6) {
+        width:230px !important;
+        min-width:230px !important;
+    }
+    body:has(.cases-page) .cases-page table th:nth-child(7),
+    body:has(.cases-page) .cases-page table td:nth-child(7) {
+        width:125px !important;
+        min-width:125px !important;
+    }
+    body:has(.cases-page) .cases-page table th:nth-child(8),
+    body:has(.cases-page) .cases-page table td:nth-child(8) {
+        width:145px !important;
+        min-width:145px !important;
+    }
+    body:has(.cases-page) .cases-page table th:nth-child(9),
+    body:has(.cases-page) .cases-page table td:nth-child(9) {
+        width:115px !important;
+        min-width:115px !important;
+    }
+    body:has(.cases-page) .cases-page table th:nth-child(10),
+    body:has(.cases-page) .cases-page table td:nth-child(10) {
+        width:185px !important;
+        min-width:185px !important;
+    }
+
+    /* Action buttons remain contained in their own column */
+    body:has(.cases-page) .cases-page table td:last-child {
+        overflow:hidden !important;
+        padding-left:10px !important;
+        padding-right:10px !important;
+    }
+}
+
+/* On smaller desktop/tablet widths, keep CRN one line and allow
+   the table to scroll instead of forcing text into another column. */
+@media (min-width:768px) and (max-width:1199px) {
+    body:has(.cases-page) .cases-page table {
+        min-width:1280px !important;
+        table-layout:auto !important;
+    }
+
+    body:has(.cases-page) .cases-page table th:nth-child(4),
+    body:has(.cases-page) .cases-page table td:nth-child(4) {
+        min-width:185px !important;
+        width:185px !important;
+        white-space:nowrap !important;
+        word-break:normal !important;
+        overflow-wrap:normal !important;
+    }
+}
