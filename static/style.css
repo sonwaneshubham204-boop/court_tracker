@@ -510,53 +510,8 @@ body:has(.dashboard-group) {
 }
 
 
-/* =========================================================
-   CASE DETAILS — ONLY VISIBILITY FIX
-   No layout, functionality, routes, buttons or other pages changed.
-========================================================= */
-body:has(.case-detail-page) {
-    background-image: none !important;
-    background-color: #eef3f8 !important;
+/* EDIT CASE — HEADING VISIBILITY ONLY */
+body:has(.edit-page) .form-group > label,
+body:has(.edit-page) label {
     color: #111827 !important;
-}
-
-.case-detail-page .section {
-    background: #ffffff !important;
-    color: #111827 !important;
-    border-color: #cbd5e1 !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,.08) !important;
-}
-
-.case-detail-page .section h2,
-.case-detail-page .section h3,
-.case-detail-page .section p,
-.case-detail-page .section label,
-.case-detail-page .section td,
-.case-detail-page .section li {
-    color: #111827 !important;
-}
-
-.case-detail-page .info-item {
-    background: #f8fafc !important;
-    color: #111827 !important;
-}
-
-.case-detail-page .info-label {
-    color: #334155 !important;
-}
-
-.case-detail-page .file-info,
-.case-detail-page .empty-message {
-    color: #475569 !important;
-}
-
-.case-detail-page input,
-.case-detail-page select,
-.case-detail-page textarea {
-    color: #172033 !important;
-    background: #ffffff !important;
-}
-
-.case-detail-page .page-header h1 {
-    color: #173b6c !important;
 }
