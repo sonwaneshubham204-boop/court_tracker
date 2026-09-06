@@ -31,12 +31,7 @@ body{
     min-height:100vh;
     font-family:Cambria,Georgia,serif !important;
     font-size:1rem;
-    background-color:var(--bg);
-    background-image:url("court_tracker_background.jpg") !important;
-    background-size:cover !important;
-    background-position:center center !important;
-    background-repeat:no-repeat !important;
-    background-attachment:fixed !important;
+    background:var(--bg);
     color:var(--text);
     line-height:1.5;
 }
@@ -274,123 +269,138 @@ tbody tr:hover td{background:#fff8df}
     .table-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
 
-/* ===== COURT TRACKER BACKGROUND READABILITY =====
-   Uses the supplied background image with a dark glass treatment.
-   No application logic/layout changes. */
-body{
+/* =========================================================
+   COURT TRACKER BACKGROUND + READABILITY FIX
+   Visual styling only. No functionality/layout/routes changes.
+========================================================= */
+html, body {
+    min-height: 100%;
+}
+
+body {
+    background-color: #07101f !important;
     background-image:
-        linear-gradient(rgba(4,8,25,.56),rgba(4,8,25,.56)),
-        url("court_tracker_background.jpg") !important;
-    background-size:cover !important;
-    background-position:center center !important;
-    background-repeat:no-repeat !important;
-    background-attachment:fixed !important;
+        linear-gradient(rgba(5, 10, 28, .52), rgba(5, 10, 28, .52)),
+        url('/static/court_tracker_background.jpg') !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-size: cover !important;
+    background-attachment: fixed !important;
+    color: #fff !important;
 }
 
-/* Keep common app surfaces translucent so the supplied image remains visible. */
-.table-container,
-.card,
-.section,
-.stat-card{
-    background:rgba(7,12,30,.62) !important;
-    color:#fff !important;
-    border-color:rgba(255,255,255,.22) !important;
+/* Dashboard: dark glass panels + high-contrast text */
+body .container .dashboard-group > h2,
+body .container .dashboard-group > h3,
+body .container .section h2,
+body .container .section h3,
+body .container .section p,
+body .container .section label,
+body .container .matter-summary b,
+body .container .court-stage-card h3,
+body .container .court-stage-card li,
+body .container .court-stage-card li a,
+body .container .court-stage-card p {
+    color: #fff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.55);
 }
 
-.table-container table,
-.table-container td,
-.table-container tbody tr:nth-child(even) td,
-.table-container tbody tr:hover td{
-    background:rgba(7,12,30,.48) !important;
-    color:#fff !important;
-    border-color:rgba(255,255,255,.20) !important;
+body .container .dashboard-group > h2,
+body .container .section h2 {
+    color: #fff !important;
 }
 
-.table-container th{color:#fff !important;}
-.card h1,.card h2,.card h3,
-.section h1,.section h2,.section h3,
-.stat-card h1,.stat-card h2,.stat-card h3,
-.section p,.card p,.stat-card p{
-    color:#fff !important;
+body .container .stat-card {
+    background: rgba(7, 16, 35, .70) !important;
+    border: 1px solid rgba(255,255,255,.28) !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.28) !important;
+    color: #fff !important;
+}
+body .container .stat-card h3 {
+    color: #fff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+body .container .stat-card .number {
+    color: #7dd3fc !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,.65);
 }
 
-/* Cases page: exact dark/transparent readability treatment from the reference. */
-.cases-page,
-.cases-page h1,
-.cases-page h2,
-.cases-page h3,
-.cases-page p,
-.cases-page label,
-.cases-page .top-links a,
-.cases-page .weekday,
-.cases-page .weekday-dark{
-    color:#fff !important;
+body .container .section {
+    background: rgba(7, 16, 35, .68) !important;
+    border-color: rgba(255,255,255,.25) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,.28) !important;
 }
 
-.cases-page .search-card,
-.cases-page .table-wrap,
-.cases-page table{
-    background:rgba(7,12,30,.56) !important;
-    color:#fff !important;
-    border-color:rgba(255,255,255,.24) !important;
+body .container .table-container {
+    background: rgba(7, 16, 35, .55) !important;
+    border-color: rgba(255,255,255,.25) !important;
+}
+body .container .table-container table {
+    background: transparent !important;
+}
+body .container .table-container td {
+    background: rgba(7,16,35,.55) !important;
+    color: #fff !important;
+    border-color: rgba(255,255,255,.20) !important;
+}
+body .container .table-container tbody tr:nth-child(even) td,
+body .container .table-container tbody tr:hover td {
+    background: rgba(15,28,53,.62) !important;
+    color: #fff !important;
+}
+body .container .table-container th {
+    color: #fff !important;
 }
 
-.cases-page tbody tr td{
-    background:rgba(7,12,30,.50) !important;
-    color:#fff !important;
-    border-color:rgba(255,255,255,.22) !important;
+body .container .court-stage-card {
+    background: rgba(7,16,35,.62) !important;
+    border-color: rgba(255,255,255,.25) !important;
+    color: #fff !important;
+}
+body .container .court-stage-card li a {
+    color: #fff !important;
+}
+body .container .court-stage-card li a.selected-date-stage-highlight {
+    color: #ff6b6b !important;
 }
 
-.cases-page tbody tr:nth-child(even) td,
-.cases-page tbody tr:hover td{
-    background:rgba(7,12,30,.50) !important;
-    color:#fff !important;
+body .container .matter-summary div {
+    background: rgba(7,16,35,.62) !important;
+    border-color: rgba(255,255,255,.25) !important;
+    color: #fff !important;
+}
+body .container .matter-summary div b {
+    color: #fff !important;
 }
 
-.cases-page td a,
-.cases-page td .weekday,
-.cases-page td .weekday-dark{
-    color:#fff !important;
+body .container .matter-date-form input {
+    background: #fff !important;
+    color: #172033 !important;
 }
 
-.cases-page .filter-toggle{
-    color:#111827 !important;
+body .container .empty-message {
+    color: #14532d !important;
+    background: #f0fdf4 !important;
+    text-shadow: none !important;
 }
 
-.cases-page .bulkbar{
-    background:rgba(7,12,30,.82) !important;
-    color:#fff !important;
-    border-color:rgba(255,255,255,.25) !important;
+/* Keep the existing header/navigation readable */
+body .container .topbar {
+    background: linear-gradient(135deg, rgba(23,59,108,.96), rgba(49,95,187,.94)) !important;
+}
+body .container .nav a {
+    color: #111827 !important;
 }
 
-.cases-page .modal .box{
-    background:rgba(7,12,30,.94) !important;
-    color:#fff !important;
-    border:1px solid rgba(255,255,255,.25) !important;
+/* Date/stage summary cards in the screenshot */
+body .container .matter-summary,
+body .container .matter-summary * {
+    color: #fff !important;
 }
 
-/* Mobile case cards follow the same dark glass treatment. */
-.cases-page .mobile-case-card,
-.cases-page .mobile-case-card .card-body,
-.cases-page .mobile-case-card .mobile-detail-box,
-.cases-page .mobile-case-card .mobile-party-box{
-    background:rgba(7,12,30,.58) !important;
-    color:#fff !important;
-    border-color:rgba(255,255,255,.22) !important;
-}
-
-.cases-page .mobile-case-card .mobile-case-number,
-.cases-page .mobile-case-card .mobile-detail-label,
-.cases-page .mobile-case-card .mobile-detail-value,
-.cases-page .mobile-case-card .vs-highlight{
-    color:#fff !important;
-}
-
-/* Today/selected highlight rules remain stronger than the glass treatment. */
-.cases-page .today-hearing-case td,
-.cases-page .today-hearing-case .card-body,
-.cases-page .today-hearing-case .mobile-detail-box,
-.cases-page .today-hearing-case .mobile-party-box{
-    background:#173b6c !important;
-    color:#fff !important;
+/* Mobile: retain same contrast */
+@media (max-width: 900px) {
+    body {
+        background-attachment: scroll !important;
+    }
 }
