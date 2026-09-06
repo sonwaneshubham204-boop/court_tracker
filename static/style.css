@@ -542,169 +542,148 @@ body:has(.dashboard-group) {
 
 
 /* =========================================================
-   LOCKED SCREENSHOT VISUAL FIXES — ONLY
-   No functionality, routes, database, JS, CRUD or data changes.
+   SCREENSHOT REVIEW — VISUAL ONLY
+   Court Cases heading + search controls + dashboard background.
+   No functionality/layout logic/routes/database changes.
 ========================================================= */
 
-/* 1. COURT CASES — four options: larger, bold, purple/blue. */
-.cases-page .top-links a,
-.cases-page .top-links button{
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
-    border:1px solid rgba(255,255,255,.42) !important;
-    font-weight:800 !important;
-    box-shadow:0 3px 10px rgba(37,99,235,.28) !important;
-}
-.cases-page .top-links a{
-    font-size:1rem !important;
+/* COURT CASES: large, bold and clearly coloured */
+body:has(.cases-page) .cases-page > h1 {
+    display:block !important;
+    margin: 8px 0 10px !important;
+    font-size: 34px !important;
+    line-height: 1.15 !important;
+    font-weight: 900 !important;
+    letter-spacing: .2px !important;
+    color: #4f46e5 !important;
+    -webkit-text-fill-color: #4f46e5 !important;
+    text-shadow: 0 2px 4px rgba(15,23,42,.18) !important;
 }
 
-/* Filter/Search/Clear controls share the same height and baseline. */
-.cases-page .compact-row,
-.cases-page .compact-search{
+/* Top navigation links: attractive blue/purple pills */
+body:has(.cases-page) .cases-page .top-links {
+    display:flex !important;
+    flex-wrap:wrap !important;
     align-items:center !important;
+    gap:8px !important;
+    margin: 4px 0 12px !important;
 }
-.cases-page .compact-row > a,
-.cases-page .compact-row > button,
-.cases-page .compact-search > a,
-.cases-page .compact-search > button{
-    min-height:42px !important;
-    box-sizing:border-box !important;
-}
-
-/* Filter button specifically. */
-.cases-page .search-card .filter-toggle{
-    min-height:42px !important;
+body:has(.cases-page) .cases-page .top-links a {
+    display:inline-flex !important;
+    align-items:center !important;
+    min-height:34px !important;
+    padding:6px 11px !important;
+    margin:0 !important;
+    border-radius:7px !important;
+    background:#4f46e5 !important;
     color:#ffffff !important;
     -webkit-text-fill-color:#ffffff !important;
-    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
-    border:1px solid rgba(255,255,255,.45) !important;
     font-weight:800 !important;
-    box-shadow:0 3px 9px rgba(37,99,235,.28) !important;
+    text-decoration:none !important;
+    text-shadow:none !important;
+    box-shadow:0 2px 7px rgba(30,41,59,.18) !important;
+}
+body:has(.cases-page) .cases-page .top-links a:hover {
+    background:#3730a3 !important;
+    color:#ffffff !important;
 }
 
-/* 2. Search input and its action controls remain parallel. */
-.cases-page .search-card input{
-    min-height:42px !important;
-    box-sizing:border-box !important;
+/* Search/filter row: every control is the same height and vertically parallel */
+@media (min-width:768px) {
+    body:has(.cases-page) .cases-page .search-card .compact-row {
+        display:grid !important;
+        grid-template-columns:minmax(260px,1fr) 112px 102px minmax(190px,210px) 82px !important;
+        align-items:stretch !important;
+        gap:8px !important;
+        width:100% !important;
+    }
+
+    body:has(.cases-page) .cases-page .search-card .compact-search {
+        display:flex !important;
+        min-width:0 !important;
+        width:100% !important;
+    }
+
+    body:has(.cases-page) .cases-page .search-card .compact-search input,
+    body:has(.cases-page) .cases-page .search-card .filter-toggle,
+    body:has(.cases-page) .cases-page .search-card .search-btn,
+    body:has(.cases-page) .cases-page .search-card .highlight-filter,
+    body:has(.cases-page) .cases-page .search-card .clear-btn {
+        box-sizing:border-box !important;
+        height:46px !important;
+        min-height:46px !important;
+        max-height:46px !important;
+        margin:0 !important;
+        align-self:stretch !important;
+        border-radius:8px !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        font-weight:800 !important;
+        line-height:1.1 !important;
+    }
 }
-.cases-page .search-card .search-btn{
-    min-height:42px !important;
+
+/* The four case controls must not be dull/white */
+body:has(.cases-page) .cases-page .filter-toggle {
+    background:#6d28d9 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #5b21b6 !important;
+    text-shadow:none !important;
+    box-shadow:0 2px 7px rgba(76,29,149,.25) !important;
+}
+body:has(.cases-page) .cases-page .search-btn {
     background:#2563eb !important;
     color:#ffffff !important;
     -webkit-text-fill-color:#ffffff !important;
-    border:1px solid #60a5fa !important;
-    font-weight:800 !important;
+    border:1px solid #1d4ed8 !important;
+    text-shadow:none !important;
+    box-shadow:0 2px 7px rgba(29,78,216,.25) !important;
 }
-.cases-page .search-card .clear-btn{
-    min-height:42px !important;
-    background:#475569 !important;
+body:has(.cases-page) .cases-page .highlight-filter {
+    background:#7c3aed !important;
     color:#ffffff !important;
     -webkit-text-fill-color:#ffffff !important;
-    border:1px solid #94a3b8 !important;
-    font-weight:800 !important;
+    border:1px solid #6d28d9 !important;
+    text-decoration:none !important;
+    text-shadow:none !important;
+    box-shadow:0 2px 7px rgba(109,40,217,.25) !important;
+}
+body:has(.cases-page) .cases-page .clear-btn {
+    background:#3b82f6 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    border:1px solid #2563eb !important;
+    text-decoration:none !important;
+    text-shadow:none !important;
+    box-shadow:0 2px 7px rgba(37,99,235,.25) !important;
 }
 
-/* 3. TOMORROW'S HEARINGS — strong, readable section. */
-.dashboard-group .section.tomorrow{
-    border:1px solid rgba(255,255,255,.42) !important;
-    box-shadow:0 8px 20px rgba(15,23,42,.22) !important;
+body:has(.cases-page) .cases-page .filter-toggle:hover,
+body:has(.cases-page) .cases-page .highlight-filter:hover {
+    background:#5b21b6 !important;
 }
-.dashboard-group .section.tomorrow h2{
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-weight:900 !important;
-    text-shadow:0 1px 2px rgba(0,0,0,.55) !important;
-}
-.dashboard-group .section.tomorrow table{
-    border:1px solid rgba(255,255,255,.32) !important;
-    border-collapse:separate !important;
-    border-spacing:0 !important;
-}
-.dashboard-group .section.tomorrow th{
-    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    border:1px solid rgba(255,255,255,.30) !important;
-}
-.dashboard-group .section.tomorrow td{
-    background:rgba(255,255,255,.12) !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    border:1px solid rgba(255,255,255,.22) !important;
+body:has(.cases-page) .cases-page .search-btn:hover,
+body:has(.cases-page) .cases-page .clear-btn:hover {
+    background:#1d4ed8 !important;
 }
 
-/* 4. SELECTED DATE — date text is clearly visible. */
-.dashboard-group .matter-date-form label{
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-weight:800 !important;
-}
-.dashboard-group .matter-date-form input[type="date"]{
+/* Keep the typed search field clean and aligned */
+body:has(.cases-page) .cases-page .search-card .compact-search input {
+    border:1px solid #cbd5e1 !important;
     background:#ffffff !important;
     color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-    border:1px solid #94a3b8 !important;
-    font-weight:700 !important;
-    opacity:1 !important;
+    outline:none !important;
+    box-shadow:inset 0 1px 2px rgba(15,23,42,.06) !important;
+}
+body:has(.cases-page) .cases-page .search-card .compact-search input:focus {
+    border-color:#4f46e5 !important;
+    box-shadow:0 0 0 3px rgba(79,70,229,.16) !important;
 }
 
-/* 5. RECENT HEARING UPDATES — actual dashboard section is .section
-   immediately containing the Recent Hearing Updates heading. */
-.dashboard-group .section:has(h2) h2{
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-}
-.dashboard-group .section:has(h2) table{
-    border:1px solid rgba(255,255,255,.30) !important;
-    border-collapse:separate !important;
-    border-spacing:0 !important;
-}
-.dashboard-group .section:has(h2) th{
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    border:1px solid rgba(255,255,255,.30) !important;
-}
-.dashboard-group .section:has(h2) td{
-    border:1px solid rgba(255,255,255,.22) !important;
-}
-
-/* 6. EDIT CASE — exact Clear button IDs from the template. */
-.edit-page #clear_decision_date,
-.edit-page #clear_next_hearing_date{
-    display:inline-block !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    background:linear-gradient(135deg,#6d28d9,#2563eb) !important;
-    border:1px solid #93c5fd !important;
-    font-weight:800 !important;
-    box-shadow:0 3px 8px rgba(37,99,235,.28) !important;
-}
-
-/* 7. ADD CASE HISTORY — section/form controls get clear outlines
-   and readable labels, without changing structure. */
-.case-detail-page .section{
-    border:1px solid #64748b !important;
-    box-shadow:0 7px 18px rgba(15,23,42,.18) !important;
-}
-.case-detail-page .section input,
-.case-detail-page .section select,
-.case-detail-page .section textarea{
-    background:#ffffff !important;
-    color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-    border:1px solid #94a3b8 !important;
-}
-.case-detail-page .section input::placeholder,
-.case-detail-page .section textarea::placeholder{
-    color:#64748b !important;
-    -webkit-text-fill-color:#64748b !important;
-}
-.case-detail-page .section label{
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-weight:700 !important;
+/* Dashboard: non-dull clean background fallback; only visual */
+body:has(.dashboard-group) {
+    background-image:linear-gradient(135deg,#eef2ff 0%,#f8fafc 48%,#e0f2fe 100%) !important;
+    background-color:#f8fafc !important;
 }
