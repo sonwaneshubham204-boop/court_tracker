@@ -1662,3 +1662,12 @@ body:has(h1 + form) > form #other_stage_box {
         min-height:48px !important;
     }
 }
+
+
+/* COURT CASES — CRN NUMBER MUST STAY ON ONE LINE ONLY */
+body:has(.cases-page) .cases-page table th:nth-child(4),
+body:has(.cases-page) .cases-page table td:nth-child(4) {
+    white-space:nowrap !important;
+    word-break:normal !important;
+    overflow-wrap:normal !important;
+}
