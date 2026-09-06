@@ -270,294 +270,241 @@ tbody tr:hover td{background:#fff8df}
 }
 
 /* =========================================================
-   COURT TRACKER - SUPPLIED BACKGROUND + TEXT READABILITY ONLY
-   The supplied dashboard background is used as-is.
-   No functionality, layout, routes, controls, or data are changed.
+   COURT TRACKER BACKGROUND + READABILITY
+   Background/text visibility only. Existing functionality,
+   layout, routes and controls are unchanged.
 ========================================================= */
-
-/* Supplied background image */
 html, body {
     min-height:100%;
 }
-
 body {
-    background-image:url('/static/court_tracker_dashboard_background.png') !important;
-    background-size:cover !important;
-    background-position:center center !important;
-    background-repeat:no-repeat !important;
-    background-attachment:fixed !important;
+    background-image: url('/static/court_tracker_background.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    color:#ffffff !important;
 }
+
+/* Dashboard: dark glass surfaces + high contrast text */
+.topbar { background:rgba(23,59,108,.88) !important; }
+.dashboard-group > h2 { color:#ffffff !important; text-shadow:0 1px 2px rgba(0,0,0,.65); }
+.stat-card {
+    background:rgba(7,18,38,.72) !important;
+    color:#ffffff !important;
+    border-color:rgba(255,255,255,.28) !important;
+    box-shadow:0 7px 18px rgba(0,0,0,.25) !important;
+}
+.stat-card h3,
+.stat-card h3 * { color:#ffffff !important; }
+.stat-card .number,
+.number { color:#8fd8ff !important; text-shadow:0 1px 2px rgba(0,0,0,.55); }
+.section {
+    background:rgba(7,18,38,.68) !important;
+    color:#ffffff !important;
+    border-color:rgba(255,255,255,.28) !important;
+    box-shadow:0 8px 20px rgba(0,0,0,.25) !important;
+}
+.section h2,
+.section h3,
+.section p,
+.section label,
+.section td,
+.section li,
+.section li a { color:#ffffff !important; }
+.section td { background:rgba(7,18,38,.48) !important; border-color:rgba(255,255,255,.20) !important; }
+.court-stage-card,
+.matter-summary div {
+    background:rgba(7,18,38,.65) !important;
+    color:#ffffff !important;
+    border-color:rgba(255,255,255,.25) !important;
+}
+.court-stage-card h3,
+.court-stage-card li a { color:#ffffff !important; }
+.matter-summary div,
+.matter-summary b { color:#ffffff !important; }
+
+/* Cases page: preserve existing special colors while making normal text readable */
+.cases-page,
+.cases-page h1,
+.cases-page h2,
+.cases-page h3,
+.cases-page p,
+.cases-page label,
+.cases-page .top-links,
+.cases-page .top-links a,
+.cases-page .results,
+.cases-page td,
+.cases-page td a { color:#ffffff !important; }
+.cases-page .search-card,
+.cases-page .filters-panel,
+.cases-page .bulkbar {
+    background:rgba(7,18,38,.72) !important;
+    color:#ffffff !important;
+    border-color:rgba(255,255,255,.25) !important;
+}
+.cases-page .table-wrap { background:rgba(7,18,38,.62) !important; }
+.cases-page .table-wrap td {
+    background:rgba(7,18,38,.50) !important;
+    color:#ffffff !important;
+    border-color:rgba(255,255,255,.20) !important;
+}
+.cases-page .header-filter { background:rgba(255,255,255,.16) !important; color:#ffffff !important; }
+.cases-page .header-filter option { background:#ffffff !important; color:#111827 !important; }
+.cases-page .filter-field label,
+.cases-page .header-label { color:#ffffff !important; }
+.cases-page .action-links a,
+.cases-page .action-links button { color:#ffffff !important; }
+
+/* Keep ordinary form controls readable */
+input, select, textarea { color:#172033; }
 
 /* =========================================================
-   DASHBOARD TEXT
-   Strong contrast against the supplied image.
-========================================================= */
-
-body:has(.dashboard-group) {
-    color:#ffffff !important;
-}
-
-/* Main dashboard section headings */
-body:has(.dashboard-group) h1,
-body:has(.dashboard-group) h2,
-body:has(.dashboard-group) h3 {
-    color:#ffffff !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.85) !important;
-}
-
-/* Explicit dashboard headings */
-body:has(.dashboard-group) .dashboard-group > h2,
-body:has(.dashboard-group) .section h2,
-body:has(.dashboard-group) .section h3 {
-    color:#ffffff !important;
-    font-weight:800 !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.90) !important;
-}
-
-/* Dashboard stat cards */
-body:has(.dashboard-group) .stat-card {
-    background:rgba(5,18,40,.78) !important;
-    color:#ffffff !important;
-    border-color:rgba(255,255,255,.38) !important;
-    box-shadow:0 7px 18px rgba(0,0,0,.35) !important;
-}
-
-body:has(.dashboard-group) .stat-card h3,
-body:has(.dashboard-group) .stat-card h3 *,
-body:has(.dashboard-group) .stat-card p,
-body:has(.dashboard-group) .stat-card span,
-body:has(.dashboard-group) .stat-card a {
-    color:#ffffff !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.90) !important;
-}
-
-body:has(.dashboard-group) .stat-card .number,
-body:has(.dashboard-group) .stat-card .number *,
-body:has(.dashboard-group) .number {
-    color:#8fd8ff !important;
-    font-weight:800 !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.90) !important;
-}
-
-/* Court I / Court II / Court III / Total Cases and all card headings */
-body:has(.dashboard-group) .stat-card h3 {
-    font-weight:800 !important;
-}
-
-/* Dashboard information sections */
-body:has(.dashboard-group) .section {
-    background:rgba(5,18,40,.72) !important;
-    color:#ffffff !important;
-    border-color:rgba(255,255,255,.35) !important;
-    box-shadow:0 8px 20px rgba(0,0,0,.32) !important;
-}
-
-body:has(.dashboard-group) .section h2,
-body:has(.dashboard-group) .section h3,
-body:has(.dashboard-group) .section p,
-body:has(.dashboard-group) .section label,
-body:has(.dashboard-group) .section li,
-body:has(.dashboard-group) .section li a,
-body:has(.dashboard-group) .section td,
-body:has(.dashboard-group) .section th {
-    color:#ffffff !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.85) !important;
-}
-
-/* Tables/cards shown inside dashboard sections */
-body:has(.dashboard-group) .section td {
-    background:rgba(5,18,40,.62) !important;
-    border-color:rgba(255,255,255,.24) !important;
-}
-
-body:has(.dashboard-group) .section th {
-    background:#243f8f !important;
-    color:#ffffff !important;
-}
-
-/* Court-stage / matter summary content */
-body:has(.dashboard-group) .court-stage-card,
-body:has(.dashboard-group) .matter-summary div {
-    background:rgba(5,18,40,.72) !important;
-    color:#ffffff !important;
-    border-color:rgba(255,255,255,.30) !important;
-}
-
-body:has(.dashboard-group) .court-stage-card h3,
-body:has(.dashboard-group) .court-stage-card li,
-body:has(.dashboard-group) .court-stage-card li a,
-body:has(.dashboard-group) .matter-summary div,
-body:has(.dashboard-group) .matter-summary b {
-    color:#ffffff !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.90) !important;
-}
-
-/* Dashboard empty-state messages */
-body:has(.dashboard-group) .empty-message {
-    color:#12351f !important;
-    background:rgba(240,253,244,.96) !important;
-    border-color:#86efac !important;
-    text-shadow:none !important;
-    user-select:none;
-    -webkit-user-select:none;
-}
-
-body:has(.dashboard-group) .empty-message * {
-    color:#12351f !important;
-    text-shadow:none !important;
-}
-
-/* =========================================================
-   CASES PAGE TEXT READABILITY ONLY
+   ALL CASES PAGE ONLY - CAMPING BACKGROUND + READABILITY
+   Uses the new image only when .cases-page is present.
+   Other pages keep their existing background/theme.
 ========================================================= */
 
 body:has(.cases-page) {
-    background-image:url('/static/court_tracker_dashboard_background.png') !important;
-    background-size:cover !important;
-    background-position:center center !important;
-    background-repeat:no-repeat !important;
-    background-attachment:fixed !important;
-    color:#ffffff !important;
+    background-image: url('/static/court_tracker_cases_background.jpg') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    color: #ffffff !important;
 }
 
+body:has(.cases-page) .cases-page,
 body:has(.cases-page) .cases-page h1,
 body:has(.cases-page) .cases-page h2,
 body:has(.cases-page) .cases-page h3,
 body:has(.cases-page) .cases-page p,
 body:has(.cases-page) .cases-page label,
+body:has(.cases-page) .cases-page .results,
 body:has(.cases-page) .cases-page .top-links,
 body:has(.cases-page) .cases-page .top-links a,
-body:has(.cases-page) .cases-page .results,
 body:has(.cases-page) .cases-page td,
 body:has(.cases-page) .cases-page td a {
-    color:#ffffff !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.90) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35);
 }
 
+/* Search/filter panel: dark glass, not white */
 body:has(.cases-page) .cases-page .search-card,
 body:has(.cases-page) .cases-page .filters-panel,
 body:has(.cases-page) .cases-page .bulkbar {
-    background:rgba(5,16,30,.82) !important;
-    color:#ffffff !important;
-    border-color:rgba(255,255,255,.30) !important;
+    background: rgba(5,16,30,.78) !important;
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,.24) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,.28) !important;
 }
 
-body:has(.cases-page) .cases-page .table-wrap {
-    background:rgba(5,16,30,.74) !important;
-    border-color:rgba(255,255,255,.28) !important;
+body:has(.cases-page) .cases-page .filters-panel {
+    border-top-color: rgba(255,255,255,.20) !important;
 }
 
-body:has(.cases-page) .cases-page .table-wrap table {
-    background:transparent !important;
-}
-
-body:has(.cases-page) .cases-page .table-wrap th {
-    background:#b3122b !important;
-    color:#ffffff !important;
-    border-color:rgba(255,255,255,.35) !important;
-}
-
-body:has(.cases-page) .cases-page .table-wrap td {
-    background:rgba(5,20,36,.80) !important;
-    color:#ffffff !important;
-    border-color:rgba(255,255,255,.22) !important;
-}
-
-body:has(.cases-page) .cases-page .table-wrap tbody tr:hover td {
-    background:rgba(15,35,55,.88) !important;
-    color:#ffffff !important;
-}
-
-/* Keep all normal form controls readable */
-input, select, textarea {
-    color:#172033 !important;
-    background:#ffffff;
-}
-
+/* Search box stays white for easy typing; filter boxes are dark like reference */
 body:has(.cases-page) .cases-page .compact-search input {
-    background:#ffffff !important;
-    color:#172033 !important;
+    background: #ffffff !important;
+    color: #172033 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+body:has(.cases-page) .cases-page .compact-search input::placeholder {
+    color: #667085 !important;
 }
 
 body:has(.cases-page) .cases-page .filter-field input,
-body:has(.cases-page) .cases-page .filter-field select,
-body:has(.cases-page) .cases-page .header-filter {
-    background:rgba(255,255,255,.14) !important;
-    color:#ffffff !important;
-    border-color:rgba(255,255,255,.48) !important;
+body:has(.cases-page) .cases-page .filter-field select {
+    background: rgba(255,255,255,.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,.42) !important;
 }
 
-body:has(.cases-page) .cases-page .filter-field input::placeholder,
-body:has(.cases-page) .cases-page .compact-search input::placeholder {
-    color:#667085 !important;
+body:has(.cases-page) .cases-page .filter-field input::placeholder {
+    color: rgba(255,255,255,.78) !important;
 }
 
 body:has(.cases-page) .cases-page .filter-field option,
 body:has(.cases-page) .cases-page .header-filter option {
-    background:#ffffff !important;
-    color:#172033 !important;
+    background: #ffffff !important;
+    color: #172033 !important;
 }
 
-/* Cases page action controls */
+/* Main table: dark transparent rows, white text */
+body:has(.cases-page) .cases-page .table-wrap {
+    background: rgba(5,16,30,.70) !important;
+    border: 1px solid rgba(255,255,255,.24) !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,.30) !important;
+}
+
+body:has(.cases-page) .cases-page .table-wrap table {
+    background: transparent !important;
+}
+
+body:has(.cases-page) .cases-page .table-wrap th {
+    background: #b3122b !important;
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,.30) !important;
+}
+
+body:has(.cases-page) .cases-page .table-wrap td {
+    background: rgba(5,20,36,.76) !important;
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,.20) !important;
+}
+
+body:has(.cases-page) .cases-page .table-wrap tbody tr:hover td {
+    background: rgba(15,35,55,.84) !important;
+    color: #ffffff !important;
+}
+
+/* Table dropdowns: dark translucent boxes, readable white values */
+body:has(.cases-page) .cases-page .header-filter {
+    background: rgba(255,255,255,.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,.42) !important;
+}
+
+/* Buttons and links remain high contrast */
 body:has(.cases-page) .cases-page .filter-toggle {
-    background:#e5e7eb !important;
-    color:#111827 !important;
-    text-shadow:none !important;
+    background: #e5e7eb !important;
+    color: #111827 !important;
+    text-shadow: none !important;
 }
 
 body:has(.cases-page) .cases-page .search-btn {
-    background:#2563eb !important;
-    color:#ffffff !important;
-    text-shadow:none !important;
+    background: #2563eb !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
 }
 
 body:has(.cases-page) .cases-page .clear-btn {
-    background:#6b7280 !important;
-    color:#ffffff !important;
-    text-shadow:none !important;
+    background: #6b7280 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
 }
 
 body:has(.cases-page) .cases-page .action-links a,
 body:has(.cases-page) .cases-page .action-links button {
-    color:#ffffff !important;
-    text-shadow:none !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
 }
 
+/* Date/day text must stay visible */
 body:has(.cases-page) .cases-page .weekday,
 body:has(.cases-page) .cases-page .weekday-dark {
-    color:#ffffff !important;
+    color: #ffffff !important;
 }
 
-/* =========================================================
-   CASE DETAILS / OTHER DARK TRANSPARENT CONTENT
-========================================================= */
-
-body:has(.matter-summary) {
-    color:#ffffff !important;
+/* ===== DASHBOARD BACKGROUND ONLY =====
+   Uses the supplied mountain-sky image.
+   No dashboard layout, cards, buttons, text, or functionality changed.
+*/
+body:has(.dashboard-group) {
+    background-image: url('/static/court_tracker_dashboard_background.png') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
 }
-
-body:has(.matter-summary) h1,
-body:has(.matter-summary) h2,
-body:has(.matter-summary) h3,
-body:has(.matter-summary) label,
-body:has(.matter-summary) p {
-    color:#ffffff !important;
-    text-shadow:0 2px 3px rgba(0,0,0,.90) !important;
-}
-
-body:has(.matter-summary) .matter-summary {
-    background:rgba(5,18,40,.74) !important;
-    border-color:rgba(255,255,255,.32) !important;
-}
-
-body:has(.matter-summary) .matter-summary div {
-    background:rgba(245,248,252,.97) !important;
-    color:#172033 !important;
-}
-
-body:has(.matter-summary) .matter-summary div *,
-body:has(.matter-summary) .matter-summary b {
-    color:#172033 !important;
-    text-shadow:none !important;
-}
-
