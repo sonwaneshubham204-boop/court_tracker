@@ -1034,817 +1034,288 @@ body:has(.dashboard-group) th {
 
 
 /* =========================================================
-   CASE CLICK / DETAIL PAGES — ATTRACTIVE UI ONLY
-   Covers Case Details, Case History, Evidence, Edit Case,
-   Edit History, Edit Evidence and View Business.
-   No functionality, links, forms, data or JavaScript changed.
+   ADD NEW CASE — EXACT TEMPLATE UI DECORATION FIX
+   Scoped to the existing Add New Case form (#case_stage).
+   VISUAL ONLY: no fields, values, JS, routes, validation,
+   submission behavior, database or functionality changed.
 ========================================================= */
 
-/* Shared page surface */
-body:has(.case-detail-page),
-body:has(.edit-page),
-body:has(.edit-history-page),
-body:has(.page) {
-    color:#172033 !important;
-}
-
-/* CASE DETAILS */
-body:has(.case-detail-page) .case-detail-page {
-    width:min(1200px,calc(100% - 28px)) !important;
-    margin:26px auto 55px !important;
-}
-body:has(.case-detail-page) .page-header {
-    display:flex !important;
-    align-items:center !important;
-    justify-content:space-between !important;
-    gap:16px !important;
-    margin-bottom:18px !important;
-    padding:20px 22px !important;
-    border-radius:15px !important;
-    background:linear-gradient(135deg,#173b6c,#315fbb,#4f46e5) !important;
-    border-bottom:5px solid #a60f27 !important;
-    box-shadow:0 9px 22px rgba(15,23,42,.18) !important;
-}
-body:has(.case-detail-page) .page-header h1 {
+body:has(#case_stage) {
+    min-height:100vh !important;
     margin:0 !important;
-    font-size:32px !important;
-    font-weight:900 !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-}
-body:has(.case-detail-page) .back-button {
-    display:inline-flex !important;
-    align-items:center !important;
-    min-height:42px !important;
-    padding:9px 14px !important;
-    border-radius:9px !important;
-    background:#ffffff !important;
-    color:#173b6c !important;
-    -webkit-text-fill-color:#173b6c !important;
-    font-weight:900 !important;
-    text-decoration:none !important;
-    box-shadow:0 3px 9px rgba(15,23,42,.16) !important;
-}
-
-/* All Case Details sections */
-body:has(.case-detail-page) .section {
-    margin:18px 0 !important;
-    padding:22px !important;
-    border:1px solid #d5deea !important;
-    border-left:6px solid #4f46e5 !important;
-    border-radius:15px !important;
-    background:#ffffff !important;
+    padding:34px 22px 60px !important;
+    background:
+        radial-gradient(circle at 15% 10%,rgba(79,70,229,.14),transparent 32%),
+        radial-gradient(circle at 85% 25%,rgba(37,99,235,.12),transparent 30%),
+        linear-gradient(135deg,#eef2ff 0%,#f8fafc 50%,#e0f2fe 100%) !important;
     color:#172033 !important;
-    box-shadow:0 7px 19px rgba(15,23,42,.10) !important;
-}
-body:has(.case-detail-page) .section > h2 {
-    margin:0 0 18px !important;
-    padding:8px 12px !important;
-    border-radius:8px !important;
-    background:#eef2ff !important;
-    border:1px solid #c7d2fe !important;
-    color:#3730a3 !important;
-    -webkit-text-fill-color:#3730a3 !important;
-    font-size:22px !important;
-    font-weight:900 !important;
-}
-body:has(.case-detail-page) .case-info {
-    border-left-color:#2563eb !important;
 }
 
-/* Case information cards */
-body:has(.case-detail-page) .info-grid {
-    gap:12px !important;
-}
-body:has(.case-detail-page) .info-item {
-    padding:14px 16px !important;
-    border:1px solid #dbe3ef !important;
-    border-radius:10px !important;
-    background:#f8fafc !important;
-    color:#172033 !important;
-    font-weight:750 !important;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.9) !important;
-}
-body:has(.case-detail-page) .info-label {
-    display:block !important;
-    margin-bottom:6px !important;
-    color:#315fbb !important;
-    -webkit-text-fill-color:#315fbb !important;
-    font-size:13px !important;
-    font-weight:900 !important;
-    text-transform:uppercase !important;
-    letter-spacing:.35px !important;
-}
-body:has(.case-detail-page) .form-grid {
-    gap:16px !important;
-}
-body:has(.case-detail-page) .form-group label {
-    display:block !important;
-    margin-bottom:7px !important;
-    color:#1e3a8a !important;
-    -webkit-text-fill-color:#1e3a8a !important;
-    font-weight:900 !important;
-}
-body:has(.case-detail-page) .form-group input,
-body:has(.case-detail-page) .form-group select,
-body:has(.case-detail-page) .form-group textarea {
-    width:100% !important;
-    border:1px solid #cbd5e1 !important;
-    border-radius:9px !important;
-    background:#ffffff !important;
-    color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-    padding:10px 12px !important;
-    box-shadow:inset 0 1px 2px rgba(15,23,42,.05) !important;
-}
-body:has(.case-detail-page) .form-group input:focus,
-body:has(.case-detail-page) .form-group select:focus,
-body:has(.case-detail-page) .form-group textarea:focus {
-    outline:none !important;
-    border-color:#4f46e5 !important;
-    box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
-}
-body:has(.case-detail-page) .form-group textarea {
-    min-height:105px !important;
-    resize:vertical !important;
-}
-body:has(.case-detail-page) .form-actions {
-    display:flex !important;
-    flex-wrap:wrap !important;
-    gap:10px !important;
-    margin-top:14px !important;
-}
-body:has(.case-detail-page) .form-actions a,
-body:has(.case-detail-page) .form-actions button {
-    min-height:44px !important;
-    padding:9px 15px !important;
-    border-radius:9px !important;
-    border:1px solid #2563eb !important;
-    background:#2563eb !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-weight:900 !important;
-    box-shadow:0 3px 8px rgba(37,99,235,.20) !important;
-}
-
-/* History and evidence tables */
-body:has(.case-detail-page) .table-container {
-    overflow-x:auto !important;
-    border:1px solid #d5deea !important;
-    border-radius:11px !important;
-}
-body:has(.case-detail-page) table {
-    width:100% !important;
-}
-body:has(.case-detail-page) th {
-    padding:12px !important;
-    background:linear-gradient(90deg,#173b6c,#4f46e5) !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-weight:900 !important;
-    white-space:nowrap !important;
-}
-body:has(.case-detail-page) td {
-    padding:12px !important;
-    background:#ffffff !important;
-    color:#263449 !important;
-    -webkit-text-fill-color:#263449 !important;
-    border-top:1px solid #e2e8f0 !important;
-    vertical-align:top !important;
-}
-body:has(.case-detail-page) tbody tr:nth-child(even) td {
-    background:#f8fafc !important;
-}
-body:has(.case-detail-page) tbody tr:hover td {
-    background:#eef2ff !important;
-}
-body:has(.case-detail-page) .business-date-link,
-body:has(.case-detail-page) .action-links a,
-body:has(.case-detail-page) .case-history-actions a {
-    color:#2563eb !important;
-    -webkit-text-fill-color:#2563eb !important;
-    font-weight:900 !important;
-}
-body:has(.case-detail-page) .case-history-actions,
-body:has(.case-detail-page) .action-links {
-    display:flex !important;
-    flex-wrap:wrap !important;
-    gap:7px !important;
-    align-items:center !important;
-}
-body:has(.case-detail-page) .case-history-actions form,
-body:has(.case-detail-page) .action-links form {
-    margin:0 !important;
-}
-body:has(.case-detail-page) .case-history-actions button,
-body:has(.case-detail-page) .action-links button {
-    min-height:34px !important;
-    padding:6px 10px !important;
-    border-radius:7px !important;
-    background:#dc2626 !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    border:1px solid #b91c1c !important;
-    font-weight:800 !important;
-}
-body:has(.case-detail-page) .empty-message {
-    padding:14px !important;
-    border-radius:9px !important;
-    background:#f1f5f9 !important;
-    color:#475569 !important;
-    font-weight:800 !important;
-}
-body:has(.case-detail-page) .file-info {
-    margin-top:6px !important;
-    color:#475569 !important;
-    -webkit-text-fill-color:#475569 !important;
-    font-size:13px !important;
-    font-weight:700 !important;
-}
-
-/* EDIT CASE / EDIT EVIDENCE */
-body:has(.edit-page) .edit-page {
-    width:min(950px,calc(100% - 28px)) !important;
-    margin:26px auto 55px !important;
-}
-body:has(.edit-page) .edit-header,
-body:has(.edit-page) .page-header {
-    padding:20px 22px !important;
-    border-radius:15px !important;
-    background:linear-gradient(135deg,#173b6c,#315fbb,#4f46e5) !important;
-    border-bottom:5px solid #a60f27 !important;
-    box-shadow:0 9px 22px rgba(15,23,42,.18) !important;
-}
-body:has(.edit-page) h1 {
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-weight:900 !important;
-}
-body:has(.edit-page) .edit-form {
-    margin-top:18px !important;
-    padding:22px !important;
-    border:1px solid #d5deea !important;
-    border-left:6px solid #4f46e5 !important;
-    border-radius:15px !important;
-    background:#ffffff !important;
-    box-shadow:0 7px 19px rgba(15,23,42,.10) !important;
-}
-body:has(.edit-page) .form-group label {
-    color:#1e3a8a !important;
-    -webkit-text-fill-color:#1e3a8a !important;
-    font-weight:900 !important;
-}
-body:has(.edit-page) .form-group input,
-body:has(.edit-page) .form-group select,
-body:has(.edit-page) .form-group textarea {
-    border:1px solid #cbd5e1 !important;
-    border-radius:9px !important;
-    background:#ffffff !important;
-    color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-}
-body:has(.edit-page) .form-group input:focus,
-body:has(.edit-page) .form-group select:focus,
-body:has(.edit-page) .form-group textarea:focus {
-    border-color:#4f46e5 !important;
-    box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
-}
-body:has(.edit-page) .clear-btn,
-body:has(.edit-page) #clear_decision_date,
-body:has(.edit-page) #clear_next_hearing_date {
-    min-height:40px !important;
-    padding:8px 13px !important;
-    border-radius:8px !important;
-    background:#6366f1 !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    border:1px solid #4f46e5 !important;
-    font-weight:900 !important;
-    box-shadow:0 3px 8px rgba(79,70,229,.20) !important;
-}
-
-/* EDIT HISTORY */
-body:has(.edit-history-page) .edit-history-page {
-    width:min(950px,calc(100% - 28px)) !important;
-    margin:26px auto 55px !important;
-}
-body:has(.edit-history-page) .history-card {
-    padding:24px !important;
-    border:1px solid #d5deea !important;
-    border-left:6px solid #4f46e5 !important;
-    border-radius:15px !important;
-    background:#ffffff !important;
-    box-shadow:0 8px 22px rgba(15,23,42,.11) !important;
-}
-body:has(.edit-history-page) .history-card h1 {
-    margin:0 0 20px !important;
-    padding:14px 16px !important;
-    border-radius:10px !important;
-    background:linear-gradient(135deg,#173b6c,#4f46e5) !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-weight:900 !important;
-}
-body:has(.edit-history-page) label {
-    display:block !important;
-    margin-bottom:7px !important;
-    color:#1e3a8a !important;
-    -webkit-text-fill-color:#1e3a8a !important;
-    font-weight:900 !important;
-}
-body:has(.edit-history-page) input,
-body:has(.edit-history-page) textarea {
-    width:100% !important;
-    border:1px solid #cbd5e1 !important;
-    border-radius:9px !important;
-    background:#ffffff !important;
-    color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-}
-body:has(.edit-history-page) input:focus,
-body:has(.edit-history-page) textarea:focus {
-    border-color:#4f46e5 !important;
-    box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
-}
-body:has(.edit-history-page) .actions {
-    display:flex !important;
-    flex-wrap:wrap !important;
-    gap:10px !important;
-    margin-top:16px !important;
-}
-body:has(.edit-history-page) .actions button,
-body:has(.edit-history-page) .actions a {
-    min-height:44px !important;
-    padding:9px 15px !important;
-    border-radius:9px !important;
-    font-weight:900 !important;
-}
-
-/* VIEW BUSINESS */
-body:has(.page) .page {
-    width:min(1050px,calc(100% - 28px)) !important;
-    margin:26px auto 55px !important;
-}
-body:has(.page) .page > .top {
-    display:flex !important;
-    align-items:center !important;
-    justify-content:space-between !important;
-    gap:14px !important;
-    padding:20px 22px !important;
-    border-radius:15px !important;
-    background:linear-gradient(135deg,#173b6c,#315fbb,#4f46e5) !important;
-    border-bottom:5px solid #a60f27 !important;
-    box-shadow:0 9px 22px rgba(15,23,42,.18) !important;
-}
-body:has(.page) .page > .top h1 {
-    margin:0 !important;
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-    font-size:30px !important;
-    font-weight:900 !important;
-}
-body:has(.page) .page > .top .back {
-    display:inline-flex !important;
-    align-items:center !important;
-    min-height:42px !important;
-    padding:9px 14px !important;
-    border-radius:9px !important;
-    background:#ffffff !important;
-    color:#173b6c !important;
-    -webkit-text-fill-color:#173b6c !important;
-    font-weight:900 !important;
-    text-decoration:none !important;
-}
-body:has(.page) .page > .card {
-    margin-top:18px !important;
-    padding:24px !important;
-    border:1px solid #d5deea !important;
-    border-left:6px solid #2563eb !important;
-    border-radius:15px !important;
-    background:#ffffff !important;
-    box-shadow:0 8px 22px rgba(15,23,42,.11) !important;
-}
-body:has(.page) .page > .card .title {
-    margin:0 0 18px !important;
-    padding:8px 12px !important;
-    border-radius:8px !important;
-    background:#eff6ff !important;
-    border:1px solid #bfdbfe !important;
-    color:#1d4ed8 !important;
-    -webkit-text-fill-color:#1d4ed8 !important;
-    font-size:22px !important;
-    font-weight:900 !important;
-}
-body:has(.page) .page > .card .label {
-    padding:11px 13px !important;
-    border:1px solid #dbe3ef !important;
-    border-radius:8px !important;
-    background:#f1f5f9 !important;
-    color:#1e3a8a !important;
-    -webkit-text-fill-color:#1e3a8a !important;
-    font-weight:900 !important;
-}
-body:has(.page) .page > .card .value {
-    padding:11px 13px !important;
-    border:1px solid #e2e8f0 !important;
-    border-radius:8px !important;
-    background:#ffffff !important;
-    color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-    font-weight:700 !important;
-}
-
-/* Mobile: preserve content, improve visual fit */
-@media (max-width:767px) {
-    body:has(.case-detail-page) .case-detail-page,
-    body:has(.edit-page) .edit-page,
-    body:has(.edit-history-page) .edit-history-page,
-    body:has(.page) .page {
-        width:calc(100% - 18px) !important;
-        margin:12px auto 35px !important;
-    }
-
-    body:has(.case-detail-page) .page-header,
-    body:has(.edit-page) .edit-header,
-    body:has(.edit-page) .page-header,
-    body:has(.page) .page > .top {
-        padding:16px !important;
-        border-radius:12px !important;
-        flex-direction:column !important;
-        align-items:stretch !important;
-    }
-
-    body:has(.case-detail-page) .page-header h1,
-    body:has(.page) .page > .top h1 {
-        font-size:25px !important;
-    }
-
-    body:has(.case-detail-page) .section,
-    body:has(.edit-page) .edit-form,
-    body:has(.edit-history-page) .history-card,
-    body:has(.page) .page > .card {
-        padding:16px !important;
-        border-radius:12px !important;
-    }
-
-    body:has(.case-detail-page) .section > h2 {
-        font-size:19px !important;
-    }
-
-    body:has(.case-detail-page) table {
-        min-width:700px !important;
-    }
-
-    body:has(.case-detail-page) .table-container {
-        overflow-x:auto !important;
-        -webkit-overflow-scrolling:touch !important;
-    }
-}
-
-
-/* =========================================================
-   ADD NEW CASE — FINAL WHITE-TEXT VISIBILITY FIX
-   Scoped only to the Add New Case page structure.
-   Decoration only: no functionality, fields, actions,
-   JavaScript, routes, validation or database changes.
-========================================================= */
-
-/* Clean page background and readable default text */
-body:has(h1 + form) {
-    background:linear-gradient(135deg,#eef2ff 0%,#f8fafc 52%,#e0f2fe 100%) !important;
-    color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-    padding:28px 20px 55px !important;
-}
-
-/* Main Add New Case heading */
-body:has(h1 + form) > h1 {
-    width:min(1080px,100%) !important;
-    margin:0 auto 0 !important;
+/* Main title */
+body:has(#case_stage) > h1 {
+    width:min(1050px,100%) !important;
+    margin:0 auto 18px !important;
     padding:20px 24px !important;
-    border-radius:16px 16px 0 0 !important;
-    background:linear-gradient(135deg,#173b6c 0%,#315fbb 58%,#4f46e5 100%) !important;
+    border-radius:15px !important;
+    background:linear-gradient(135deg,#173b6c 0%,#315fbb 55%,#4f46e5 100%) !important;
+    border-bottom:5px solid #a60f27 !important;
+    box-shadow:0 9px 22px rgba(15,23,42,.18) !important;
     color:#ffffff !important;
     -webkit-text-fill-color:#ffffff !important;
-    font-size:32px !important;
-    line-height:1.2 !important;
+    font-size:clamp(28px,4vw,38px) !important;
     font-weight:900 !important;
-    letter-spacing:.1px !important;
-    box-shadow:0 8px 20px rgba(15,23,42,.14) !important;
+    line-height:1.2 !important;
+    letter-spacing:.2px !important;
 }
 
-/* The existing form becomes the clean white card */
-body:has(h1 + form) > form {
-    width:min(1080px,100%) !important;
+/* The existing form becomes a clean visual card */
+body:has(#case_stage) > form {
+    width:min(1050px,100%) !important;
     margin:0 auto !important;
     padding:28px 30px 30px !important;
     border:1px solid #d5deea !important;
-    border-top:0 !important;
-    border-radius:0 0 16px 16px !important;
-    background:rgba(255,255,255,.98) !important;
+    border-left:6px solid #4f46e5 !important;
+    border-radius:16px !important;
+    background:rgba(255,255,255,.97) !important;
+    box-shadow:0 12px 30px rgba(15,23,42,.12) !important;
     color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-    box-shadow:0 10px 25px rgba(15,23,42,.12) !important;
 }
 
 /* Every existing label */
-body:has(h1 + form) > form label {
-    display:inline-block !important;
-    margin:8px 0 7px !important;
+body:has(#case_stage) > form > label,
+body:has(#case_stage) > form #other_stage_box label {
+    display:block !important;
+    margin:0 0 7px !important;
     color:#173b6c !important;
     -webkit-text-fill-color:#173b6c !important;
     font-size:15px !important;
     font-weight:900 !important;
-    letter-spacing:.1px !important;
+    line-height:1.35 !important;
     opacity:1 !important;
+    text-shadow:none !important;
 }
 
-/* Existing text/date/select controls */
-body:has(h1 + form) > form input,
-body:has(h1 + form) > form select {
+/* Existing controls — strong contrast */
+body:has(#case_stage) > form input[type="text"],
+body:has(#case_stage) > form input[type="date"],
+body:has(#case_stage) > form select {
     display:block !important;
     width:100% !important;
-    min-height:46px !important;
+    min-height:48px !important;
+    margin:0 0 20px !important;
     padding:10px 13px !important;
+    box-sizing:border-box !important;
     border:1px solid #b8c4d4 !important;
     border-radius:9px !important;
     background:#ffffff !important;
     color:#172033 !important;
     -webkit-text-fill-color:#172033 !important;
     font-size:15px !important;
-    font-weight:600 !important;
+    font-weight:650 !important;
     opacity:1 !important;
-    box-shadow:inset 0 1px 2px rgba(15,23,42,.05) !important;
+    box-shadow:inset 0 1px 2px rgba(15,23,42,.05),0 1px 2px rgba(15,23,42,.03) !important;
+}
+
+/* Date field pair should remain neat and readable */
+body:has(#case_stage) > form label[for="decision_date"] {
+    margin-top:0 !important;
+}
+body:has(#case_stage) > form input[type="date"] {
+    color-scheme:light !important;
+}
+
+/* Select options */
+body:has(#case_stage) > form select option {
+    background:#ffffff !important;
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
 }
 
 /* Placeholder */
-body:has(h1 + form) > form input::placeholder {
+body:has(#case_stage) > form input::placeholder {
     color:#64748b !important;
     -webkit-text-fill-color:#64748b !important;
     opacity:1 !important;
 }
 
-/* Dropdown options */
-body:has(h1 + form) > form select option {
-    background:#ffffff !important;
-    color:#172033 !important;
-}
-
-/* Focus visibility */
-body:has(h1 + form) > form input:focus,
-body:has(h1 + form) > form select:focus {
+/* Focus */
+body:has(#case_stage) > form input:focus,
+body:has(#case_stage) > form select:focus {
     outline:none !important;
     border-color:#4f46e5 !important;
     box-shadow:0 0 0 3px rgba(79,70,229,.14) !important;
 }
 
-/* Existing Save Case button — same action, better decoration */
-body:has(h1 + form) > form button[type="submit"] {
+/* Other stage box keeps its existing JS-controlled display state */
+body:has(#case_stage) > form #other_stage_box {
+    padding:14px 15px 2px !important;
+    margin:0 0 6px !important;
+    border:1px solid #ddd6fe !important;
+    border-left:4px solid #7c3aed !important;
+    border-radius:10px !important;
+    background:#faf5ff !important;
+}
+
+/* Save Case — same existing submit action, decoration only */
+body:has(#case_stage) > form button[type="submit"] {
     display:inline-flex !important;
     align-items:center !important;
     justify-content:center !important;
-    min-height:46px !important;
-    margin-top:8px !important;
+    min-height:48px !important;
+    margin-top:4px !important;
     padding:10px 22px !important;
     border:1px solid #1d4ed8 !important;
     border-radius:9px !important;
     background:linear-gradient(135deg,#173b6c,#4f46e5) !important;
     color:#ffffff !important;
     -webkit-text-fill-color:#ffffff !important;
-    font-size:15px !important;
+    font-size:16px !important;
     font-weight:900 !important;
-    box-shadow:0 4px 10px rgba(37,78,180,.20) !important;
+    box-shadow:0 5px 12px rgba(37,78,180,.22) !important;
     cursor:pointer !important;
 }
-body:has(h1 + form) > form button[type="submit"]:hover {
+body:has(#case_stage) > form button[type="submit"]:hover {
     background:linear-gradient(135deg,#1e3a8a,#3730a3) !important;
 }
 
-/* Keep the hidden Other Case Stage box visually consistent */
-body:has(h1 + form) > form #other_stage_box {
-    padding:12px 14px !important;
-    margin:2px 0 8px !important;
-    border:1px solid #ddd6fe !important;
-    border-left:4px solid #7c3aed !important;
-    border-radius:9px !important;
-    background:#faf5ff !important;
+/* Keep the existing blank-line layout visually controlled */
+body:has(#case_stage) > form > br {
+    line-height:.6 !important;
 }
 
-/* Mobile: same visual hierarchy, no functional changes */
+/* Responsive decoration only */
 @media (max-width:767px) {
-    body:has(h1 + form) {
-        padding:14px 10px 35px !important;
+    body:has(#case_stage) {
+        padding:16px 10px 35px !important;
     }
 
-    body:has(h1 + form) > h1 {
+    body:has(#case_stage) > h1 {
         padding:17px 16px !important;
+        margin-bottom:12px !important;
+        border-radius:12px !important;
         font-size:26px !important;
-        border-radius:13px 13px 0 0 !important;
     }
 
-    body:has(h1 + form) > form {
-        padding:18px 15px 22px !important;
-        border-radius:0 0 13px 13px !important;
+    body:has(#case_stage) > form {
+        padding:18px 15px 20px !important;
+        border-radius:13px !important;
     }
 
-    body:has(h1 + form) > form label {
+    body:has(#case_stage) > form > label,
+    body:has(#case_stage) > form #other_stage_box label {
         font-size:14px !important;
     }
 
-    body:has(h1 + form) > form input,
-    body:has(h1 + form) > form select {
+    body:has(#case_stage) > form input[type="text"],
+    body:has(#case_stage) > form input[type="date"],
+    body:has(#case_stage) > form select {
         min-height:48px !important;
         font-size:16px !important;
+        margin-bottom:17px !important;
     }
 
-    body:has(h1 + form) > form button[type="submit"] {
+    body:has(#case_stage) > form button[type="submit"] {
         width:100% !important;
-        min-height:48px !important;
     }
-}
-
-
-/* COURT CASES — CRN NUMBER MUST STAY ON ONE LINE ONLY */
-body:has(.cases-page) .cases-page table th:nth-child(4),
-body:has(.cases-page) .cases-page table td:nth-child(4) {
-    white-space:nowrap !important;
-    word-break:normal !important;
-    overflow-wrap:normal !important;
-}
-
-
-/* COURT CASES — GIVE CRN MORE ROOM BY REDUCING THE SPACE BEFORE IT
-   Visual-only: shift the CRN column left and widen it enough for one line. */
-body:has(.cases-page) .cases-page table th:nth-child(3),
-body:has(.cases-page) .cases-page table td:nth-child(3) {
-    width:92px !important;
-    min-width:92px !important;
-    max-width:92px !important;
-    padding-left:8px !important;
-    padding-right:8px !important;
-}
-body:has(.cases-page) .cases-page table th:nth-child(4),
-body:has(.cases-page) .cases-page table td:nth-child(4) {
-    width:165px !important;
-    min-width:165px !important;
-    max-width:165px !important;
-    padding-left:8px !important;
-    padding-right:8px !important;
-    white-space:nowrap !important;
-    word-break:normal !important;
-    overflow-wrap:normal !important;
 }
 
 
 /* =========================================================
-   COURT CASES — FINAL COLUMN PROPORTION FIX
-   CRN gets enough room without overlapping the next column.
-   Page/table may use additional width on desktop.
-   Visual/layout only; no functionality changed.
+   CASES — RESTORE / GIVE SPACE TO CNR NO COLUMN
+   Exact visual/layout correction requested by user.
+   CNR No is already present in cases.html; these rules only
+   give the existing column proper width and visibility.
+   No functionality or table data changed.
 ========================================================= */
 
-@media (min-width: 1200px) {
-    body:has(.cases-page) .cases-page {
-        max-width: 1440px !important;
-        width: calc(100% - 28px) !important;
-    }
-
-    body:has(.cases-page) .cases-page table {
-        width: 100% !important;
-        table-layout: fixed !important;
-    }
-
-    /* Checkbox + ID */
-    body:has(.cases-page) .cases-page table th:nth-child(1),
-    body:has(.cases-page) .cases-page table td:nth-child(1) {
-        width:44px !important;
-        min-width:44px !important;
-    }
-    body:has(.cases-page) .cases-page table th:nth-child(2),
-    body:has(.cases-page) .cases-page table td:nth-child(2) {
-        width:58px !important;
-        min-width:58px !important;
-    }
-
-    /* Case Number — slightly reduced */
-    body:has(.cases-page) .cases-page table th:nth-child(3),
-    body:has(.cases-page) .cases-page table td:nth-child(3) {
-        width:150px !important;
-        min-width:150px !important;
-        max-width:150px !important;
-        padding-left:9px !important;
-        padding-right:9px !important;
-    }
-
-    /* CRN — enough width for the complete value on one line */
-    body:has(.cases-page) .cases-page table th:nth-child(4),
-    body:has(.cases-page) .cases-page table td:nth-child(4) {
-        width:185px !important;
-        min-width:185px !important;
-        max-width:185px !important;
-        padding-left:9px !important;
-        padding-right:9px !important;
-        white-space:nowrap !important;
-        word-break:normal !important;
-        overflow-wrap:normal !important;
-    }
-
-    /* Remaining columns keep balanced proportions */
-    body:has(.cases-page) .cases-page table th:nth-child(5),
-    body:has(.cases-page) .cases-page table td:nth-child(5) {
-        width:95px !important;
-        min-width:95px !important;
-    }
-    body:has(.cases-page) .cases-page table th:nth-child(6),
-    body:has(.cases-page) .cases-page table td:nth-child(6) {
-        width:230px !important;
-        min-width:230px !important;
-    }
-    body:has(.cases-page) .cases-page table th:nth-child(7),
-    body:has(.cases-page) .cases-page table td:nth-child(7) {
-        width:125px !important;
-        min-width:125px !important;
-    }
-    body:has(.cases-page) .cases-page table th:nth-child(8),
-    body:has(.cases-page) .cases-page table td:nth-child(8) {
-        width:145px !important;
-        min-width:145px !important;
-    }
-    body:has(.cases-page) .cases-page table th:nth-child(9),
-    body:has(.cases-page) .cases-page table td:nth-child(9) {
-        width:115px !important;
-        min-width:115px !important;
-    }
-    body:has(.cases-page) .cases-page table th:nth-child(10),
-    body:has(.cases-page) .cases-page table td:nth-child(10) {
-        width:185px !important;
-        min-width:185px !important;
-    }
-
-    /* Action buttons remain contained in their own column */
-    body:has(.cases-page) .cases-page table td:last-child {
-        overflow:hidden !important;
-        padding-left:10px !important;
-        padding-right:10px !important;
-    }
+body:has(.cases-page) .cases-page .table-wrap {
+    overflow-x:auto !important;
+    width:100% !important;
 }
 
-/* On smaller desktop/tablet widths, keep CRN one line and allow
-   the table to scroll instead of forcing text into another column. */
-@media (min-width:768px) and (max-width:1199px) {
-    body:has(.cases-page) .cases-page table {
-        min-width:1280px !important;
-        table-layout:auto !important;
-    }
-
-    body:has(.cases-page) .cases-page table th:nth-child(4),
-    body:has(.cases-page) .cases-page table td:nth-child(4) {
-        min-width:185px !important;
-        width:185px !important;
-        white-space:nowrap !important;
-        word-break:normal !important;
-        overflow-wrap:normal !important;
-    }
+body:has(.cases-page) .cases-page .table-wrap table {
+    width:100% !important;
+    min-width:1250px !important;
+    table-layout:fixed !important;
 }
 
+/* Existing column order:
+   1 checkbox | 2 ID | 3 Case Number | 4 CNR No | 5 Court
+   6 Parties | 7 Stage | 8 Next Hearing | 9 Time Left | 10 Action
+*/
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(1),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(1) {
+    width:48px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(2),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(2) {
+    width:58px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(3),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(3) {
+    width:160px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(4),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(4) {
+    width:150px !important;
+    min-width:150px !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(5),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(5) {
+    width:105px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(6),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(6) {
+    width:275px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(7),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(7) {
+    width:135px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(8),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(8) {
+    width:145px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(9),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(9) {
+    width:105px !important;
+}
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(10),
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(10) {
+    width:150px !important;
+}
 
-/* COURT CASES — COMPACT ACTION COLUMN ONLY
-   Visual/layout change only. All actions and functionality remain unchanged. */
-@media (min-width:1200px) {
-    body:has(.cases-page) .cases-page table th:nth-child(10),
-    body:has(.cases-page) .cases-page table td:nth-child(10) {
-        width:150px !important;
-        min-width:150px !important;
-        max-width:150px !important;
-        padding-left:8px !important;
-        padding-right:8px !important;
-    }
+/* CNR heading and values: explicitly visible */
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(4),
+body:has(.cases-page) .cases-page .table-wrap th:nth-child(4) .header-label,
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(4) {
+    display:table-cell !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    font-weight:900 !important;
+}
 
-    body:has(.cases-page) .cases-page table td:nth-child(10) .action-btn,
-    body:has(.cases-page) .cases-page table td:nth-child(10) a,
-    body:has(.cases-page) .cases-page table td:nth-child(10) button {
+/* Values remain readable inside the dark case rows */
+body:has(.cases-page) .cases-page .table-wrap td:nth-child(4) {
+    color:#f8fafc !important;
+    -webkit-text-fill-color:#f8fafc !important;
+    text-align:left !important;
+}
+
+/* Desktop gets the full intended column space */
+@media (min-width:768px) {
+    body:has(.cases-page) .cases-page .table-wrap {
         max-width:100% !important;
     }
 }
 
-
-/* CRN header dropdown — match the existing Case/Court/Stage dropdowns */
-body:has(.cases-page) .cases-page table th:nth-child(4) .header-filter,
-body:has(.cases-page) .cases-page #crnFilter {
-    display:block !important;
-    width:100% !important;
-    min-height:30px !important;
-    margin-top:6px !important;
-    padding:4px 6px !important;
-    border:1px solid #cbd5e1 !important;
-    border-radius:6px !important;
-    background:#ffffff !important;
-    color:#172033 !important;
-    -webkit-text-fill-color:#172033 !important;
-    font-weight:700 !important;
-    font-size:12px !important;
-}
-body:has(.cases-page) .cases-page #crnFilter option {
-    background:#ffffff !important;
-    color:#172033 !important;
+/* Mobile keeps the column available through horizontal scrolling */
+@media (max-width:767px) {
+    body:has(.cases-page) .cases-page .table-wrap table {
+        min-width:1250px !important;
+    }
 }
