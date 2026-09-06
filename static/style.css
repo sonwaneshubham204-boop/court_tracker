@@ -273,3 +273,124 @@ tbody tr:hover td{background:#fff8df}
     img{max-width:100%;height:auto}
     .table-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
+
+/* ===== COURT TRACKER BACKGROUND READABILITY =====
+   Uses the supplied background image with a dark glass treatment.
+   No application logic/layout changes. */
+body{
+    background-image:
+        linear-gradient(rgba(4,8,25,.56),rgba(4,8,25,.56)),
+        url("court_tracker_background.jpg") !important;
+    background-size:cover !important;
+    background-position:center center !important;
+    background-repeat:no-repeat !important;
+    background-attachment:fixed !important;
+}
+
+/* Keep common app surfaces translucent so the supplied image remains visible. */
+.table-container,
+.card,
+.section,
+.stat-card{
+    background:rgba(7,12,30,.62) !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.22) !important;
+}
+
+.table-container table,
+.table-container td,
+.table-container tbody tr:nth-child(even) td,
+.table-container tbody tr:hover td{
+    background:rgba(7,12,30,.48) !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.20) !important;
+}
+
+.table-container th{color:#fff !important;}
+.card h1,.card h2,.card h3,
+.section h1,.section h2,.section h3,
+.stat-card h1,.stat-card h2,.stat-card h3,
+.section p,.card p,.stat-card p{
+    color:#fff !important;
+}
+
+/* Cases page: exact dark/transparent readability treatment from the reference. */
+.cases-page,
+.cases-page h1,
+.cases-page h2,
+.cases-page h3,
+.cases-page p,
+.cases-page label,
+.cases-page .top-links a,
+.cases-page .weekday,
+.cases-page .weekday-dark{
+    color:#fff !important;
+}
+
+.cases-page .search-card,
+.cases-page .table-wrap,
+.cases-page table{
+    background:rgba(7,12,30,.56) !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.24) !important;
+}
+
+.cases-page tbody tr td{
+    background:rgba(7,12,30,.50) !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.22) !important;
+}
+
+.cases-page tbody tr:nth-child(even) td,
+.cases-page tbody tr:hover td{
+    background:rgba(7,12,30,.50) !important;
+    color:#fff !important;
+}
+
+.cases-page td a,
+.cases-page td .weekday,
+.cases-page td .weekday-dark{
+    color:#fff !important;
+}
+
+.cases-page .filter-toggle{
+    color:#111827 !important;
+}
+
+.cases-page .bulkbar{
+    background:rgba(7,12,30,.82) !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.25) !important;
+}
+
+.cases-page .modal .box{
+    background:rgba(7,12,30,.94) !important;
+    color:#fff !important;
+    border:1px solid rgba(255,255,255,.25) !important;
+}
+
+/* Mobile case cards follow the same dark glass treatment. */
+.cases-page .mobile-case-card,
+.cases-page .mobile-case-card .card-body,
+.cases-page .mobile-case-card .mobile-detail-box,
+.cases-page .mobile-case-card .mobile-party-box{
+    background:rgba(7,12,30,.58) !important;
+    color:#fff !important;
+    border-color:rgba(255,255,255,.22) !important;
+}
+
+.cases-page .mobile-case-card .mobile-case-number,
+.cases-page .mobile-case-card .mobile-detail-label,
+.cases-page .mobile-case-card .mobile-detail-value,
+.cases-page .mobile-case-card .vs-highlight{
+    color:#fff !important;
+}
+
+/* Today/selected highlight rules remain stronger than the glass treatment. */
+.cases-page .today-hearing-case td,
+.cases-page .today-hearing-case .card-body,
+.cases-page .today-hearing-case .mobile-detail-box,
+.cases-page .today-hearing-case .mobile-party-box{
+    background:#173b6c !important;
+    color:#fff !important;
+}
