@@ -32,11 +32,6 @@ body{
     font-family:Cambria,Georgia,serif !important;
     font-size:1rem;
     background:var(--bg);
-    background-image:url("court_tracker_dashboard_background(1) (1).png") !important;
-    background-size:cover !important;
-    background-position:center center !important;
-    background-repeat:no-repeat !important;
-    background-attachment:fixed !important;
     color:var(--text);
     line-height:1.5;
 }
@@ -283,7 +278,7 @@ html, body {
     min-height:100%;
 }
 body {
-    background-image: url('/static/court_tracker_background.jpg') !important;
+    background-image: url('/static/court_tracker_dashboard_background(1) (1).png') !important;
     background-size: cover !important;
     background-position: center center !important;
     background-repeat: no-repeat !important;
@@ -371,7 +366,7 @@ input, select, textarea { color:#172033; }
 ========================================================= */
 
 body:has(.cases-page) {
-    background-image: url('/static/court_tracker_cases_background.jpg') !important;
+    background-image: url('/static/court_tracker_dashboard_background(1) (1).png') !important;
     background-size: cover !important;
     background-position: center center !important;
     background-repeat: no-repeat !important;
