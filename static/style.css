@@ -664,3 +664,608 @@ body:has(.cases-page) .cases-page .filter-field label {
     opacity:1 !important;
     text-shadow:none !important;
 }
+
+
+/* =========================================================
+   FINAL VISIBILITY PATCH — HEADINGS / SUBHEADINGS / LABELS ONLY
+   Fixes text that is white on white/light backgrounds or dark
+   on dark dashboard cards. No layout, spacing, controls or
+   functionality changed.
+========================================================= */
+
+/* Dashboard: dark-card headings must be light; page/group headings stay dark. */
+body:has(.dashboard-group) .stat-card h3,
+body:has(.dashboard-group) .section h2,
+body:has(.dashboard-group) .section h3,
+body:has(.dashboard-group) .court-stage-card h3 {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55) !important;
+}
+
+/* Group headings sit on the white page area. */
+body:has(.dashboard-group) .dashboard-group > h2 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Dashboard summary labels inside light mini-cards. */
+body:has(.dashboard-group) .matter-summary b,
+body:has(.dashboard-group) .matter-date-form label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+
+/* Empty-state text: dark green on the existing pale-green box. */
+body:has(.dashboard-group) .section .empty-message {
+    color:#166534 !important;
+    -webkit-text-fill-color:#166534 !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Dashboard section/table text remains readable on dark sections. */
+body:has(.dashboard-group) .section td,
+body:has(.dashboard-group) .section li,
+body:has(.dashboard-group) .section li a {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* Cases page: page headings and filter labels on light/dark mixed areas. */
+body:has(.cases-page) .cases-page > h1,
+body:has(.cases-page) .cases-page > h2,
+body:has(.cases-page) .cases-page > h3,
+body:has(.cases-page) .cases-page .filter-field label,
+body:has(.cases-page) .cases-page .header-label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Cases search-card labels/links remain visible on the dark search panel. */
+body:has(.cases-page) .cases-page .search-card .filter-field label,
+body:has(.cases-page) .cases-page .search-card .highlight-filter {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.35) !important;
+}
+
+/* Cases table headers are already dark-red/white; force header labels white. */
+body:has(.cases-page) .cases-page .table-wrap th,
+body:has(.cases-page) .cases-page .table-wrap th .header-label {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Cases modal headings/labels on its white box. */
+body:has(.cases-page) .cases-page .modal .box h3,
+body:has(.cases-page) .cases-page .modal .box label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+
+/* =========================================================
+   FINAL CONTRAST PASS — VISIBILITY / COLOUR ONLY
+   This pass changes text colours only. No layout, spacing,
+   controls, routes, JavaScript, CRUD or database behaviour.
+========================================================= */
+
+/* Dashboard cards: headings are on dark cards, therefore white. */
+body:has(.dashboard-group) .stat-card h3,
+body:has(.dashboard-group) .stat-card h3 * {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* Dashboard group headings sit on the light page background. */
+body:has(.dashboard-group) .dashboard-group > h2 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+
+/* Dashboard dark sections: all headings/subheadings stay readable. */
+body:has(.dashboard-group) .section h2,
+body:has(.dashboard-group) .section h3,
+body:has(.dashboard-group) .section .info-label {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* Dashboard light cards inside the Case Stage / date area. */
+body:has(.dashboard-group) .court-stage-card h3,
+body:has(.dashboard-group) .court-stage-card li a,
+body:has(.dashboard-group) .matter-summary b,
+body:has(.dashboard-group) .matter-date-form label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+
+/* Dashboard empty messages are on pale-green backgrounds. */
+body:has(.dashboard-group) .empty-message {
+    color:#166534 !important;
+    -webkit-text-fill-color:#166534 !important;
+    opacity:1 !important;
+}
+
+/* ---------------- Add New Case ---------------- */
+body:has(form[action=""]) { }
+/* The Add Case template has no page wrapper; its form is a normal white form area. */
+body:has(#case_stage) {
+    color:#172033 !important;
+}
+body:has(#case_stage) h1,
+body:has(#case_stage) label,
+body:has(#case_stage) a {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+
+/* ---------------- Case Details ---------------- */
+body:has(.case-detail-page) .case-detail-page h1,
+body:has(.case-detail-page) .case-detail-page h2,
+body:has(.case-detail-page) .case-detail-page h3,
+body:has(.case-detail-page) .case-detail-page label,
+body:has(.case-detail-page) .case-detail-page .info-label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(.case-detail-page) .case-detail-page .info-item,
+body:has(.case-detail-page) .case-detail-page .form-group,
+body:has(.case-detail-page) .case-detail-page .file-info,
+body:has(.case-detail-page) .case-detail-page .empty-message {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.case-detail-page) .case-detail-page .section h2,
+body:has(.case-detail-page) .case-detail-page .section h3 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.case-detail-page) .case-detail-page .section th {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+/* ---------------- Edit Case / Edit Evidence ---------------- */
+body:has(.edit-page) .edit-page h1,
+body:has(.edit-page) .edit-page h2,
+body:has(.edit-page) .edit-page h3,
+body:has(.edit-page) .edit-page label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(.edit-page) .edit-page,
+body:has(.edit-page) .edit-page .edit-form,
+body:has(.edit-page) .edit-page .current-file,
+body:has(.edit-page) .edit-page .help-text {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.edit-page) .edit-page .help-text {
+    color:#64748b !important;
+    -webkit-text-fill-color:#64748b !important;
+}
+
+/* ---------------- Edit Case History ---------------- */
+body:has(.edit-history-page) .edit-history-page h1,
+body:has(.edit-history-page) .edit-history-page h2,
+body:has(.edit-history-page) .edit-history-page h3,
+body:has(.edit-history-page) .edit-history-page label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.edit-history-page) .history-card,
+body:has(.edit-history-page) .history-card p,
+body:has(.edit-history-page) .history-card form {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------------- Add / Edit Enquiry ---------------- */
+body:has(.wrap .card) .wrap > h1,
+body:has(.wrap .card) .wrap .card h1,
+body:has(.wrap .card) .wrap .card h2,
+body:has(.wrap .card) .wrap .card h3,
+body:has(.wrap .card) .wrap .card label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.wrap .card) .wrap .card,
+body:has(.wrap .card) .wrap .card p {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------------- Enquiries list ---------------- */
+body:has(.tablewrap) .head h1,
+body:has(.tablewrap) .filter-field label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.tablewrap) .bar,
+body:has(.tablewrap) .bar label,
+body:has(.tablewrap) .result-count {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.tablewrap) .tablewrap th,
+body:has(.tablewrap) .tablewrap th * {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+body:has(.tablewrap) .tablewrap td,
+body:has(.tablewrap) .tablewrap td * {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------------- Enquiry Details ---------------- */
+body:has(.wrap .info .box) .wrap h1,
+body:has(.wrap .info .box) .wrap h2,
+body:has(.wrap .info .box) .wrap h3,
+body:has(.wrap .info .box) .wrap label,
+body:has(.wrap .info .box) .wrap .box b {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.wrap .info .box) .wrap .card,
+body:has(.wrap .info .box) .wrap .box,
+body:has(.wrap .info .box) .wrap td {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.wrap .info .box) .wrap th {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+/* ---------------- Import Excel ---------------- */
+body:has(.import-page) .import-page h1,
+body:has(.import-page) .import-page h2,
+body:has(.import-page) .import-page h3,
+body:has(.import-page) .import-page label,
+body:has(.import-page) .import-page strong {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.import-page) .import-page .info-box,
+body:has(.import-page) .import-page .help-text {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.import-page) .import-page .help-text {
+    color:#64748b !important;
+    -webkit-text-fill-color:#64748b !important;
+}
+
+/* ---------------- Analytics ---------------- */
+body:has(.cards) .container > h1,
+body:has(.cards) .container h2,
+body:has(.cards) .container h3 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.cards) .container,
+body:has(.cards) .container .card,
+body:has(.cards) .container .panel,
+body:has(.cards) .container p,
+body:has(.cards) .container b {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------------- View Business ---------------- */
+body:has(.page .grid) .page h1,
+body:has(.page .grid) .page h2,
+body:has(.page .grid) .page h3,
+body:has(.page .grid) .page .label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.page .grid) .page .card,
+body:has(.page .grid) .page .value {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+
+/* =========================================================
+   FINAL CLEAN CONTRAST FIX — COLOUR / VISIBILITY ONLY
+   No layout, spacing, controls, routes, JS, CRUD or database changes.
+========================================================= */
+
+/* ---------- DASHBOARD ---------- */
+/* Group headings are on the white page background. */
+body:has(.dashboard-group) .dashboard-group > h2 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* All statistic cards are dark: every card heading is white. */
+body:has(.dashboard-group) .stat-card h3,
+body:has(.dashboard-group) .stat-card h3 * {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.45) !important;
+}
+
+/* All large dashboard sections are dark. */
+body:has(.dashboard-group) .section h2,
+body:has(.dashboard-group) .section h3 {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.45) !important;
+}
+
+/* Case Stage cards are dark too. */
+body:has(.dashboard-group) .court-stage-card h3,
+body:has(.dashboard-group) .court-stage-card li a,
+body:has(.dashboard-group) .matter-summary b {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* Labels on the dark Case Stage section. */
+body:has(.dashboard-group) .matter-date-form label {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* Empty messages sit on pale/white boxes: use a dark readable colour. */
+body:has(.dashboard-group) .empty-message {
+    color:#166534 !important;
+    -webkit-text-fill-color:#166534 !important;
+    opacity:1 !important;
+}
+
+/* ---------- COURT CASES ---------- */
+/* Page heading and result heading are on the white page background. */
+body:has(.cases-page) .cases-page > h1,
+body:has(.cases-page) .cases-page > h2,
+body:has(.cases-page) .cases-page > h3 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+
+/* Top navigation links keep their existing blue button styling. */
+body:has(.cases-page) .cases-page .top-links a {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+/* Search/filter panel is dark: labels and highlighted-only text must be white. */
+body:has(.cases-page) .cases-page .search-card label,
+body:has(.cases-page) .cases-page .search-card .highlight-filter,
+body:has(.cases-page) .cases-page .filter-toggle {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* Table header is red: all header text is white. */
+body:has(.cases-page) .cases-page .table-wrap th,
+body:has(.cases-page) .cases-page .table-wrap th *,
+body:has(.cases-page) .cases-page .table-wrap .header-label {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+    opacity:1 !important;
+}
+
+/* Mobile case labels are on light cards. */
+body:has(.cases-page) .cases-page .mobile-detail-label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+
+/* Modal is white: headings/labels dark. */
+body:has(.cases-page) .cases-page .modal .box h3,
+body:has(.cases-page) .cases-page .modal .box label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+
+/* ---------- CASE DETAILS ---------- */
+body:has(.case-detail-page) .case-detail-page h1,
+body:has(.case-detail-page) .case-detail-page h2,
+body:has(.case-detail-page) .case-detail-page h3,
+body:has(.case-detail-page) .case-detail-page label,
+body:has(.case-detail-page) .case-detail-page .info-label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+body:has(.case-detail-page) .case-detail-page .info-item,
+body:has(.case-detail-page) .case-detail-page .form-group,
+body:has(.case-detail-page) .case-detail-page .file-info {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.case-detail-page) .case-detail-page .empty-message {
+    color:#166534 !important;
+    -webkit-text-fill-color:#166534 !important;
+}
+body:has(.case-detail-page) .case-detail-page th,
+body:has(.case-detail-page) .case-detail-page th * {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+/* ---------- EDIT CASE / EDIT EVIDENCE / EDIT HISTORY ---------- */
+body:has(.edit-page) .edit-page h1,
+body:has(.edit-page) .edit-page h2,
+body:has(.edit-page) .edit-page h3,
+body:has(.edit-page) .edit-page label,
+body:has(.edit-history-page) .edit-history-page h1,
+body:has(.edit-history-page) .edit-history-page h2,
+body:has(.edit-history-page) .edit-history-page h3,
+body:has(.edit-history-page) .edit-history-page label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+body:has(.edit-page) .edit-page .help-text {
+    color:#64748b !important;
+    -webkit-text-fill-color:#64748b !important;
+}
+body:has(.edit-history-page) .history-card,
+body:has(.edit-history-page) .history-card p {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------- ADD NEW CASE ---------- */
+/* This template has no page wrapper; its labels are on a light form area. */
+body:has(#case_stage) h1,
+body:has(#case_stage) label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(#case_stage) {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------- ADD / EDIT ENQUIRY ---------- */
+body:has(.wrap) .wrap > h1 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(.wrap) .wrap .card h1,
+body:has(.wrap) .wrap .card h2,
+body:has(.wrap) .wrap .card h3,
+body:has(.wrap) .wrap .card label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+
+/* ---------- ENQUIRIES LIST ---------- */
+body:has(.tablewrap) .head h1 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(.tablewrap) .result-count,
+body:has(.tablewrap) .bar label {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+    opacity:1 !important;
+}
+body:has(.tablewrap) .tablewrap th,
+body:has(.tablewrap) .tablewrap th * {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+body:has(.tablewrap) .tablewrap td,
+body:has(.tablewrap) .tablewrap td * {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------- ENQUIRY DETAILS ---------- */
+body:has(.info) .wrap h1,
+body:has(.info) .wrap h2,
+body:has(.info) .wrap h3,
+body:has(.info) .wrap label,
+body:has(.info) .wrap .box b {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(.info) .wrap .box,
+body:has(.info) .wrap td {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+body:has(.info) .wrap th {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
+/* ---------- IMPORT EXCEL ---------- */
+body:has(.import-page) .import-page h1,
+body:has(.import-page) .import-page h2,
+body:has(.import-page) .import-page h3,
+body:has(.import-page) .import-page label,
+body:has(.import-page) .import-page strong {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(.import-page) .import-page .help-text {
+    color:#64748b !important;
+    -webkit-text-fill-color:#64748b !important;
+}
+
+/* ---------- ANALYTICS ---------- */
+body:has(.cards) .container > h1,
+body:has(.cards) .container h2,
+body:has(.cards) .container h3 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+}
+body:has(.cards) .container .card h1,
+body:has(.cards) .container .card h2,
+body:has(.cards) .container .card h3,
+body:has(.cards) .container .panel h1,
+body:has(.cards) .container .panel h2,
+body:has(.cards) .container .panel h3 {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+}
+body:has(.cards) .container .card,
+body:has(.cards) .container .panel,
+body:has(.cards) .container p,
+body:has(.cards) .container b {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
+
+/* ---------- VIEW BUSINESS ---------- */
+body:has(.page) .page .top h1,
+body:has(.page) .page .card h1,
+body:has(.page) .page .card h2,
+body:has(.page) .page .card h3,
+body:has(.page) .page .label {
+    color:#173b6c !important;
+    -webkit-text-fill-color:#173b6c !important;
+    opacity:1 !important;
+    text-shadow:none !important;
+}
+body:has(.page) .page .card,
+body:has(.page) .page .value {
+    color:#172033 !important;
+    -webkit-text-fill-color:#172033 !important;
+}
