@@ -13,13 +13,13 @@
 .back-button,.edit-button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:7px;text-decoration:none;font-weight:600;background:#6b7280;color:#fff}
 .edit-button{background:#2563eb}
 .section{background:#fff;border-radius:10px;padding:22px;margin-top:20px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
-.section h2{margin-top:0;color:#173b6c!important}
+.section h2{margin-top:0}
 .info-grid,.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px}
 .info-item{padding:12px;background:#f8fafc;border-radius:7px}
 .info-item.full,.form-group.full{grid-column:1/-1}
-.info-label{display:block;font-size:.9rem;font-weight:700;margin-bottom:4px;color:#334155!important}
+.info-label{display:block;font-size:.9rem;font-weight:700;margin-bottom:4px}
 form{max-width:none;margin:0;padding:0;box-shadow:none;background:transparent}
-label{display:block;margin-bottom:6px;font-weight:600;color:#334155!important}
+label{display:block;margin-bottom:6px;font-weight:600}
 input,select,textarea{width:100%;box-sizing:border-box}
 textarea{min-height:100px;resize:vertical}
 .form-actions{margin-top:18px}
@@ -27,7 +27,7 @@ textarea{min-height:100px;resize:vertical}
 table{width:100%;min-width:760px;border-collapse:collapse}
 th,td{border:1px solid #ccc;padding:10px;text-align:left;vertical-align:top}
 th{background:#b3122b;color:#fff}
-.file-info{margin-top:5px;font-size:14px;color:#475569!important}
+.file-info{margin-top:5px;font-size:14px;color:#555}
 .action-links{display:flex;flex-wrap:wrap;gap:8px}
 .action-links a,.delete-form button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:7px 10px;margin:0;border-radius:6px;text-decoration:none;font-weight:600;background:#e5e7eb;color:#1f2937}
 .delete-form{display:inline;width:auto;margin:0;padding:0;background:transparent;box-shadow:none}
@@ -37,6 +37,58 @@ th{background:#b3122b;color:#fff}
 .history-note{white-space:pre-wrap;max-width:280px}
 .other-outcome{display:none;margin-top:8px}
 @media(max-width:700px){.page-header{flex-direction:column;align-items:stretch}.page-header a{width:100%;box-sizing:border-box}.section{padding:16px}.info-grid,.form-grid{grid-template-columns:1fr}.info-item.full,.form-group.full{grid-column:auto}.form-actions button{width:100%}}
+
+/* ===== CASE DETAILS READABILITY ONLY =====
+   Transparent sections with high-contrast text.
+   Light information boxes keep dark text readable.
+   No functionality or layout changes.
+*/
+.case-detail-page .section{
+    background:rgba(7,18,38,.72);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.24);
+    box-shadow:0 8px 22px rgba(0,0,0,.28);
+}
+.case-detail-page .section h2,
+.case-detail-page .section label{
+    color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+.case-detail-page .case-info .info-item{
+    background:rgba(248,250,252,.96);
+    color:#172033;
+    border:1px solid rgba(255,255,255,.55);
+}
+.case-detail-page .case-info .info-label{
+    color:#334155;
+    text-shadow:none;
+}
+.case-detail-page .case-info .info-item.full{
+    color:#172033;
+}
+.case-detail-page .case-info .info-item > *{
+    color:inherit;
+}
+.case-detail-page .case-info .info-label{
+    color:#334155 !important;
+}
+.case-detail-page .case-history-table th,
+.case-detail-page .section table th{
+    color:#fff;
+}
+.case-detail-page .section table td{
+    background:rgba(7,18,38,.58);
+    color:#fff;
+    border-color:rgba(255,255,255,.20);
+}
+.case-detail-page .section table td a{
+    color:#8fd8ff;
+}
+.case-detail-page .empty-message,
+.case-detail-page .file-info{
+    color:#e5e7eb;
+}
+
 </style>
 </head>
 
