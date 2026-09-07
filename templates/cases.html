@@ -2862,5 +2862,27 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
+
+<style id="crn-font-size-definitive-final">
+/* ONLY CRN VALUE — make it visibly match normal table-body text. */
+@media (min-width: 901px) {
+    .table-wrap td.crn-cell .crn-value,
+    .table-wrap td.crn-cell .crn-value *,
+    .table-wrap td.crn-cell > .crn-value,
+    .table-wrap td.crn-cell > .crn-value * {
+        font-family: inherit !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.3 !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        display: inline-block !important;
+        width: max-content !important;
+        max-width: none !important;
+    }
+}
+</style>
+
 </body>
 </html>
