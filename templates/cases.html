@@ -2842,5 +2842,25 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
+
+<style id="crn-font-16px-one-line-verified">
+/* ONLY CRN VALUE: same 16px size as normal table text + one line. */
+@media (min-width: 901px) {
+    .table-wrap td.crn-cell .crn-value {
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.3 !important;
+        display: inline-block !important;
+        width: max-content !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+}
+</style>
+
 </body>
 </html>
