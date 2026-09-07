@@ -2437,5 +2437,82 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
+
+<style id="name-parties-wrap-only">
+@media (min-width: 901px) {
+    .table-wrap th:nth-child(6),
+    .table-wrap td:nth-child(6) {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.35 !important;
+    }
+
+    .table-wrap td:nth-child(6) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+}
+</style>
+
+
+<style id="court-stage-date-timeleft-neat-spacing">
+/* ONLY tighten the requested desktop columns.
+   Name of Parties stays wrapped; CRN stays one line.
+   Everything else: DO NOTHING. */
+@media (min-width: 901px) {
+    /* Court */
+    .table-wrap th:nth-child(3),
+    .table-wrap td:nth-child(3) {
+        width: 125px !important;
+        min-width: 125px !important;
+        max-width: 125px !important;
+    }
+
+    /* Case Stage */
+    .table-wrap th:nth-child(8),
+    .table-wrap td:nth-child(8) {
+        width: 145px !important;
+        min-width: 145px !important;
+        max-width: 145px !important;
+    }
+
+    /* Next Hearing Date */
+    .table-wrap th:nth-child(9),
+    .table-wrap td:nth-child(9) {
+        width: 150px !important;
+        min-width: 150px !important;
+        max-width: 150px !important;
+    }
+
+    /* Time Left */
+    .table-wrap th:nth-child(10),
+    .table-wrap td:nth-child(10) {
+        width: 125px !important;
+        min-width: 125px !important;
+        max-width: 125px !important;
+    }
+
+    /* Keep controls/content compact inside these columns. */
+    .table-wrap th:nth-child(3) *,
+    .table-wrap td:nth-child(3) *,
+    .table-wrap th:nth-child(8) *,
+    .table-wrap td:nth-child(8) *,
+    .table-wrap th:nth-child(9) *,
+    .table-wrap td:nth-child(9) *,
+    .table-wrap th:nth-child(10) *,
+    .table-wrap td:nth-child(10) * {
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap td:nth-child(8) *,
+    .table-wrap td:nth-child(9) *,
+    .table-wrap td:nth-child(10) * {
+        max-width: 100% !important;
+    }
+}
+</style>
+
 </body>
 </html>
