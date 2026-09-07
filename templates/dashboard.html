@@ -25,13 +25,12 @@ body{margin:0;min-height:100vh;font-family:Cambria,Georgia,serif;color:var(--tex
 .dashboard-group{margin:0 0 20px}.dashboard-group>h2{margin:0 0 10px;color:#173b6c;font-size:21px}.dashboard-group .stats-container{margin-bottom:0}.dashboard-group.all-cases .stat-card:nth-child(1):before{background:#ea580c}.dashboard-group.all-cases .stat-card:nth-child(2):before{background:#ca8a04}.dashboard-group.all-cases .stat-card:nth-child(3):before{background:#16a34a}.dashboard-group.all-cases .stat-card:nth-child(4):before{background:#dc2626}.dashboard-group.all-cases .stat-card:nth-child(5):before{background:#2563eb}.dashboard-group.all-cases .stat-card:nth-child(6):before{background:#315989}.dashboard-group.enquiries .stat-card:nth-child(1):before{background:#198754}.dashboard-group.enquiries .stat-card:nth-child(2):before{background:#7c3aed}
 .section{padding:22px;margin-top:20px;border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:16px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.07)}
 .section.overdue{border-left-color:#dc2626}.section.today{border-left-color:#ea580c}.section.tomorrow{border-left-color:#ca8a04}.section.upcoming{border-left-color:#16a34a}
-.section h2{margin:0 0 18px;color:#ffffff!important;text-shadow:0 1px 2px rgba(0,0,0,.75)}
-.section.today h2{display:inline-block;padding:4px 10px;background:linear-gradient(90deg,#173b6c,#2563eb);border-radius:0;color:#fff!important}
-.table-container{overflow-x:auto;border:1px solid rgba(255,255,255,.35);border-radius:11px}
-table{width:100%;min-width:720px;border-collapse:collapse;background:transparent}
+.section h2{margin:0 0 18px;color:#111827!important}
+.table-container{overflow-x:auto;border:1px solid #cbd5e1;border-radius:11px}
+table{width:100%;min-width:720px;border-collapse:collapse;background:#fff}
 th{padding:14px;text-align:left;color:#fff;background:linear-gradient(90deg,#173b6c,#3f3bb7);font-size:13px}
-td{padding:14px;border-top:1px solid rgba(255,255,255,.22);color:#fff!important;background:rgba(255,255,255,.10);vertical-align:middle}
-tbody tr:nth-child(even) td{background:rgba(255,255,255,.14)}tbody tr:hover td{background:rgba(255,255,255,.18)}td:nth-child(4){white-space:nowrap}
+td{padding:14px;border-top:1px solid #dbe3ec;color:#111827!important;background:#fff;vertical-align:middle}
+tbody tr:nth-child(even) td{background:#f8fafc}tbody tr:hover td{background:#eef5ff}td:nth-child(4){white-space:nowrap}
 .stage-list{display:flex;flex-wrap:wrap;gap:10px}
 .stage-list a{display:inline-flex;padding:10px 14px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc;color:#111827!important;text-decoration:none;font-weight:700}
 .court-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.court-stage-card{min-width:0;padding:14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc}.court-stage-card h3{margin:0 0 9px;color:#173b6c}.court-stage-card ul{margin:0;padding-left:20px}.court-stage-card li{margin:4px 0}.court-stage-card li a{display:block;padding:5px 2px;color:#173b6c!important;font-weight:700;text-decoration:none;overflow-wrap:anywhere}.court-stage-card li a:hover,.court-stage-card li a:focus{text-decoration:underline}.court-stage-card li a.selected-date-stage-highlight{color:#b00020!important}.matter-date-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-bottom:14px}.matter-date-form label{display:grid;gap:5px;font-weight:700}.matter-date-form input{min-height:40px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.matter-summary{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}.matter-summary div{padding:12px;border:1px solid #cbd5e1;border-radius:9px;background:#f8fafc}.matter-summary b{display:block;margin-bottom:4px}.section.today tbody tr.today-hearing-row td{background:#173b6c!important;color:#fff!important;border-color:rgba(255,255,255,.22)}.section.today tbody tr.today-hearing-row .open-btn{background:#fff;color:#173b6c!important}
@@ -69,6 +68,117 @@ tbody tr:nth-child(even) td{background:rgba(255,255,255,.14)}tbody tr:hover td{b
     .nav a{font-size:15px!important}
     .section{padding:12px!important}
 }
+
+
+/* COURT TRACKER DASHBOARD - READABILITY PATCH */
+/* Visibility only: preserve layout, links, buttons and behavior. */
+.stat-card{
+    background:rgba(5,16,30,.82)!important;
+    border-color:rgba(255,255,255,.28)!important;
+    color:#fff!important;
+}
+.stat-card h3,.stat-card h3 *{
+    color:#fff!important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+.number{
+    color:#8fd3ff!important;
+    text-shadow:0 1px 2px rgba(0,0,0,.65);
+}
+.dashboard-group>h2{
+    color:#fff!important;
+    text-shadow:0 1px 2px rgba(0,0,0,.65);
+}
+.section{
+    background:rgba(5,16,30,.80)!important;
+    border-color:rgba(255,255,255,.25)!important;
+    color:#fff!important;
+}
+.section h2,.section h3,.section p,.section label,
+.section b,.section li,.section li a,
+.section li strong{
+    color:#fff!important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+.table-container{
+    background:rgba(5,16,30,.78)!important;
+    border-color:rgba(255,255,255,.25)!important;
+}
+.section table{
+    background:transparent!important;
+}
+.section table td{
+    background:rgba(5,20,36,.84)!important;
+    color:#fff!important;
+    border-color:rgba(255,255,255,.22)!important;
+}
+.section table tbody tr:nth-child(even) td,
+.section table tbody tr:hover td{
+    background:rgba(8,28,46,.88)!important;
+    color:#fff!important;
+}
+.section table td *{
+    color:#fff!important;
+}
+.stage-list a,
+.court-stage-card{
+    background:rgba(5,20,36,.78)!important;
+    color:#fff!important;
+    border-color:rgba(255,255,255,.25)!important;
+}
+.court-stage-card h3,
+.court-stage-card li a,
+.court-stage-card li strong,
+.court-stage-card p{
+    color:#fff!important;
+}
+.matter-summary div{
+    background:rgba(5,20,36,.78)!important;
+    color:#fff!important;
+    border-color:rgba(255,255,255,.25)!important;
+}
+.matter-summary div *{
+    color:#fff!important;
+}
+.matter-date-form label{
+    color:#fff!important;
+}
+.empty-message{
+    color:#166534!important;
+}
+.section.today tbody tr.today-hearing-row td{
+    background:#173b6c!important;
+    color:#fff!important;
+}
+
+
+/* FINAL DASHBOARD VISIBILITY FIX — appearance only */
+body{color:#fff!important}
+.dashboard-group>h2,.section h2,.section h3,.section p,.section label,
+.section b,.section li,.section li a,.section li strong{
+ color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.8)!important
+}
+.stat-card{background:rgba(5,16,30,.88)!important;color:#fff!important}
+.stat-card h3,.stat-card .number{color:#fff!important}
+.section{background:rgba(5,16,30,.86)!important;color:#fff!important}
+.table-container,.section table{background:transparent!important}
+.section table tr,.section table tbody tr,
+.section table tbody tr:nth-child(even),.section table tbody tr:hover{
+ background:transparent!important
+}
+.section table td{
+ background:rgba(5,20,36,.90)!important;color:#fff!important;
+ border-top-color:rgba(255,255,255,.25)!important
+}
+.section table td *,.section table td a{color:#fff!important}
+.court-stage-card,.matter-summary div{
+ background:rgba(5,20,36,.90)!important;color:#fff!important
+}
+.court-stage-card *,.matter-summary div *{color:#fff!important}
+.matter-date-form input{
+ background:rgba(255,255,255,.95)!important;color:#111827!important
+}
+.open-btn{color:#fff!important}
 
 </style>
 </head>
