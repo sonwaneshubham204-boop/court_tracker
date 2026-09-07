@@ -102,6 +102,19 @@
     cursor: pointer;
 }
 
+.whatsapp-share-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+}
+
+.whatsapp-share-bar button {
+    padding: 8px 11px;
+    margin: 0;
+    cursor: pointer;
+}
+
 .danger { background: #c62828; color: white; border: 0; }
 
 .table-wrap {
@@ -131,7 +144,7 @@ th {
 }
 
 /* LOCKED: only Name of Parties font slightly larger */
-td:nth-child(5) {
+td:nth-child(6) {
     font-size: 17px !important;
     line-height: 1.35 !important;
 }
@@ -199,7 +212,8 @@ table { width: 100%; min-width: 0; table-layout: fixed; }
 /* Total = 100% */
 table col.col-check  { width: 4%; }
 table col.col-id     { width: 5%; }
-table col.col-case   { width: 15%; }
+table col.col-case   { width: 13%; }
+table col.col-crn    { width: 8%; }
 table col.col-court  { width: 9%; }
 table col.col-parties{ width: 20%; }
 table col.col-stage  { width: 11%; }
@@ -214,9 +228,9 @@ th, td {
 }
 th:nth-child(3), td:nth-child(3),
 th:nth-child(4), td:nth-child(4),
-th:nth-child(7), td:nth-child(7),
 th:nth-child(8), td:nth-child(8),
-th:nth-child(9), td:nth-child(9) {
+th:nth-child(9), td:nth-child(9),
+th:nth-child(10), td:nth-child(10) {
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -599,6 +613,36 @@ td.action-cell .action-links {
 
 
 
+
+<style id="selected-highlight-controls">
+.selected-view-btn,.highlight-selected-btn {
+    border:0!important;border-radius:7px!important;padding:8px 12px!important;
+    margin:3px!important;cursor:pointer!important;font-weight:700!important;
+    white-space:nowrap!important;
+}
+.selected-view-btn { background:#6d4fc2!important;color:#fff!important; }
+.selected-view-btn.active { background:#4b2f8f!important; }
+.highlight-selected-btn {
+    background:#ffd21f!important;
+    color:#000000!important;
+    border:1px solid #d6a900!important;
+}
+.highlight-selected-btn:hover {
+    background:#f5c400!important;
+    color:#000000!important;
+}
+@media (max-width:767.98px){
+    #bulkbar .selected-view-btn,#bulkbar .highlight-selected-btn{
+        display:block!important;width:100%!important;margin:6px 0 0!important;min-height:40px!important;
+    }
+}
+</style>
+<style id="highlight-selected-text-fix">
+.highlight-selected-btn,
+.highlight-selected-btn * {
+    color:#000000!important;
+}
+</style>
 
 <style id="bootstrap-mobile-cases">
 /* Bootstrap-based responsive presentation: desktop remains unchanged */
@@ -993,6 +1037,100 @@ td.action-cell .action-links {
     box-sizing: border-box;
 }
 </style>
+
+<style id="highlighted-case-visibility-fix">
+/* ONLY: clearly show highlighted cases. Today-case styling remains unchanged. */
+.table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) td {
+    background: #fff3a3 !important;
+    color: #000000 !important;
+    border-color: #c9aa32 !important;
+}
+.table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) td a,
+.table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) .weekday {
+    color: #000000 !important;
+    font-weight: 700 !important;
+}
+.mobile-case-card.highlighted-case:not(.today-hearing-case),
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .card-body,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-box {
+    background: #fff3a3 !important;
+    color: #000000 !important;
+    border-color: #c9aa32 !important;
+}
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-case-number,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-label,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-value,
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-party-box {
+    color: #000000 !important;
+}
+.mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-party-box {
+    background: #fff3a3 !important;
+}
+</style>
+<style id="highlighted-case-colour-only">
+/* Highlighted cases only — Today cases keep their existing blue styling. */
+html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) > td {
+    background-color: #fff176 !important;
+    color: #000000 !important;
+    border-color: #d4b800 !important;
+}
+html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) > td a,
+html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) > td small,
+html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-hearing-case) > td .weekday {
+    color: #000000 !important;
+}
+@media (max-width: 767.98px) {
+    html body .cases-page .mobile-case-card.highlighted-case:not(.today-hearing-case),
+    html body .cases-page .mobile-case-card.highlighted-case:not(.today-hearing-case) .card-body,
+    html body .cases-page .mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-box,
+    html body .cases-page .mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-party-box {
+        background-color: #fff176 !important;
+        color: #000000 !important;
+        border-color: #d4b800 !important;
+    }
+    html body .cases-page .mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-case-number,
+    html body .cases-page .mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-label,
+    html body .cases-page .mobile-case-card.highlighted-case:not(.today-hearing-case) .mobile-detail-value {
+        color: #000000 !important;
+    }
+}
+</style>
+
+<style id="locked-mobile-crn-visibility-fix">
+/* LOCKED: Mobile CRN visibility only. Everything else remains unchanged. */
+@media (max-width: 767.98px) {
+    .mobile-case-card .mobile-crn-col {
+        display:block !important;
+        flex:0 0 50% !important;
+        width:50% !important;
+        max-width:50% !important;
+        min-width:0 !important;
+        visibility:visible !important;
+        opacity:1 !important;
+    }
+
+    .mobile-case-card .mobile-crn-box {
+        display:block !important;
+        width:100% !important;
+        min-height:100% !important;
+        visibility:visible !important;
+        opacity:1 !important;
+        background:#fafbfd !important;
+        color:#172033 !important;
+        border:1px solid #e1e6ed !important;
+    }
+
+    .mobile-case-card .mobile-crn-box .mobile-detail-label,
+    .mobile-case-card .mobile-crn-box .mobile-detail-value,
+    .mobile-case-card .mobile-crn-value {
+        display:block !important;
+        visibility:visible !important;
+        opacity:1 !important;
+        color:#172033 !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -1087,7 +1225,11 @@ td.action-cell .action-links {
     <button type="button" onclick="openModal('update')">📅⚖️ Change Date / Case Stage</button>
     <button type="button" onclick="openModal('dispose')">✅ Dispose Selected</button>
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
+    <button type="button" id="selectedViewBtn" class="selected-view-btn" onclick="applySelectedView()">☑ Selected</button>
+    <button type="button" id="highlightSelectedBtn" class="highlight-selected-btn">⭐ Highlight Selected</button>
+    <button type="button" id="whatsappShareBtn" onclick="shareCasesWhatsApp()" title="Ticked Cases Will Share; Select All = All Cases">📲 Share WhatsApp</button>
 </div>
+
 
 
 
@@ -1100,10 +1242,12 @@ td.action-cell .action-links {
 
     {% for case in cases %}
     <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
+        data-case-id="{{ case.id }}"
         data-case-no="{{ case.case_no }}"
         data-crn="{{ case.crn_no or '' }}"
-        data-court="Court {{ case.court_no }}"
         data-party="{{ case.parties }}"
+        data-advocate="{{ case.advocate_name or '' }}"
+        data-court="Court {{ case.court_no }}"
         data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
         data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
         data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
@@ -1150,16 +1294,28 @@ td.action-cell .action-links {
                     </div>
                 </div>
 
-                <div class="col-12">
-                    <div class="mobile-detail-box">
-                        <span class="mobile-detail-label">Next Hearing</span>
-                        <div class="mobile-detail-value">
-                            {% if case.next_hearing_date %}
+                <div class="col-6">
+    <div class="mobile-detail-box">
+     <span class="mobile-detail-label">
+      Next Hearing
+     </span>
+     <div class="mobile-detail-value">
+      {% if case.next_hearing_date %}
                                 {{ case.next_hearing_date.strftime("%d-%m-%Y") }} — {{ case.next_hearing_date.strftime("%A") }}
                             {% else %}Not Scheduled{% endif %}
-                        </div>
-                    </div>
-                </div>
+     </div>
+    </div>
+   </div>
+   <div class="col-6 mobile-crn-col">
+    <div class="mobile-detail-box mobile-crn-box">
+     <span class="mobile-detail-label">
+      CRN No
+     </span>
+     <div class="mobile-detail-value mobile-crn-value">
+      {{ case.crn_no or '—' }}
+     </div>
+    </div>
+   </div>
             </div>
 
             <div class="mobile-actions">
@@ -1198,10 +1354,6 @@ td.action-cell .action-links {
     </th>
     <th>
         <span class="header-label">CRN No</span>
-        <select class="header-filter" id="crnFilter" aria-label="Filter CRN No">
-            <option value="">All</option>
-            {% for case in cases %}<option value="{{ case.crn_no }}">{{ case.crn_no }}</option>{% endfor %}
-        </select>
     </th>
     <th>
         <span class="header-label">Court</span>
@@ -1257,10 +1409,12 @@ td.action-cell .action-links {
 <tbody>
 {% for case in cases %}
 <tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
+    data-case-id="{{ case.id }}"
     data-case-no="{{ case.case_no }}"
     data-crn="{{ case.crn_no or '' }}"
-    data-court="Court {{ case.court_no }}"
     data-party="{{ case.parties }}"
+    data-advocate="{{ case.advocate_name or '' }}"
+    data-court="Court {{ case.court_no }}"
     data-stage="{{ case.case_stage_other if case.case_stage == 'Other' and case.case_stage_other else case.case_stage }}"
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
@@ -1397,6 +1551,58 @@ function setStoredSelectedIds(ids) {
     }
 }
 
+/* Bulk WhatsApp share data — keeps selected-case details available across searches/pages. */
+const WHATSAPP_SHARE_DATA_KEY = 'courtTrackerSelectedCaseShareData';
+
+function getStoredShareData() {
+    try {
+        const raw = localStorage.getItem(WHATSAPP_SHARE_DATA_KEY);
+        const value = raw ? JSON.parse(raw) : {};
+        return value && typeof value === 'object' ? value : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function setStoredShareData(value) {
+    try {
+        localStorage.setItem(WHATSAPP_SHARE_DATA_KEY, JSON.stringify(value));
+    } catch (e) {}
+}
+
+function caseShareDataFromElement(el) {
+    if (!el) return null;
+    const id = String(el.dataset.caseId || (el.querySelector('.casebox') && el.querySelector('.casebox').value) || '');
+    if (!id) return null;
+    return {
+        id: id,
+        caseNo: el.dataset.caseNo || '',
+        crn: el.dataset.crn || '',
+        party: el.dataset.party || '',
+        advocate: el.dataset.advocate || '',
+        court: el.dataset.court || '',
+        stage: el.dataset.stage || '',
+        nextDate: el.dataset.nextDate || ''
+    };
+}
+
+function rememberCaseForWhatsApp(id) {
+    const target = String(id);
+    const el = document.querySelector('.case-row[data-case-id="' + CSS.escape(target) + '"], .mobile-case-card[data-case-id="' + CSS.escape(target) + '"]');
+    const data = caseShareDataFromElement(el);
+    if (!data) return;
+    const all = getStoredShareData();
+    all[target] = data;
+    setStoredShareData(all);
+}
+
+function removeCaseShareData(id) {
+    const all = getStoredShareData();
+    delete all[String(id)];
+    setStoredShareData(all);
+}
+
+
 function addStoredSelectedId(id) {
     const ids = getStoredSelectedIds();
     if (!ids.includes(String(id))) ids.push(String(id));
@@ -1432,15 +1638,19 @@ function restoreStoredSelections() {
     const stored = new Set(getStoredSelectedIds());
     boxes().forEach(x => {
         x.checked = stored.has(String(x.value));
+        if (x.checked) rememberCaseForWhatsApp(x.value);
     });
+    rememberVisibleHighlightStates();
     refresh();
 }
 
 boxes().forEach(x => x.addEventListener('change', function () {
     if (this.checked) {
         addStoredSelectedId(this.value);
+        rememberCaseForWhatsApp(this.value);
     } else {
         removeStoredSelectedId(this.value);
+        removeCaseShareData(this.value);
     }
     // Keep duplicate desktop/mobile checkboxes synchronized.
     boxes().forEach(other => {
@@ -1470,6 +1680,7 @@ if (allBox) {
         boxes().forEach(x => {
             x.checked = true;
             idSet.add(String(x.value));
+            rememberCaseForWhatsApp(x.value);
         });
         setStoredSelectedIds([...idSet]);
         const mobileAll = document.getElementById('mobileAll');
@@ -1481,6 +1692,7 @@ if (allBox) {
 function clearBulkSelection() {
     try {
         localStorage.removeItem(BULK_SELECTION_KEY);
+        localStorage.removeItem(WHATSAPP_SHARE_DATA_KEY);
     } catch (e) {}
 }
 
@@ -1542,21 +1754,345 @@ if (modalForm) {
     });
 }
 
+
+/* Bulk WhatsApp sharing — only the requested share actions. */
+function formatWhatsAppDate(raw) {
+    if (!raw) return '';
+    const parts = String(raw).split('-');
+    if (parts.length !== 3) return String(raw);
+    return parts[2] + '-' + parts[1] + '-' + parts[0].slice(-2);
+}
+
+function buildWhatsAppCaseText(item, number) {
+    return [
+        'Case ' + number,
+        'Case No: ' + (item.caseNo || ''),
+        'CNR No: ' + (item.crn || ''),
+        'Parties: ' + (item.party || ''),
+        'Advocate Name: ' + (item.advocate || ''),
+        'Court No: ' + (item.court || ''),
+        'Case Stage: ' + (item.stage || ''),
+        'Next Hearing Date: ' + formatWhatsAppDate(item.nextDate)
+    ].join('\n');
+}
+
+function getCurrentCaseShareData() {
+    const result = [];
+    const seen = new Set();
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(el => {
+        const item = caseShareDataFromElement(el);
+        if (!item || seen.has(String(item.id))) return;
+        seen.add(String(item.id));
+        result.push(item);
+    });
+    return result;
+}
+
+async function getAllCasesForWhatsApp() {
+    const response = await fetch('/cases', { credentials: 'same-origin', cache: 'no-store' });
+    if (!response.ok) throw new Error('Unable to load all cases');
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const result = [];
+    const seen = new Set();
+    doc.querySelectorAll('.case-row, .mobile-case-card').forEach(el => {
+        const item = caseShareDataFromElement(el);
+        if (!item || seen.has(String(item.id))) return;
+        seen.add(String(item.id));
+        result.push(item);
+    });
+    return result;
+}
+
+async function getSelectedCaseShareData() {
+    const ids = getStoredSelectedIds();
+    if (!ids.length) return [];
+    const wanted = new Set(ids.map(String));
+    const allItems = await getAllCasesForWhatsApp();
+    return allItems.filter(item => wanted.has(String(item.id)));
+}
+
+async function shareCasesWhatsApp() {
+    const btn = document.getElementById('whatsappShareBtn');
+    if (btn) btn.disabled = true;
+    try {
+        const selectedIds = getStoredSelectedIds();
+        const selectAllActive = !!(
+            (document.getElementById('all') && document.getElementById('all').checked) ||
+            (document.getElementById('mobileAll') && document.getElementById('mobileAll').checked)
+        );
+
+        // No tick = nothing to share. Select All is special: it must share
+        // the complete case list, not only the cases currently rendered on
+        // the phone screen.
+        if (!selectedIds.length && !selectAllActive) {
+            alert('Please tick at least one case. Select All Cases to share all cases.');
+            return;
+        }
+
+        const items = selectAllActive
+            ? await getAllCasesForWhatsApp()
+            : await getSelectedCaseShareData();
+        if (!items.length) {
+            alert('Please tick at least one case.');
+            return;
+        }
+
+        const message = items.map((item, index) =>
+            buildWhatsAppCaseText(item, index + 1)
+        ).join('\n\n');
+
+        // Phone: very large text payloads can be truncated by WhatsApp's
+        // native share target. For large case lists, copy the COMPLETE
+        // message first and open WhatsApp so the user can paste it intact.
+        // Keep native share only for short messages.
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        /*
+         * MOBILE: WhatsApp can truncate a very large text payload passed
+         * through the browser/OS share target. Share the COMPLETE case list
+         * as a text file instead. The file contains every case in the same
+         * formatted text, so no cases are lost (18/35/etc. limits avoided).
+         */
+        if (isMobile && typeof navigator.share === 'function') {
+            const file = new File(
+                [message],
+                'Court_Tracker_Cases.txt',
+                { type: 'text/plain' }
+            );
+
+            if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Court Tracker Cases',
+                    text: 'Complete Court Tracker case list',
+                    files: [file]
+                });
+                return;
+            }
+
+            await navigator.share({
+                title: 'Court Tracker Cases',
+                text: message
+            });
+            return;
+        }
+
+        if (navigator.share) {
+            await navigator.share({ title: 'Court Cases', text: message });
+            return;
+        }
+
+        // PC fallback: copy the complete message, then open WhatsApp Web.
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(message);
+            window.open('https://web.whatsapp.com/', '_blank');
+            alert('Cases copied. Paste the message in WhatsApp Web and send.');
+            return;
+        }
+
+        window.open('https://web.whatsapp.com/', '_blank');
+        alert('Please paste the prepared cases message in WhatsApp Web and send.');
+    } catch (e) {
+        if (!(e && e.name === 'AbortError')) {
+            alert('Unable to prepare cases for WhatsApp. Please try again.');
+        }
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+/* Selected view + Highlight Selected — only the requested controls. */
+const HIGHLIGHT_STATE_KEY = 'courtTrackerSelectedHighlightStates';
+
+function getHighlightStates() {
+    try {
+        const raw = localStorage.getItem(HIGHLIGHT_STATE_KEY);
+        const value = raw ? JSON.parse(raw) : {};
+        return value && typeof value === 'object' ? value : {};
+    } catch (e) { return {}; }
+}
+
+function setHighlightStates(value) {
+    try { localStorage.setItem(HIGHLIGHT_STATE_KEY, JSON.stringify(value)); } catch (e) {}
+}
+
+function rememberVisibleHighlightStates() {
+    const states = getHighlightStates();
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (box) states[String(box.value)] = row.classList.contains('highlighted-case');
+    });
+    setHighlightStates(states);
+}
+
+function applySelectedView() {
+    const ids = new Set(getStoredSelectedIds());
+    const btn = document.getElementById('selectedViewBtn');
+    if (!btn) return;
+
+    const active = !btn.classList.contains('active');
+
+    if (active && ids.size) {
+        try {
+            localStorage.setItem('courtTrackerSelectedView', '1');
+        } catch (e) {}
+
+        // Selected must work independently of search/highlight/filter URLs.
+        // Reload the normal cases list, then show only the stored selections.
+        const params = new URLSearchParams(window.location.search);
+        if ([...params.keys()].length) {
+            window.location.href = '/cases';
+            return;
+        }
+    } else if (active && !ids.size) {
+        alert('Please select at least one case.');
+        return;
+    } else {
+        try {
+            localStorage.removeItem('courtTrackerSelectedView');
+        } catch (e) {}
+    }
+
+    btn.classList.toggle('active', active);
+
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (!box) return;
+        if (active) {
+            row.style.setProperty('display', ids.has(String(box.value)) ? (row.classList.contains('case-row') ? 'table-row' : 'block') : 'none', 'important');
+        } else {
+            row.style.removeProperty('display');
+        }
+    });
+}
+
+function applySelectedViewState() {
+    const btn = document.getElementById('selectedViewBtn');
+    if (!btn) return;
+
+    // Any explicit Cases-page filter (including Overdue/Past) must show
+    // the complete filtered result, not be restricted by the Selected view.
+    if (window.location.search) {
+        try { localStorage.removeItem('courtTrackerSelectedView'); } catch (e) {}
+        btn.classList.remove('active');
+        return;
+    }
+
+    let active = false;
+    try {
+        active = localStorage.getItem('courtTrackerSelectedView') === '1';
+    } catch (e) {}
+
+    if (!active) {
+        btn.classList.remove('active');
+        return;
+    }
+
+    const ids = new Set(getStoredSelectedIds());
+    btn.classList.add('active');
+
+    document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+        const box = row.querySelector('.casebox');
+        if (!box) return;
+        row.style.setProperty('display', ids.has(String(box.value)) ? (row.classList.contains('case-row') ? 'table-row' : 'block') : 'none', 'important');
+    });
+}
+
+async function highlightSelectedCases() {
+    const ids = getStoredSelectedIds();
+    if (!ids.length) {
+        alert('Please select at least one case.');
+        return;
+    }
+
+    rememberVisibleHighlightStates();
+    const states = getHighlightStates();
+
+    // One option: if all selected cases are highlighted, click => Unhighlight All.
+    // Otherwise click => Highlight All.
+    const allHighlighted = ids.every(id => states[id] === true);
+    const wantHighlighted = !allHighlighted;
+
+    const requests = [];
+    ids.forEach(id => {
+        const isHighlighted = states[id] === true;
+        if (isHighlighted !== wantHighlighted) {
+            requests.push(
+                fetch('/case/' + encodeURIComponent(id) + '/toggle-highlight', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                }).then(r => {
+                    if (!r.ok) throw new Error('Highlight update failed');
+                    states[id] = wantHighlighted;
+                })
+            );
+        }
+    });
+
+    const btn = document.getElementById('highlightSelectedBtn');
+    btn.disabled = true;
+    try {
+        await Promise.all(requests);
+        setHighlightStates(states);
+        window.location.reload();
+    } catch (e) {
+        btn.disabled = false;
+        alert('Unable to update selected highlights. Please try again.');
+    }
+}
+function updateHighlightSelectedLabel() {
+    const btn = document.getElementById('highlightSelectedBtn');
+    if (!btn) return;
+
+    const ids = getStoredSelectedIds();
+    const states = getHighlightStates();
+    const allHighlighted = ids.length > 0 && ids.every(id => states[id] === true);
+
+    btn.textContent = allHighlighted ? '⭐ Unhighlight Selected' : '⭐ Highlight Selected';
+}
+
+updateHighlightSelectedLabel();
+
+// Selected button uses its direct click handler so it works reliably on mobile touch.
+document.getElementById('highlightSelectedBtn')?.addEventListener('click', highlightSelectedCases);
+
 // Restore selections after every page/search load.
 restoreStoredSelections();
+
+// Restore Selected view after loading the clean, unfiltered /cases list.
+try {
+    if (localStorage.getItem('courtTrackerSelectedView') === '1') {
+        const selectedBtn = document.getElementById('selectedViewBtn');
+        if (selectedBtn) selectedBtn.classList.add('active');
+
+        const ids = new Set(getStoredSelectedIds());
+        document.querySelectorAll('.case-row, .mobile-case-card').forEach(row => {
+            const box = row.querySelector('.casebox');
+            if (!box) return;
+            row.style.setProperty('display', ids.has(String(box.value)) ? (row.classList.contains('case-row') ? 'table-row' : 'block') : 'none', 'important');
+        });
+    }
+} catch (e) {}
 
 // Simple dropdown filters in the red table header
 const headerFilters = [
     document.getElementById('caseNoFilter'),
-    document.getElementById('crnFilter'),
     document.getElementById('courtFilter'),
     document.getElementById('partyFilter'),
     document.getElementById('stageFilter')
 ];
 
 function applyHeaderFilters() {
+    const selectedBtn = document.getElementById('selectedViewBtn');
+    if (selectedBtn && selectedBtn.classList.contains('active')) {
+        selectedBtn.classList.remove('active');
+        try { localStorage.removeItem('courtTrackerSelectedView'); } catch (e) {}
+        document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+            row.style.removeProperty('display');
+        });
+    }
+
     const caseNo = document.getElementById('caseNoFilter').value;
-    const crn = document.getElementById('crnFilter').value;
     const court = document.getElementById('courtFilter').value;
     const party = document.getElementById('partyFilter').value;
     const stage = document.getElementById('stageFilter').value;
@@ -1564,7 +2100,6 @@ function applyHeaderFilters() {
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
         const show =
             (!caseNo || row.dataset.caseNo === caseNo) &&
-            (!crn || row.dataset.crn === crn) &&
             (!court || row.dataset.court === court) &&
             (!party || row.dataset.party === party) &&
             (!stage || row.dataset.stage === stage);
@@ -1611,6 +2146,15 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
     }
 
     function applyNewFilters() {
+        const selectedBtn = document.getElementById('selectedViewBtn');
+        if (selectedBtn && selectedBtn.classList.contains('active')) {
+            selectedBtn.classList.remove('active');
+            try { localStorage.removeItem('courtTrackerSelectedView'); } catch (e) {}
+            document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
+                row.style.removeProperty('display');
+            });
+        }
+
         const baseFilters = [...document.querySelectorAll('.header-filter')]
             .filter(x => x.id !== 'nextDateFilter' && x.id !== 'timeLeftFilter');
 
@@ -1618,7 +2162,6 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
             const baseHidden = baseFilters.some(f => {
                 if (!f.value) return false;
                 if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
-                if (f.id === 'crnFilter') return row.dataset.crn !== f.value;
                 if (f.id === 'courtFilter') return row.dataset.court !== f.value;
                 if (f.id === 'partyFilter') return row.dataset.party !== f.value;
                 if (f.id === 'stageFilter') return row.dataset.stage !== f.value;
@@ -1633,8 +2176,16 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
         });
     }
 
-    nextDateFilter.addEventListener('change', applyNewFilters);
-    timeLeftFilter.addEventListener('change', applyNewFilters);
+    nextDateFilter.addEventListener('change', function () {
+        // Each date-status click is independent.
+        timeLeftFilter.value = '';
+        applyNewFilters();
+    });
+    timeLeftFilter.addEventListener('change', function () {
+        // Each time-left click is independent.
+        nextDateFilter.value = '';
+        applyNewFilters();
+    });
 })();
 </script>
 
@@ -1679,14 +2230,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 sameCaseBoxes(box.value).forEach(function (other) {
                     other.checked = true;
                 });
+                if (typeof rememberCaseForWhatsApp === 'function') rememberCaseForWhatsApp(box.value);
             });
             var desktopAll = document.getElementById('all');
             if (desktopAll) desktopAll.checked = true;
             if (typeof refresh === 'function') refresh();
         });
     }
-});
-</script>
+    applySelectedViewState();
+});</script>
 
 </body>
 </html>
