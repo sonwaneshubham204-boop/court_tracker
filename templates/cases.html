@@ -2885,24 +2885,41 @@ document.addEventListener('DOMContentLoaded', function () {
 </style>
 
 
-<style id="red-table-headings-same-font-final">
-/* ONLY red table heading text: same font size across all headings. */
+
+<style id="red-table-headings-same-font-verified-fixed">
+/* ONLY RED TABLE HEADINGS — all visible heading text is exactly 16px.
+   Explicitly override the older CRN nth-child rule as well. */
 @media (min-width: 901px) {
     .table-wrap thead th,
-    .table-wrap thead th > *,
+    .table-wrap thead th:nth-child(1),
+    .table-wrap thead th:nth-child(2),
+    .table-wrap thead th:nth-child(3),
+    .table-wrap thead th:nth-child(4),
+    .table-wrap thead th:nth-child(5),
+    .table-wrap thead th:nth-child(6),
+    .table-wrap thead th:nth-child(7),
+    .table-wrap thead th:nth-child(8),
+    .table-wrap thead th:nth-child(9),
+    .table-wrap thead th:nth-child(10) {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        line-height: 1.25 !important;
+    }
+
     .table-wrap thead th .header-label {
         font-size: 16px !important;
         font-weight: 700 !important;
         line-height: 1.25 !important;
     }
 
-    /* Keep the filter dropdown font unchanged. */
+    /* Dropdowns are controls; do not change their existing sizing. */
     .table-wrap thead th select,
     .table-wrap thead th select * {
         font-size: inherit !important;
     }
 }
 </style>
+
 
 </body>
 </html>
