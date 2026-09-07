@@ -6,7 +6,26 @@
 <title>{{ title }}</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com">
+/* LOCKED PATCH: Bulk WhatsApp label only. Existing sharing logic remains unchanged. */
+function refreshWhatsAppShareLabel() {
+    const btn = document.getElementById('whatsappShareBtn');
+    if (!btn) return;
+    const selectedIds = getStoredSelectedIds();
+    const allChecked = !!(
+        (document.getElementById('all') && document.getElementById('all').checked) ||
+        (document.getElementById('mobileAll') && document.getElementById('mobileAll').checked)
+    );
+    if (allChecked) {
+        btn.textContent = '📲 Share All via WhatsApp';
+        btn.title = 'All Cases will be shared via WhatsApp';
+    } else if (selectedIds.length) {
+        btn.textContent = '📲 Share Selected via WhatsApp';
+        btn.title = 'Only ticked/selected cases will be shared via WhatsApp';
+    }
+}
+
+</script>
 
 <style>
 * { box-sizing: border-box; }
@@ -1131,6 +1150,51 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
 }
 </style>
 
+
+<style id="locked-desktop-crn-overlap-fix">
+/* LOCKED: Desktop CRN No overlap fix ONLY. Everything else unchanged. */
+@media (min-width: 901px) {
+    .table-wrap {
+        width: 100% !important;
+        overflow-x: auto !important;
+    }
+
+    .table-wrap table {
+        width: 100% !important;
+        min-width: 1120px !important;
+        table-layout: fixed !important;
+    }
+
+    /* Keep all ten columns explicitly sized so CRN gets real space. */
+    .table-wrap table col.col-check  { width: 4% !important; }
+    .table-wrap table col.col-id     { width: 5% !important; }
+    .table-wrap table col.col-case   { width: 12% !important; }
+    .table-wrap table col.col-crn    { width: 13% !important; }
+    .table-wrap table col.col-court  { width: 8% !important; }
+    .table-wrap table col.col-parties{ width: 18% !important; }
+    .table-wrap table col.col-stage  { width: 10% !important; }
+    .table-wrap table col.col-date   { width: 10% !important; }
+    .table-wrap table col.col-left   { width: 6% !important; }
+    .table-wrap table col.col-action { width: 14% !important; }
+
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+        text-overflow: clip !important;
+    }
+
+    .table-wrap td:nth-child(4) * {
+        white-space: nowrap !important;
+        overflow: visible !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
@@ -1227,7 +1291,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <button type="button" class="danger" onclick="bulkDelete()">🗑️ Delete Selected</button>
     <button type="button" id="selectedViewBtn" class="selected-view-btn" onclick="applySelectedView()">☑ Selected</button>
     <button type="button" id="highlightSelectedBtn" class="highlight-selected-btn">⭐ Highlight Selected</button>
-    <button type="button" id="whatsappShareBtn" onclick="shareCasesWhatsApp()" title="Ticked Cases Will Share; Select All = All Cases">📲 Share WhatsApp</button>
+    <button type="button" id="whatsappShareBtn" onclick="shareCasesWhatsApp()" title="Ticked Cases = Share Selected; Select All = Share All">📲 Share Selected via WhatsApp</button>
 </div>
 
 
@@ -1354,6 +1418,16 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     </th>
     <th>
         <span class="header-label">CRN No</span>
+        <select class="header-filter" id="crnFilter" aria-label="Filter CRN No">
+            <option value="">All</option>
+            {% set crn_ns = namespace(seen=[]) %}
+            {% for case in cases %}
+                {% if case.crn_no and case.crn_no not in crn_ns.seen %}
+                    <option value="{{ case.crn_no }}">{{ case.crn_no }}</option>
+                    {% set _ = crn_ns.seen.append(case.crn_no) %}
+                {% endif %}
+            {% endfor %}
+        </select>
     </th>
     <th>
         <span class="header-label">Court</span>
@@ -1632,6 +1706,7 @@ function refresh() {
     // It must never change to the selected-case count.
     const totalResults = document.getElementById('totalresults');
     if (totalResults) totalResults.textContent = {{ cases|length }};
+    refreshWhatsAppShareLabel();
 }
 
 function restoreStoredSelections() {
@@ -1686,6 +1761,7 @@ if (allBox) {
         const mobileAll = document.getElementById('mobileAll');
         if (mobileAll) mobileAll.checked = true;
         refresh();
+        refreshWhatsAppShareLabel();
     });
 }
 
@@ -2077,6 +2153,7 @@ try {
 // Simple dropdown filters in the red table header
 const headerFilters = [
     document.getElementById('caseNoFilter'),
+    document.getElementById('crnFilter'),
     document.getElementById('courtFilter'),
     document.getElementById('partyFilter'),
     document.getElementById('stageFilter')
@@ -2093,6 +2170,7 @@ function applyHeaderFilters() {
     }
 
     const caseNo = document.getElementById('caseNoFilter').value;
+    const crn = document.getElementById('crnFilter').value;
     const court = document.getElementById('courtFilter').value;
     const party = document.getElementById('partyFilter').value;
     const stage = document.getElementById('stageFilter').value;
@@ -2100,6 +2178,7 @@ function applyHeaderFilters() {
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
         const show =
             (!caseNo || row.dataset.caseNo === caseNo) &&
+            (!crn || row.dataset.crn === crn) &&
             (!court || row.dataset.court === court) &&
             (!party || row.dataset.party === party) &&
             (!stage || row.dataset.stage === stage);
@@ -2162,6 +2241,7 @@ headerFilters.forEach(filter => filter.addEventListener('change', applyHeaderFil
             const baseHidden = baseFilters.some(f => {
                 if (!f.value) return false;
                 if (f.id === 'caseNoFilter') return row.dataset.caseNo !== f.value;
+                if (f.id === 'crnFilter') return row.dataset.crn !== f.value;
                 if (f.id === 'courtFilter') return row.dataset.court !== f.value;
                 if (f.id === 'partyFilter') return row.dataset.party !== f.value;
                 if (f.id === 'stageFilter') return row.dataset.stage !== f.value;
@@ -2239,6 +2319,123 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     applySelectedViewState();
 });</script>
+
+
+<style id="final-crn-oneline-dropdown-fix">
+/* FINAL CRN FIX ONLY:
+   • CRN dropdown filter
+   • enough desktop table width for CRN
+   • CRN value stays on one line
+   Everything else: DO NOTHING.
+*/
+@media (min-width: 901px) {
+    /* Give the CRN column a real fixed area; let the table scroll instead
+       of squeezing/overlapping the CRN value into the Court column. */
+    .table-wrap {
+        overflow-x: auto !important;
+    }
+
+    .table-wrap table {
+        width: max-content !important;
+        min-width: 1500px !important;
+        table-layout: auto !important;
+    }
+
+    .table-wrap table col.col-crn {
+        width: 230px !important;
+        min-width: 230px !important;
+        max-width: 230px !important;
+    }
+
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        width: 230px !important;
+        min-width: 230px !important;
+        max-width: 230px !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap td:nth-child(4) > * {
+        display: inline-block !important;
+        width: auto !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+    }
+
+    .table-wrap th:nth-child(4) .header-filter {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+    }
+}
+</style>
+
+
+<style id="crn-and-table-no-wrap-final">
+/* FINAL — NO TEXT WRAPPING ON DESKTOP TABLE
+   Only presentation/spacing is adjusted.
+   CRN keeps its dedicated width; all other cell text stays on one line.
+   Existing functionality/filtering/routes/database/mobile are untouched.
+*/
+@media (min-width: 901px) {
+    .table-wrap table {
+        width: max-content !important;
+        min-width: 1600px !important;
+        table-layout: auto !important;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        vertical-align: middle !important;
+    }
+
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        width: 230px !important;
+        min-width: 230px !important;
+        max-width: 230px !important;
+    }
+
+    .table-wrap td:nth-child(4) {
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+
+    .table-wrap th:nth-child(4) .header-filter {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+    }
+
+    .table-wrap th:nth-child(6),
+    .table-wrap td:nth-child(6) {
+        min-width: 260px !important;
+    }
+
+    .table-wrap th:nth-child(10),
+    .table-wrap td:nth-child(10) {
+        min-width: 160px !important;
+    }
+}
+</style>
 
 </body>
 </html>
