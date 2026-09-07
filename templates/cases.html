@@ -1495,7 +1495,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
     <td>{{ case.id }}</td>
     <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
-    <td>{{ case.crn_no or '—' }}</td>
+    <td class="crn-cell"><span class="crn-value">{{ case.crn_no or '—' }}</span></td>
     <td>Court {{ case.court_no }}</td>
     <td>{{ case.parties|format_vs }}</td>
     <td>
@@ -2457,59 +2457,180 @@ document.addEventListener('DOMContentLoaded', function () {
 </style>
 
 
-<style id="court-stage-date-timeleft-neat-spacing">
-/* ONLY tighten the requested desktop columns.
-   Name of Parties stays wrapped; CRN stays one line.
-   Everything else: DO NOTHING. */
+<style id="four-columns-compact-success-final">
+/* FINAL: only Court, Case Stage, Next Hearing Date and Time Left spacing. */
 @media (min-width: 901px) {
-    /* Court */
-    .table-wrap th:nth-child(3),
-    .table-wrap td:nth-child(3) {
-        width: 125px !important;
-        min-width: 125px !important;
-        max-width: 125px !important;
+    .table-wrap th:nth-child(5),
+    .table-wrap td:nth-child(5) {
+        width:105px !important; min-width:105px !important; max-width:105px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
     }
-
-    /* Case Stage */
+    .table-wrap th:nth-child(7),
+    .table-wrap td:nth-child(7) {
+        width:125px !important; min-width:125px !important; max-width:125px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
+    }
     .table-wrap th:nth-child(8),
     .table-wrap td:nth-child(8) {
-        width: 145px !important;
-        min-width: 145px !important;
-        max-width: 145px !important;
+        width:135px !important; min-width:135px !important; max-width:135px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
     }
-
-    /* Next Hearing Date */
     .table-wrap th:nth-child(9),
     .table-wrap td:nth-child(9) {
+        width:105px !important; min-width:105px !important; max-width:105px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
+    }
+}
+</style>
+
+
+<style id="cases-page-final-neat-layout">
+/* FINAL CASES TABLE LAYOUT ONLY
+   Reset the conflicting width rules from earlier visual patches.
+   Keep CRN one-line + dropdown, keep Name of Parties wrapped.
+   Everything outside the table layout: DO NOTHING.
+*/
+@media (min-width: 901px) {
+    .table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap table {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap table col.col-check  { width: 4% !important; }
+    .table-wrap table col.col-id     { width: 4% !important; }
+    .table-wrap table col.col-case   { width: 12% !important; }
+    .table-wrap table col.col-crn    { width: 17% !important; }
+    .table-wrap table col.col-court  { width: 7% !important; }
+    .table-wrap table col.col-parties{ width: 18% !important; }
+    .table-wrap table col.col-stage  { width: 10% !important; }
+    .table-wrap table col.col-date   { width: 11% !important; }
+    .table-wrap table col.col-left   { width: 7% !important; }
+    .table-wrap table col.col-action { width: 10% !important; }
+
+    .table-wrap th,
+    .table-wrap td {
+        box-sizing: border-box !important;
+        padding: 8px 7px !important;
+        vertical-align: middle !important;
+    }
+
+    /* CRN: dedicated space, one line, no overlap. */
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        width: 17% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+    }
+
+    .table-wrap th:nth-child(4) .header-filter {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+    }
+
+    /* Name of Parties: this is the ONLY text column allowed to wrap. */
+    .table-wrap th:nth-child(6),
+    .table-wrap td:nth-child(6),
+    .table-wrap td:nth-child(6) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.35 !important;
+    }
+
+    /* The four requested compact columns. */
+    .table-wrap th:nth-child(5),
+    .table-wrap td:nth-child(5),
+    .table-wrap th:nth-child(7),
+    .table-wrap td:nth-child(7),
+    .table-wrap th:nth-child(8),
+    .table-wrap td:nth-child(8),
+    .table-wrap th:nth-child(9),
+    .table-wrap td:nth-child(9) {
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    /* Keep the header filters neat and inside their cells. */
+    .table-wrap .header-filter {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+</style>
+
+
+<style id="crn-compact-perfect-final">
+/* CRN ONLY — compact, clean, guaranteed single-line value.
+   All other existing page styling/functionality remains unchanged. */
+@media (min-width: 901px) {
+    .table-wrap table {
+        table-layout: fixed !important;
+        width: 100% !important;
+        min-width: 1100px !important;
+    }
+
+    .table-wrap col.col-crn {
         width: 150px !important;
         min-width: 150px !important;
         max-width: 150px !important;
     }
 
-    /* Time Left */
-    .table-wrap th:nth-child(10),
-    .table-wrap td:nth-child(10) {
-        width: 125px !important;
-        min-width: 125px !important;
-        max-width: 125px !important;
+    .table-wrap td.crn-cell,
+    .table-wrap th:nth-child(4) {
+        width: 150px !important;
+        min-width: 150px !important;
+        max-width: 150px !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
 
-    /* Keep controls/content compact inside these columns. */
-    .table-wrap th:nth-child(3) *,
-    .table-wrap td:nth-child(3) *,
-    .table-wrap th:nth-child(8) *,
-    .table-wrap td:nth-child(8) *,
-    .table-wrap th:nth-child(9) *,
-    .table-wrap td:nth-child(9) *,
-    .table-wrap th:nth-child(10) *,
-    .table-wrap td:nth-child(10) * {
-        box-sizing: border-box !important;
+    .table-wrap td.crn-cell .crn-value {
+        display: inline-block !important;
+        width: max-content !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: keep-all !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
     }
 
-    .table-wrap td:nth-child(8) *,
-    .table-wrap td:nth-child(9) *,
-    .table-wrap td:nth-child(10) * {
+    .table-wrap th:nth-child(4) .header-filter {
+        width: 100% !important;
         max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
     }
 }
 </style>
