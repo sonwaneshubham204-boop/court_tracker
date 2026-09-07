@@ -2921,5 +2921,60 @@ document.addEventListener('DOMContentLoaded', function () {
 </style>
 
 
+
+<style id="next-date-time-left-root-fix">
+/* ROOT FIX — ONLY Next Hearing Date + Time Left.
+   The table is table-layout:fixed, so the <col> widths must also be changed.
+*/
+@media (min-width: 901px) {
+    .table-wrap table col.col-date {
+        width: 12% !important;
+    }
+
+    .table-wrap table col.col-left {
+        width: 8% !important;
+    }
+
+    .table-wrap th:nth-child(8),
+    .table-wrap td:nth-child(8) {
+        width: 12% !important;
+        min-width: 0 !important;
+        max-width: 12% !important;
+        box-sizing: border-box !important;
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+        line-height: 1.25 !important;
+    }
+
+    .table-wrap th:nth-child(9),
+    .table-wrap td:nth-child(9) {
+        width: 8% !important;
+        min-width: 0 !important;
+        max-width: 8% !important;
+        box-sizing: border-box !important;
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+        line-height: 1.25 !important;
+    }
+
+    .table-wrap th:nth-child(8) .header-filter,
+    .table-wrap th:nth-child(9) .header-filter {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+}
+</style>
+
+
 </body>
 </html>
