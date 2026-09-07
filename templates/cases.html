@@ -2635,5 +2635,110 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
+
+<style id="crn-compact-clean-final">
+/* FINAL CLEAN CASES TABLE
+   ONLY fixes desktop column sizing so the complete UI fits neatly.
+   CRN stays on ONE line. Name of Parties is the only wrapped column.
+   Existing functionality, filters, buttons, routes, database and mobile:
+   DO NOTHING.
+*/
+@media (min-width: 901px) {
+    .table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap table {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+    }
+
+    /* Exactly 100% total — balanced compact desktop view. */
+    .table-wrap table col.col-check   { width: 4% !important; }
+    .table-wrap table col.col-id      { width: 4% !important; }
+    .table-wrap table col.col-case    { width: 12% !important; }
+    .table-wrap table col.col-crn     { width: 18% !important; }
+    .table-wrap table col.col-court   { width: 8% !important; }
+    .table-wrap table col.col-parties { width: 18% !important; }
+    .table-wrap table col.col-stage   { width: 10% !important; }
+    .table-wrap table col.col-date    { width: 11% !important; }
+    .table-wrap table col.col-left    { width: 6% !important; }
+    .table-wrap table col.col-action  { width: 9% !important; }
+
+    .table-wrap th,
+    .table-wrap td {
+        box-sizing: border-box !important;
+        padding: 7px 6px !important;
+        vertical-align: middle !important;
+    }
+
+    /* CRN: one line, enough dedicated width, no overlap. */
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4),
+    .table-wrap td:nth-child(4) .crn-value {
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        font-size: 12px !important;
+    }
+
+    .table-wrap td:nth-child(4) .crn-value {
+        display: inline-block !important;
+        width: max-content !important;
+        max-width: none !important;
+    }
+
+    .table-wrap th:nth-child(4) .header-filter {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-top: 5px !important;
+        padding: 4px 18px 4px 5px !important;
+        font-size: 11px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Only Name of Parties wraps. */
+    .table-wrap th:nth-child(6),
+    .table-wrap td:nth-child(6),
+    .table-wrap td:nth-child(6) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+    }
+
+    /* Requested compact columns remain one-line and tight. */
+    .table-wrap th:nth-child(5),
+    .table-wrap td:nth-child(5),
+    .table-wrap th:nth-child(7),
+    .table-wrap td:nth-child(7),
+    .table-wrap th:nth-child(8),
+    .table-wrap td:nth-child(8),
+    .table-wrap th:nth-child(9),
+    .table-wrap td:nth-child(9) {
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    /* Keep header controls inside their assigned cells. */
+    .table-wrap .header-filter {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+</style>
+
 </body>
 </html>
