@@ -2670,13 +2670,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     .table-wrap table col.col-parties {
-        width: 21% !important;
+        width: 23% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
 
     .table-wrap table col.col-action {
-        width: 10% !important;
+        width: 8% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
@@ -2732,15 +2732,19 @@ document.addEventListener('DOMContentLoaded', function () {
         margin: 0 !important;
         padding: 0 !important;
     }
-
-
     td.action-cell .action-links span[aria-label] {
         display: inline-block !important;
+        visibility: visible !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
         font-size: 15.5px !important;
         line-height: 1 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: auto !important;
+        white-space: nowrap !important;
     }
 
     td.action-cell .action-links span {
