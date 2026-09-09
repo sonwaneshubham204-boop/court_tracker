@@ -1263,7 +1263,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     </div>
 
     {% for case in cases %}
-    <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
+    <article class="card mobile-case-card {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %} {% if case.next_hearing_date and 0 <= (case.next_hearing_date - today).days <= 7 %}seven-day-glow-case{% endif %}"
         data-case-id="{{ case.id }}"
         data-case-no="{{ case.case_no }}"
         data-crn="{{ case.crn_no or '' }}"
@@ -1438,7 +1438,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
 </thead>
 <tbody>
 {% for case in cases %}
-<tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %}"
+<tr class="case-row {% if case.highlighted %}highlighted-case{% endif %} {% if case.next_hearing_date == today %}today-hearing-case{% endif %} {% if case.next_hearing_date and 0 <= (case.next_hearing_date - today).days <= 7 %}seven-day-glow-case{% endif %}"
     data-case-id="{{ case.id }}"
     data-case-no="{{ case.case_no }}"
     data-crn="{{ case.crn_no or '' }}"
@@ -2940,10 +2940,12 @@ document.addEventListener('DOMContentLoaded', function () {
 /* ONLY: visible animated glow for 7-day cases. Font color/size/weight are preserved. */
 .case-id-cell.seven-day-id-glow {
     animation: sevenDayIdBlink 1.15s ease-in-out infinite !important;
+    -webkit-animation: sevenDayIdBlink 1.15s ease-in-out infinite !important;
     text-shadow: 0 0 5px rgba(0,255,255,.95), 0 0 12px rgba(0,255,255,.9), 0 0 22px rgba(0,255,255,.85), 0 0 36px rgba(0,255,255,.7) !important;
 }
 .case-row .case-number-seven-day-glow {
     animation: sevenDayCaseNoBlink 1.15s ease-in-out infinite !important;
+    -webkit-animation: sevenDayCaseNoBlink 1.15s ease-in-out infinite !important;
     text-shadow: 0 0 5px rgba(0,255,255,.95), 0 0 12px rgba(0,255,255,.9), 0 0 22px rgba(0,255,255,.85), 0 0 36px rgba(0,255,255,.7) !important;
 }
 @keyframes sevenDayIdBlink {
@@ -2985,14 +2987,14 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('tr.case-row').forEach(function (row) {
             var raw = row.getAttribute('data-next-date') || row.dataset.nextDate || '';
             var hearing = dayOnly(raw);
-            var idCell = row.querySelector('.case-id-cell');
+            var idCell = row.querySelector('.case-id-cell') || row.querySelector('td:nth-child(2)');
             var caseNumber = row.querySelector('td:nth-child(3) a, td:nth-child(3) .case-number-seven-day-glow');
             if (!idCell) return;
 
             var shouldGlow = false;
             if (hearing) {
                 var diff = Math.round((hearing.getTime() - today.getTime()) / 86400000);
-                shouldGlow = diff >= 0 && diff <= 6;
+                shouldGlow = diff >= 0 && diff <= 7;
             }
 
             idCell.classList.toggle('seven-day-id-glow', shouldGlow);
@@ -3009,7 +3011,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var shouldGlow = false;
             if (hearing) {
                 var diff = Math.round((hearing.getTime() - today.getTime()) / 86400000);
-                shouldGlow = diff >= 0 && diff <= 6;
+                shouldGlow = diff >= 0 && diff <= 7;
             }
 
             idCell.classList.toggle('seven-day-id-glow', shouldGlow);
@@ -3026,5 +3028,28 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 
+
+<style id="seven-day-glow-final-visibility">
+/* ONLY: make the existing 7-day glow reliably visible/blinking. No font size/weight changes. */
+.case-row.seven-day-glow-case > td.case-id-cell,
+.case-row.seven-day-glow-case > td:nth-child(2),
+.case-row.seven-day-glow-case > td:nth-child(2) *,
+.case-row.seven-day-glow-case > td:nth-child(3) a,
+.mobile-case-card.seven-day-glow-case .mobile-case-number,
+.mobile-case-card.seven-day-glow-case .badge {
+    animation: sevenDayVisibleBlink 1.05s ease-in-out infinite !important;
+    -webkit-animation: sevenDayVisibleBlink 1.05s ease-in-out infinite !important;
+}
+@keyframes sevenDayVisibleBlink {
+    0%, 100% {
+        text-shadow: 0 0 1px rgba(0,255,255,.25), 0 0 5px rgba(0,255,255,.22), 0 0 9px rgba(0,255,255,.18);
+        filter: drop-shadow(0 0 1px rgba(0,255,255,.22));
+    }
+    50% {
+        text-shadow: 0 0 4px rgba(0,255,255,1), 0 0 10px rgba(0,255,255,1), 0 0 20px rgba(0,255,255,.98), 0 0 34px rgba(0,255,255,.85);
+        filter: drop-shadow(0 0 3px rgba(0,255,255,1)) drop-shadow(0 0 9px rgba(0,255,255,.95));
+    }
+}
+</style>
 </body>
 </html>
