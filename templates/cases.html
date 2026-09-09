@@ -2939,7 +2939,9 @@ document.addEventListener('DOMContentLoaded', function () {
 <style id="seven-day-id-neon-glow">
 /* ONLY: glow the Case ID for the current 7-calendar-day hearing window. */
 .case-id-cell.seven-day-id-glow,
-.mobile-case-card .seven-day-id-glow {
+.case-number-seven-day-glow,
+.mobile-case-card .seven-day-id-glow,
+.mobile-case-card .case-number-seven-day-glow {
     color: #00ffff !important;
     text-shadow:
         0 0 4px #00ffff,
@@ -2973,6 +2975,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const idCell = row.classList.contains('case-row')
                 ? row.querySelector('.case-id-cell')
                 : row.querySelector('.badge');
+            const caseNumber = row.classList.contains('case-row')
+                ? row.querySelector('td:nth-child(3) a')
+                : row.querySelector('.mobile-case-number');
 
             if (!idCell) return;
 
@@ -2986,6 +2991,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             idCell.classList.toggle('seven-day-id-glow', shouldGlow);
+            if (caseNumber) caseNumber.classList.toggle('case-number-seven-day-glow', shouldGlow);
         });
     }
 
