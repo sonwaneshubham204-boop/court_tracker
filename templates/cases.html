@@ -4,7 +4,394 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ title }}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style id="embedded-court-tracker-style">
+/* =========================================
+   COURT TRACKER - CLEAN COMMON STYLES
+   Safe global CSS: page-specific table/action
+   styling stays inside each template.
+========================================= */
+
+:root{
+    --primary:#173b6c;
+    --primary-dark:#102c52;
+    --red:#a60f27;
+    --success:#197a58;
+    --danger:#b42318;
+    --warning:#a66b00;
+    --bg:#eef1f5;
+    --surface:#ffffff;
+    --text:#172033;
+    --muted:#667085;
+    --border:#cbd5e1;
+    --line:#dbe3ec;
+    --radius:10px;
+    --shadow:0 3px 12px rgba(15,23,42,.08);
+}
+
+*{box-sizing:border-box}
+
+html{-webkit-text-size-adjust:100%;font-size:106.25%}
+
+body{
+    margin:0;
+    padding:20px;
+    min-height:100vh;
+    font-family:Cambria,Georgia,serif !important;
+    font-size:1rem;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+}
+
+.container{
+    width:min(100%,1200px);
+    margin:0 auto;
+}
+
+h1,h2,h3,p{overflow-wrap:anywhere}
+h1{margin:0 0 22px;font-size:clamp(24px,4vw,32px)}
+h2{margin-top:28px;font-size:clamp(20px,3vw,25px)}
+h3{font-size:18px}
+
+/* ===== NORMAL FORMS ONLY =====
+   Do NOT style every form as a card.
+   Templates that need a card already use their own wrappers/classes. */
+label{
+    display:block;
+    margin:15px 0 6px;
+    font-weight:700;
+}
+
+input,select,textarea{
+    width:100%;
+    min-width:0;
+    padding:12px 14px;
+    font:inherit;
+    color:var(--text);
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:7px;
+}
+
+button,input,select,textarea,table{
+    font-family:Cambria,Georgia,serif !important;
+}
+
+input:focus,select:focus,textarea:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(23,59,108,.12);
+}
+
+textarea{min-height:100px;resize:vertical}
+
+/* ===== BUTTONS =====
+   No global top margin: action buttons remain compact. */
+button,.btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
+    margin:0;
+    padding:9px 16px;
+    font:inherit;
+    font-weight:600;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    background:var(--primary);
+    color:#fff;
+    text-decoration:none;
+    transition:background .2s ease,transform .1s ease;
+}
+
+button:hover,.btn:hover{background:var(--primary-dark)}
+button:active,.btn:active{transform:translateY(1px)}
+
+a{color:#1e4fa8}
+.back-link{display:inline-block;margin-bottom:18px;font-weight:600;text-decoration:none}
+
+/* ===== GENERIC TABLES =====
+   No nth-child rules here. Different pages have different columns. */
+.table-container{
+    width:100%;
+    overflow-x:auto;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    -webkit-overflow-scrolling:touch;
+}
+
+table{
+    width:100%;
+    min-width:680px;
+    border-collapse:collapse;
+    background:var(--surface);
+}
+
+th,td{
+    padding:12px 14px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+    vertical-align:middle;
+    color:var(--text);
+}
+
+th{
+    background:var(--red);
+    color:#fff;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even) td{background:#f7f9fc}
+tbody tr:hover td{background:#fff8df}
+
+/* ===== COMMON LAYOUT ===== */
+.dashboard-grid,.cards,.card-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:16px;
+}
+
+.card{
+    min-width:0;
+    padding:20px;
+    background:var(--surface);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+}
+
+/* Keep generic action rows compact.
+   Individual pages may override this. */
+.button-group,.form-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+}
+
+.button-group .btn,.form-actions button,.form-actions .btn{
+    margin:0;
+}
+
+/* ===== DASHBOARD THEME ===== */
+.topbar{
+    background:#173b6c;
+    border-radius:0;
+    box-shadow:none;
+    border-bottom:5px solid #a60f27;
+}
+
+.topbar h1{color:#fff;font-weight:800}
+
+.nav{
+    background:#a60f27;
+    padding:0;
+    gap:0;
+}
+
+.nav a{
+    background:#a60f27;
+    color:#fff;
+    border-radius:0;
+    border:none;
+    border-right:1px solid rgba(255,255,255,.18);
+    box-shadow:none;
+    font-weight:700;
+    min-height:48px;
+    padding:14px 20px;
+}
+
+.nav a:hover{
+    background:#f5e5b8;
+    color:#111;
+    transform:none;
+}
+
+.stat-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:6px;
+    box-shadow:0 2px 6px rgba(0,0,0,.10);
+    color:#111;
+}
+
+.stat-card h3,.section h2{color:#172033;font-weight:800}
+.number{color:#173b6c;font-weight:800}
+
+.section{
+    background:#fff;
+    border:1px solid var(--border);
+    border-left:5px solid #a60f27;
+    border-radius:6px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+    body{padding:12px}
+    .container{width:100%}
+    h1{margin-bottom:18px}
+
+    input,select,textarea{padding:12px}
+
+    button,.btn{min-height:42px}
+
+    .dashboard-grid,.cards,.card-container{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .card{padding:16px}
+
+    .button-group,.form-actions{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .button-group .btn,.form-actions button,.form-actions .btn{
+        width:100%;
+    }
+
+    table{min-width:620px;font-size:14px}
+    th,td{padding:10px}
+}
+
+@media(max-width:480px){
+    body{padding:10px}
+    h2{margin-top:22px}
+    .card{padding:14px}
+}
+
+
+/* ===== PHONE RESPONSIVE SAFETY FIX ONLY =====
+   Does not affect desktop layout or application logic. */
+@media (max-width: 900px){
+    html,body{max-width:100%;overflow-x:hidden}
+    body{min-width:0}
+    img{max-width:100%;height:auto}
+    .table-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+
+
+/* ==========================================================
+   COURT TRACKER — FINAL CASES PAGE VISUAL PATCH
+   ONLY:
+   • Top Selected / Highlight Selected controls
+   • Top action bar appearance
+   • Desktop CRN No single-line display
+   EVERYTHING ELSE: DO NOTHING
+========================================================== */
+
+#bulkbar {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 9px !important;
+    padding: 11px 13px !important;
+    min-height: 52px !important;
+    box-sizing: border-box !important;
+    background: rgba(239, 246, 255, 0.97) !important;
+    border: 1px solid #b9cce3 !important;
+    border-radius: 9px !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+}
+
+#bulkbar #selcount {
+    color: #172033 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+#bulkbar button,
+#bulkbar a {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 38px !important;
+    padding: 8px 13px !important;
+    box-sizing: border-box !important;
+    border-radius: 7px !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+#bulkbar #selectedViewBtn {
+    font-size: 15px !important;
+    font-weight: 900 !important;
+}
+
+#bulkbar #highlightSelectedBtn {
+    font-size: 15px !important;
+    font-weight: 900 !important;
+}
+
+#bulkbar #whatsappShareBtn {
+    font-size: 14px !important;
+    font-weight: 900 !important;
+}
+
+@media (min-width: 768px) {
+    .cases-table th:nth-child(4),
+    .cases-table td:nth-child(4),
+    table.cases-table th:nth-child(4),
+    table.cases-table td:nth-child(4) {
+        width: 135px !important;
+        min-width: 135px !important;
+        max-width: 135px !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    .cases-table td:nth-child(4) *,
+    table.cases-table td:nth-child(4) * {
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    table thead th:nth-child(4),
+    table tbody td:nth-child(4) {
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    table tbody td:nth-child(4) {
+        width: 135px !important;
+        min-width: 135px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    #bulkbar {
+        gap: 7px !important;
+        padding: 10px !important;
+    }
+
+    #bulkbar button,
+    #bulkbar a {
+        min-height: 40px !important;
+        font-size: 14px !important;
+        font-weight: 800 !important;
+    }
+
+    #bulkbar #selectedViewBtn,
+    #bulkbar #highlightSelectedBtn {
+        font-size: 14px !important;
+        font-weight: 900 !important;
+    }
+}
+
+</style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -1249,5 +1636,70 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 }
 </style>
+<style id="court-tracker-final-action-layout">
+/* FINAL LOCK — Action column only: Star + Delete side-by-side */
+.action-cell {
+    white-space: nowrap !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+.action-links {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+}
+.action-links form {
+    display: inline-flex !important;
+    flex: 0 0 20px !important;
+    width: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    height: 20px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.action-links .icon-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 20px !important;
+    width: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    max-height: 20px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
+    line-height: 20px !important;
+    font-weight: normal !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+}
+</style>
+
+<style id="court-tracker-case-light-green-line">
+/* ONLY: light green separator line for each case row */
+.table-wrap table tbody tr {
+    border-bottom: 1px solid #b7d9b7 !important;
+}
+.table-wrap table tbody tr:last-child {
+    border-bottom: 1px solid #b7d9b7 !important;
+}
+</style>
+
 </body>
 </html>
