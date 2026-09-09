@@ -2937,29 +2937,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 <style id="seven-day-id-neon-glow">
-/* ONLY: animated neon glow; original font colour, size and weight remain unchanged. */
+/* ONLY: keep the Case ID / Case Number text black while making the 7-day neon glow clearly visible. */
 .case-id-cell.seven-day-id-glow,
 .case-number-seven-day-glow,
 .mobile-case-card .seven-day-id-glow,
 .mobile-case-card .case-number-seven-day-glow {
-    animation: sevenDayVisibleNeonBlink 1.05s ease-in-out infinite !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    animation: sevenDayBlackTextNeonGlow 1.35s ease-in-out infinite !important;
 }
 
-@keyframes sevenDayVisibleNeonBlink {
+@keyframes sevenDayBlackTextNeonGlow {
     0%, 100% {
+        color: #000000 !important;
         text-shadow:
-            0 0 3px rgba(0, 255, 255, .95),
-            0 0 7px rgba(0, 255, 255, .90),
-            0 0 14px rgba(0, 255, 255, .80),
-            0 0 24px rgba(0, 255, 255, .65) !important;
+            0 0 3px #00ffff,
+            0 0 7px #00ffff,
+            0 0 13px #00ffff,
+            0 0 20px rgba(0,255,255,.85),
+            0 0 30px rgba(0,255,255,.55) !important;
     }
     50% {
+        color: #000000 !important;
         text-shadow:
-            0 0 5px rgba(0, 255, 255, 1),
-            0 0 12px rgba(0, 255, 255, 1),
-            0 0 22px rgba(0, 255, 255, .98),
-            0 0 36px rgba(0, 255, 255, .90),
-            0 0 52px rgba(0, 255, 255, .70) !important;
+            0 0 5px #00ffff,
+            0 0 11px #00ffff,
+            0 0 20px #00ffff,
+            0 0 32px rgba(0,255,255,1),
+            0 0 45px rgba(0,255,255,.7) !important;
     }
 }
 </style>
