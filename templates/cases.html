@@ -308,7 +308,7 @@ th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
 .table-wrap table col.col-stage  { width: 12% !important; }
 .table-wrap table col.col-date   { width: 14% !important; }
 .table-wrap table col.col-left   { width: 8% !important; }
-.table-wrap table col.col-action { width: 15% !important; }
+.table-wrap table col.col-action { width: 12% !important; }
 
 .table-wrap th,
 .table-wrap td {
@@ -1169,13 +1169,13 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     .table-wrap table col.col-check  { width: 4% !important; }
     .table-wrap table col.col-id     { width: 5% !important; }
     .table-wrap table col.col-case   { width: 12% !important; }
-    .table-wrap table col.col-crn    { width: 13% !important; }
+    .table-wrap table col.col-crn    { width: 15% !important; }
     .table-wrap table col.col-court  { width: 8% !important; }
     .table-wrap table col.col-parties{ width: 18% !important; }
     .table-wrap table col.col-stage  { width: 10% !important; }
     .table-wrap table col.col-date   { width: 10% !important; }
     .table-wrap table col.col-left   { width: 6% !important; }
-    .table-wrap table col.col-action { width: 14% !important; }
+    .table-wrap table col.col-action { width: 13% !important; }
 
     .table-wrap th:nth-child(4),
     .table-wrap td:nth-child(4) {
@@ -1192,6 +1192,33 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
         overflow-wrap: normal !important;
         word-break: normal !important;
     }
+
+
+    .table-wrap td:nth-child(4),
+    .table-wrap td:nth-child(4) * {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+    }
+
+    td.action-cell .action-links {
+        gap: 3px !important;
+    }
+
+    td.action-cell .action-links a,
+    td.action-cell .action-links button {
+        font-family: inherit !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.15 !important;
+        padding: 3px 6px !important;
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        border-radius: 5px !important;
+    }
+
+
 }
 </style>
 
@@ -2975,6 +3002,68 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
+
+
+<style id="final-crn-action-compact-fix">
+/* FINAL REQUESTED FIX — desktop CRN width + compact Action buttons only. */
+@media (min-width: 901px) {
+    /* CRN: use a compact but sufficient column; keep the value on one line. */
+    .table-wrap table col.col-crn {
+        width: 15% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        width: 15% !important;
+        min-width: 0 !important;
+        max-width: 15% !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap td.crn-cell .crn-value {
+        width: max-content !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        font-family: inherit !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Action: regular page text size, normal weight, reduced vertical padding. */
+    .table-wrap table col.col-action {
+        width: 12% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    td.action-cell .action-links {
+        gap: 3px !important;
+    }
+
+    td.action-cell .action-links a,
+    td.action-cell .action-links button {
+        font-family: inherit !important;
+        font-size: 17px !important;
+        font-weight: 400 !important;
+        line-height: 1.15 !important;
+        padding: 3px 6px !important;
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        border-radius: 5px !important;
+    }
+}
+</style>
 
 </body>
 </html>
