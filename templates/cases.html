@@ -1449,7 +1449,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
     <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
-    <td class="case-id-cell"><span class="seven-day-glow-text">{{ case.id }}</span></td>
+    <td class="case-id-cell">{{ case.id }}</td>
     <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
     <td class="crn-cell"><span class="crn-value">{{ case.crn_no or '—' }}</span></td>
     <td>Court {{ case.court_no }}</td>
@@ -2937,49 +2937,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 <style id="seven-day-id-neon-glow">
-/* ONLY: 7-day ID + Case Number visible neon blink. Existing font sizing/weight preserved. */
-.case-id-cell.seven-day-id-glow .seven-day-glow-text,
-.case-row .case-number-seven-day-glow {
-    color: #000000 !important;
-    text-shadow:
-        0 0 3px rgba(0,255,255,.95),
-        0 0 7px rgba(0,255,255,.95),
-        0 0 14px rgba(0,255,255,.9),
-        0 0 24px rgba(0,255,255,.75);
-    animation: sevenDayNeonPulse 1.05s ease-in-out infinite;
-    will-change: text-shadow;
+/* ONLY: visible animated glow for 7-day cases. Font color/size/weight are preserved. */
+.case-id-cell.seven-day-id-glow {
+    animation: sevenDayIdBlink 1.15s ease-in-out infinite !important;
+    text-shadow: 0 0 5px rgba(0,255,255,.95), 0 0 12px rgba(0,255,255,.9), 0 0 22px rgba(0,255,255,.85), 0 0 36px rgba(0,255,255,.7) !important;
 }
-@keyframes sevenDayNeonPulse {
-    0%, 100% {
-        text-shadow:
-            0 0 2px rgba(0,255,255,.35),
-            0 0 5px rgba(0,255,255,.45),
-            0 0 10px rgba(0,255,255,.35);
+.case-row .case-number-seven-day-glow {
+    animation: sevenDayCaseNoBlink 1.15s ease-in-out infinite !important;
+    text-shadow: 0 0 5px rgba(0,255,255,.95), 0 0 12px rgba(0,255,255,.9), 0 0 22px rgba(0,255,255,.85), 0 0 36px rgba(0,255,255,.7) !important;
+}
+@keyframes sevenDayIdBlink {
+    0%,100% {
+        text-shadow: 0 0 2px rgba(0,255,255,.35), 0 0 6px rgba(0,255,255,.35), 0 0 12px rgba(0,255,255,.25);
     }
     50% {
-        text-shadow:
-            0 0 4px rgba(0,255,255,1),
-            0 0 9px rgba(0,255,255,1),
-            0 0 18px rgba(0,255,255,1),
-            0 0 32px rgba(0,255,255,.9),
-            0 0 46px rgba(0,255,255,.7);
+        text-shadow: 0 0 6px rgba(0,255,255,1), 0 0 14px rgba(0,255,255,1), 0 0 28px rgba(0,255,255,.95), 0 0 46px rgba(0,255,255,.8);
+    }
+}
+@keyframes sevenDayCaseNoBlink {
+    0%,100% {
+        text-shadow: 0 0 2px rgba(0,255,255,.35), 0 0 6px rgba(0,255,255,.35), 0 0 12px rgba(0,255,255,.25);
+    }
+    50% {
+        text-shadow: 0 0 6px rgba(0,255,255,1), 0 0 14px rgba(0,255,255,1), 0 0 28px rgba(0,255,255,.95), 0 0 46px rgba(0,255,255,.8);
     }
 }
 </style>
 
-<style id="seven-day-mobile-neon-glow">
-/* Mobile: same glow, only on existing ID and Case Number text. */
-.mobile-case-card .badge.seven-day-id-glow,
-.mobile-case-card .mobile-case-number.case-number-seven-day-glow {
-    color: #000000 !important;
-    text-shadow:
-        0 0 3px rgba(0,255,255,.95),
-        0 0 8px rgba(0,255,255,.95),
-        0 0 18px rgba(0,255,255,.9);
-    animation: sevenDayNeonPulse 1.05s ease-in-out infinite;
-    will-change: text-shadow;
-}
-</style>\n<script id="seven-day-id-neon-glow-script">
+<script id="seven-day-id-neon-glow-script">
 (function () {
     function dayOnly(value) {
         if (!value) return null;
@@ -3001,7 +2986,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var raw = row.getAttribute('data-next-date') || row.dataset.nextDate || '';
             var hearing = dayOnly(raw);
             var idCell = row.querySelector('.case-id-cell');
-            var caseNumber = row.querySelector('td:nth-child(3) a');
+            var caseNumber = row.querySelector('td:nth-child(3) a, td:nth-child(3) .case-number-seven-day-glow');
             if (!idCell) return;
 
             var shouldGlow = false;
