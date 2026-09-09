@@ -1449,7 +1449,7 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     data-next-date="{{ case.next_hearing_date.isoformat() if case.next_hearing_date else '' }}"
     data-disposed="{{ 'true' if (case.case_stage|lower in ['disposed','judgment','order']) else 'false' }}">
     <td><input class="casebox" type="checkbox" value="{{ case.id }}"></td>
-    <td>{{ case.id }}</td>
+    <td class="case-id-cell">{{ case.id }}</td>
     <td><a href="/case/{{ case.id }}">{{ case.case_no }}</a></td>
     <td class="crn-cell"><span class="crn-value">{{ case.crn_no or '—' }}</span></td>
     <td>Court {{ case.court_no }}</td>
@@ -2936,12 +2936,63 @@ document.addEventListener('DOMContentLoaded', function () {
 </style>
 
 
+<style id="seven-day-id-neon-glow">
+/* ONLY: glow the Case ID for the current 7-calendar-day hearing window. */
+.case-id-cell.seven-day-id-glow,
+.mobile-case-card .seven-day-id-glow {
+    color: #00ffff !important;
+    text-shadow:
+        0 0 4px #00ffff,
+        0 0 8px #00ffff,
+        0 0 16px #00ffff,
+        0 0 24px rgba(0,255,255,.9) !important;
+    font-weight: 700 !important;
+}
+</style>
+
 <style id="court-tracker-light-green-case-line">
 /* ONLY: thin light-green separator between individual case rows */
 .table-wrap table tbody tr.case-row > td {
     border-bottom: 1px solid #b9ddb9 !important;
 }
 </style>
+
+<script id="seven-day-id-neon-glow-script">
+(function () {
+    function startOfDay(value) {
+        const d = new Date(value);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }
+
+    function updateSevenDayIdGlow() {
+        const today = startOfDay(new Date());
+
+        document.querySelectorAll('.case-row, .mobile-case-card').forEach(function (row) {
+            const raw = row.dataset.nextDate || '';
+            const idCell = row.classList.contains('case-row')
+                ? row.querySelector('.case-id-cell')
+                : row.querySelector('.badge');
+
+            if (!idCell) return;
+
+            const hearing = raw ? startOfDay(raw + 'T00:00:00') : null;
+            let shouldGlow = false;
+
+            if (hearing && !Number.isNaN(hearing.getTime())) {
+                const diff = Math.round((hearing - today) / 86400000);
+                // Exactly 7 calendar days including today: today + next 6 days.
+                shouldGlow = diff >= 0 && diff <= 6;
+            }
+
+            idCell.classList.toggle('seven-day-id-glow', shouldGlow);
+        });
+    }
+
+    updateSevenDayIdGlow();
+    setInterval(updateSevenDayIdGlow, 60000);
+})();
+</script>
 
 </body>
 </html>
