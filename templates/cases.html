@@ -27,11 +27,602 @@ function refreshWhatsAppShareLabel() {
 
 </script>
 
+<style>
+* { box-sizing: border-box; }
+
+.cases-page { max-width: 1400px; margin: 0 auto; }
+.top-links { margin: 12px 0 18px; }
+.top-links a { margin-right: 10px; }
+
+.search-card {
+    background: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    margin-bottom: 18px;
+}
+
+.compact-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.compact-search {
+    flex: 1 1 420px;
+    min-width: 220px;
+}
+
+.compact-search input {
+    width: 100%;
+    padding: 11px 12px;
+}
+
+.filter-toggle, .search-btn, .clear-btn {
+    padding: 11px 16px;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-toggle { background: #e5e7eb; color: #111827; }
+.search-btn { background: #2563eb; color: #fff; }
+.clear-btn { background: #6b7280; color: #fff; }
+
+.filters-panel {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #ddd;
+}
+
+.filters-panel.open { display: block; }
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.filter-field label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    padding: 10px;
+}
+
+.bulkbar {
+    display: none;
+    position: sticky;
+    top: 8px;
+    z-index: 10;
+    background: #eef6ff;
+    border: 1px solid #bcd;
+    border-radius: 9px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.bulkbar button {
+    padding: 8px 11px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+.whatsapp-share-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+}
+
+.whatsapp-share-bar button {
+    padding: 8px 11px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.danger { background: #c62828; color: white; border: 0; }
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+
+table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 9px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background: #b3122b;
+    color: #fff;
+}
+
+/* LOCKED: only Name of Parties font slightly larger */
+td:nth-child(6) {
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+}
+
+.weekday-dark {
+    color: #374151 !important;
+    font-weight: 700 !important;
+}
+
+.weekday {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    color: #666;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal .box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: min(420px, 92vw);
+}
+
+.modal input, .modal select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+@media (max-width: 900px) {
+    .filter-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+@media (max-width: 600px) {
+    .filter-grid { grid-template-columns: 1fr; }
+    .compact-row { align-items: stretch; }
+    .compact-search { flex-basis: 100%; }
+}
+
+/* Final compact layout and header dropdown fixes */
+.cases-page { max-width: 1250px; margin: 0 auto; padding: 0 12px; }
+.top-links { margin: 6px 0 10px; }
+.search-card { padding: 10px 14px; margin-bottom: 12px; max-width: 900px; }
+.compact-row { gap: 8px; flex-wrap: nowrap; }
+.compact-search { flex: 1 1 auto; min-width: 260px; }
+.compact-search input { padding: 9px 11px; }
+.filter-toggle, .search-btn, .clear-btn { padding: 9px 14px; }
+.results { margin: 12px 0 10px; }
+
+.table-wrap { overflow-x: auto; }
+/* Fit the complete cases table inside the page on desktop */
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; min-width: 0; table-layout: fixed; }
+
+/* Total = 100% */
+table col.col-check  { width: 4%; }
+table col.col-id     { width: 5%; }
+table col.col-case   { width: 13%; }
+table col.col-crn    { width: 8%; }
+table col.col-court  { width: 9%; }
+table col.col-parties{ width: 20%; }
+table col.col-stage  { width: 11%; }
+table col.col-date   { width: 13%; }
+table col.col-left   { width: 8%; }
+table col.col-action { width: 15%; }
+
+th, td {
+    padding: 9px 10px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+th:nth-child(3), td:nth-child(3),
+th:nth-child(4), td:nth-child(4),
+th:nth-child(8), td:nth-child(8),
+th:nth-child(9), td:nth-child(9),
+th:nth-child(10), td:nth-child(10) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    table { min-width: 1080px; }
+}
+th { vertical-align: middle; }
+th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
+th:nth-child(2), td:nth-child(2) { width: 55px; white-space: nowrap; }
+
+.header-filter {
+    width: 100%;
+    margin-top: 6px;
+    padding: 4px 22px 4px 6px;
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 4px;
+    background: rgba(255,255,255,.16);
+    color: #fff;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+.header-filter option { color: #111827; background: #fff; }
+.header-label { display:block; white-space:nowrap; }
+
+/* Keep Filter + Search + Clear on one line */
+.compact-row {
+    flex-wrap: nowrap !important;
+}
+.compact-search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+.filter-toggle, .search-btn, .clear-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
 
 
+/* FINAL TABLE FIT FIX */
+.table-wrap { width: 100% !important; overflow-x: auto !important; }
+.table-wrap table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+}
+.table-wrap table col.col-check  { width: 4% !important; }
+.table-wrap table col.col-id     { width: 5% !important; }
+.table-wrap table col.col-case   { width: 16% !important; }
+.table-wrap table col.col-court  { width: 10% !important; }
+.table-wrap table col.col-parties{ width: 24% !important; }
+.table-wrap table col.col-stage  { width: 12% !important; }
+.table-wrap table col.col-date   { width: 14% !important; }
+.table-wrap table col.col-left   { width: 8% !important; }
+.table-wrap table col.col-action { width: 12% !important; }
+
+.table-wrap th,
+.table-wrap td {
+    padding: 8px 8px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+.table-wrap th.next-date-head,
+.table-wrap th.time-left-head,
+.table-wrap td:nth-child(7),
+.table-wrap td:nth-child(8) {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    line-height: 1.45 !important;
+}
 
 
+/* LOCKED: only align Filter, Search and Clear on the same line */
+.compact-row {
+    align-items: center !important;
+}
+.filter-toggle,
+.search-btn,
+.clear-btn {
+    height: 44px !important;
+    line-height: 1 !important;
+    align-self: center !important;
+}
 
+
+/* LOCKED: Clear button beside Search */
+.compact-row { display:flex !important; align-items:center !important; flex-wrap:nowrap !important; }
+.clear-btn {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    height:44px !important;
+    padding:0 18px !important;
+    margin:0 !important;
+    flex:0 0 auto !important;
+    white-space:nowrap !important;
+}
+
+
+/* LOCKED: exact single-row alignment for Search controls only */
+.search-card .compact-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+}
+.search-card .compact-search {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+}
+.search-card .compact-search input,
+.search-card .filter-toggle,
+.search-card .search-btn,
+.search-card .clear-btn {
+    box-sizing: border-box !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+}
+.search-card .compact-search input {
+    width: 100% !important;
+}
+.search-card .filter-toggle,
+.search-card .search-btn,
+.search-card .clear-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: top !important;
+    line-height: normal !important;
+}
+
+
+/* LOCKED FIX: Action column only */
+.action-cell {
+    width: 170px !important;
+    min-width: 170px !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    overflow: visible !important;
+}
+.action-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    white-space: nowrap !important;
+}
+.action-links a,
+.action-links form,
+.action-links button {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+}
+.action-links form {
+    padding: 0 !important;
+}
+.action-links button {
+    border: 0 !important;
+    background: none !important;
+    padding: 0 !important;
+    color: #2563eb !important;
+    font: inherit !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+.action-links a:hover,
+.action-links button:hover {
+    text-decoration: underline !important;
+}
+
+
+/* FINAL LOCKED FIX — ACTION COLUMN ONLY */
+.table-wrap {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+}
+
+table {
+    min-width: 1240px !important;
+}
+
+th:last-child,
+td.action-cell {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    overflow: visible !important;
+}
+
+.action-cell .action-links {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    overflow: visible !important;
+}
+
+.action-cell .action-links a,
+.action-cell .action-links form,
+.action-cell .action-links button {
+    position: static !important;
+    float: none !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+
+/* ACTION CELL — vertical links only */
+td.action-cell .action-links {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    white-space: normal !important;
+}
+td.action-cell .action-links > span {
+    display: none !important;
+}
+td.action-cell .action-links form {
+    display: block !important;
+}
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    display: block !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+}
+
+</style>
+
+<style>
+/* FINAL LOCK — Action column only, keep all other features unchanged */
+.table-wrap table {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    table-layout: fixed !important;
+}
+.table-wrap table col.col-check  { width: 4% !important; }
+.table-wrap table col.col-id     { width: 5% !important; }
+.table-wrap table col.col-case   { width: 15% !important; }
+.table-wrap table col.col-court  { width: 9% !important; }
+.table-wrap table col.col-parties{ width: 21% !important; }
+.table-wrap table col.col-stage  { width: 11% !important; }
+.table-wrap table col.col-date   { width: 12% !important; }
+.table-wrap table col.col-left   { width: 7% !important; }
+.table-wrap table col.col-action { width: 16% !important; }
+
+th:last-child, td.action-cell {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+}
+td.action-cell .action-links {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    align-items: flex-start !important;
+}
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    word-break: normal !important;
+}
+</style>
+
+<style>
+/* ACTION BUTTON COLOR FIX ONLY */
+td.action-cell .action-links {
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:8px !important;
+}
+td.action-cell .action-links form,
+td.action-cell .action-links a {
+    display:block !important;
+    width:100% !important;
+    margin:0 !important;
+}
+td.action-cell .action-links span { display:none !important; }
+td.action-cell .action-links a,
+td.action-cell .action-links button {
+    box-sizing:border-box !important;
+    display:block !important;
+    width:100% !important;
+    background:#1f4f8a !important;
+    color:#ffffff !important;
+    border:0 !important;
+    border-radius:7px !important;
+    padding:10px 12px !important;
+    font-weight:700 !important;
+    text-align:left !important;
+    text-decoration:none !important;
+    cursor:pointer !important;
+}
+td.action-cell .action-links a:hover,
+td.action-cell .action-links button:hover {
+    background:#163d6b !important;
+    color:#ffffff !important;
+    text-decoration:none !important;
+}
+</style>
+
+<style>
+/* REQUESTED DISPLAY FIXES ONLY */
+.cases-page, .cases-page * {
+    font-family: Cambria, Georgia, serif !important;
+}
+.table-wrap table col.col-case { width: 13% !important; }
+.table-wrap table col.col-left { width: 9% !important; }
+.table-wrap td:nth-child(8) {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+}
+</style>
+
+
+<!-- LOCKED: compact Action spacing + slightly larger non-button content only -->
+<style>
+/* Only reduce spacing between Highlight / Open / Edit / Delete */
+td.action-cell .action-links {
+    gap: 3px !important;
+}
+
+/* Slightly larger text everywhere on this page, excluding buttons */
+.cases-page,
+.cases-page input,
+.cases-page select,
+.cases-page textarea,
+.cases-page table,
+.cases-page th,
+.cases-page td,
+.cases-page label,
+.cases-page .results,
+.cases-page .weekday {
+    font-size: 17px !important;
+}
+
+/* Keep all button text at its previous size */
+.cases-page button,
+.cases-page input[type="submit"],
+.cases-page input[type="button"],
+.cases-page .filter-toggle,
+.cases-page .search-btn,
+.cases-page .clear-btn {
+    font-size: 16px !important;
+}
+</style>
 
 
 
@@ -96,7 +687,7 @@ function refreshWhatsAppShareLabel() {
     .top-links a {
         margin:0 !important;
         padding:8px 11px !important;
-        font-size:15px !important;
+        font-size:15.5px !important;
     }
 
     .search-card { padding:11px !important; margin-bottom:12px !important; }
@@ -755,8 +1346,6 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
                         {% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}
                     </button>
                 </form>
-                <a class="btn btn-primary" href="/case/{{ case.id }}">Open</a>
-                <a class="btn btn-outline-primary" href="/edit-case/{{ case.id }}">Edit</a>
                 <form action="/delete-case/{{ case.id }}" method="POST">
                     <button class="btn btn-danger" type="submit" onclick="return confirm('Delete this case?')">Delete</button>
                 </form>
@@ -897,19 +1486,22 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
         {% endif %}
     </td>
     <td class="action-cell">
-        <div class="action-links">
-            <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
-                <button type="submit" class="icon-action"
-                        title="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}"
-                        aria-label="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}">{% if case.highlighted %}⭐{% else %}☆{% endif %}</button>
-            </form>
-            <form action="/delete-case/{{ case.id }}" method="POST">
-                <button type="submit" class="icon-action"
-                        title="Delete" aria-label="Delete"
-                        onclick="return confirm('Delete this case?')">🗑️</button>
-            </form>
-        </div>
-    </td>
+    <div class="action-links">
+        <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
+            <button type="submit"
+                    class="icon-action"
+                    title="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}"
+                    aria-label="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}">{% if case.highlighted %}⭐{% else %}☆{% endif %}</button>
+        </form>
+        <form action="/delete-case/{{ case.id }}" method="POST">
+            <button type="submit"
+                    class="icon-action"
+                    title="Delete"
+                    aria-label="Delete"
+                    onclick="return confirm('Delete this case?')">🗑️</button>
+        </form>
+    </div>
+</td>
 </tr>
 {% endfor %}
 </tbody>
@@ -1693,6 +2285,150 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+<style id="name-parties-wrap-only">
+@media (min-width: 901px) {
+    .table-wrap th:nth-child(6),
+    .table-wrap td:nth-child(6) {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.35 !important;
+    }
+
+    .table-wrap td:nth-child(6) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+}
+</style>
+
+
+<style id="four-columns-compact-success-final">
+/* FINAL: only Court, Case Stage, Next Hearing Date and Time Left spacing. */
+@media (min-width: 901px) {
+    .table-wrap th:nth-child(5),
+    .table-wrap td:nth-child(5) {
+        width:105px !important; min-width:105px !important; max-width:105px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
+    }
+    .table-wrap th:nth-child(7),
+    .table-wrap td:nth-child(7) {
+        width:125px !important; min-width:125px !important; max-width:125px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
+    }
+    .table-wrap th:nth-child(8),
+    .table-wrap td:nth-child(8) {
+        width:135px !important; min-width:135px !important; max-width:135px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
+    }
+    .table-wrap th:nth-child(9),
+    .table-wrap td:nth-child(9) {
+        width:105px !important; min-width:105px !important; max-width:105px !important;
+        padding-left:7px !important; padding-right:7px !important;
+        white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important;
+    }
+}
+</style>
+
+
+<style id="cases-page-final-neat-layout">
+/* FINAL CASES TABLE LAYOUT ONLY
+   Reset the conflicting width rules from earlier visual patches.
+   Keep CRN one-line + dropdown, keep Name of Parties wrapped.
+   Everything outside the table layout: DO NOTHING.
+*/
+@media (min-width: 901px) {
+    .table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap table {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap table col.col-check  { width: 4% !important; }
+    .table-wrap table col.col-id     { width: 4% !important; }
+    .table-wrap table col.col-case   { width: 12% !important; }
+    .table-wrap table col.col-crn    { width: 17% !important; }
+    .table-wrap table col.col-court  { width: 7% !important; }
+    .table-wrap table col.col-parties{ width: 18% !important; }
+    .table-wrap table col.col-stage  { width: 10% !important; }
+    .table-wrap table col.col-date   { width: 11% !important; }
+    .table-wrap table col.col-left   { width: 7% !important; }
+    .table-wrap table col.col-action { width: 10% !important; }
+
+    .table-wrap th,
+    .table-wrap td {
+        box-sizing: border-box !important;
+        padding: 8px 7px !important;
+        vertical-align: middle !important;
+    }
+
+    /* CRN: dedicated space, one line, no overlap. */
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        width: 17% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+    }
+
+    .table-wrap th:nth-child(4) .header-filter {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+    }
+
+    /* Name of Parties: this is the ONLY text column allowed to wrap. */
+    .table-wrap th:nth-child(6),
+    .table-wrap td:nth-child(6),
+    .table-wrap td:nth-child(6) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.35 !important;
+    }
+
+    /* The four requested compact columns. */
+    .table-wrap th:nth-child(5),
+    .table-wrap td:nth-child(5),
+    .table-wrap th:nth-child(7),
+    .table-wrap td:nth-child(7),
+    .table-wrap th:nth-child(8),
+    .table-wrap td:nth-child(8),
+    .table-wrap th:nth-child(9),
+    .table-wrap td:nth-child(9) {
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    /* Keep the header filters neat and inside their cells. */
+    .table-wrap .header-filter {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+</style>
 
 
 
@@ -1701,23 +2437,148 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+<style id="case-no-stage-neat-final">
+/* ONLY Case Number + Case Stage:
+   allow clean wrapping and give each enough compact space.
+   CRN and every other column remain untouched.
+*/
+@media (min-width: 901px) {
+    /* Case Number */
+    .table-wrap th:nth-child(3),
+    .table-wrap td:nth-child(3) {
+        width: 13% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+    }
+
+    .table-wrap td:nth-child(3) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+    }
+
+    /* Case Stage */
+    .table-wrap th:nth-child(7),
+    .table-wrap td:nth-child(7) {
+        width: 10% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+    }
+
+    .table-wrap td:nth-child(7) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+    }
+}
+</style>
 
 
+<style id="case-number-stage-actual-fix">
+/* ONLY Case Number + Case Stage.
+   Fix the actual link wrapping causing Case Number to run into CRN.
+   CRN itself is NOT changed.
+*/
+@media (min-width: 901px) {
+    /* Case Number: compact width, but the case number itself wraps cleanly. */
+    .table-wrap th:nth-child(3),
+    .table-wrap td:nth-child(3) {
+        width: 13% !important;
+        min-width: 0 !important;
+        max-width: 13% !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+        overflow: hidden !important;
+    }
+
+    .table-wrap td:nth-child(3) a,
+    .table-wrap td:nth-child(3) a:link,
+    .table-wrap td:nth-child(3) a:visited {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Case Stage: compact and allowed to wrap when the stage is longer. */
+    .table-wrap th:nth-child(7),
+    .table-wrap td:nth-child(7) {
+        width: 10% !important;
+        min-width: 0 !important;
+        max-width: 10% !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+        overflow: hidden !important;
+    }
+
+    .table-wrap td:nth-child(7) * {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.3 !important;
+    }
+}
+</style>
 
 
+<style id="crn-font-16px-one-line-verified">
+/* ONLY CRN VALUE: same 16px size as normal table text + one line. */
+@media (min-width: 901px) {
+    .table-wrap td.crn-cell .crn-value {
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.3 !important;
+        display: inline-block !important;
+        width: max-content !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+}
+</style>
 
 
-
-
-
-
-
-
-
-
-
-
-
+<style id="crn-font-size-definitive-final">
+/* ONLY CRN VALUE — make it visibly match normal table-body text. */
+@media (min-width: 901px) {
+    .table-wrap td.crn-cell .crn-value,
+    .table-wrap td.crn-cell .crn-value *,
+    .table-wrap td.crn-cell > .crn-value,
+    .table-wrap td.crn-cell > .crn-value * {
+        font-family: inherit !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        line-height: 1.3 !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        display: inline-block !important;
+        width: max-content !important;
+        max-width: none !important;
+    }
+}
+</style>
 
 
 
@@ -1757,156 +2618,282 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<style id="court-tracker-final-overlap-clean">
-/* LOCKED FINAL — desktop visual layout only. No functionality changes. */
+<style id="next-date-time-left-root-fix">
+/* ROOT FIX — ONLY Next Hearing Date + Time Left.
+   The table is table-layout:fixed, so the <col> widths must also be changed.
+*/
 @media (min-width: 901px) {
-    .table-wrap {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        overflow-y: visible !important;
-        box-sizing: border-box !important;
+    .table-wrap table col.col-date {
+        width: 12% !important;
     }
 
-    .table-wrap table {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        table-layout: fixed !important;
-        border-collapse: collapse !important;
-        box-sizing: border-box !important;
-    }
-
-    /* EXACT 100% — compact CRN/Court, wider Parties. */
-    .table-wrap table col.col-check   { width: 4% !important; }
-    .table-wrap table col.col-id      { width: 4% !important; }
-    .table-wrap table col.col-case    { width: 12% !important; }
-    .table-wrap table col.col-crn     { width: 10% !important; }
-    .table-wrap table col.col-court   { width: 6% !important; }
-    .table-wrap table col.col-parties { width: 31% !important; }
-    .table-wrap table col.col-stage   { width: 10% !important; }
-    .table-wrap table col.col-date    { width: 11% !important; }
-    .table-wrap table col.col-left    { width: 7% !important; }
-    .table-wrap table col.col-action  { width: 5% !important; }
-
-    .table-wrap th,
-    .table-wrap td {
-        box-sizing: border-box !important;
-        vertical-align: middle !important;
-    }
-
-    /* Header filters stay INSIDE their own cells — no overlap. */
-    .table-wrap th .header-filter,
-    .table-wrap th select,
-    .table-wrap th input {
-        display: block !important;
-        box-sizing: border-box !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-    }
-
-    /* CRN: compact, one line, clipped only inside its own column. */
-    .table-wrap th:nth-child(4),
-    .table-wrap td:nth-child(4) {
-        min-width: 0 !important;
-        max-width: none !important;
-        white-space: nowrap !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-        overflow: hidden !important;
-        text-overflow: clip !important;
-    }
-
-    .table-wrap td:nth-child(4) .crn-value,
-    .table-wrap td:nth-child(4) .crn-value * {
-        display: inline-block !important;
-        width: auto !important;
-        max-width: 100% !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: clip !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-    }
-
-    /* Court: compact, centered naturally, no spill into Parties. */
-    .table-wrap th:nth-child(5),
-    .table-wrap td:nth-child(5) {
-        min-width: 0 !important;
-        max-width: none !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: clip !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-    }
-
-    /* Parties: receives the extra width and wraps cleanly. */
-    .table-wrap th:nth-child(6),
-    .table-wrap td:nth-child(6),
-    .table-wrap td:nth-child(6) * {
-        min-width: 0 !important;
-        max-width: 100% !important;
-        white-space: normal !important;
-        word-break: normal !important;
-        overflow-wrap: anywhere !important;
-        line-height: 1.3 !important;
-    }
-
-    /* Stage / Date / Time Left stay within their columns. */
-    .table-wrap th:nth-child(7),
-    .table-wrap td:nth-child(7),
-    .table-wrap th:nth-child(8),
-    .table-wrap td:nth-child(8),
-    .table-wrap th:nth-child(9),
-    .table-wrap td:nth-child(9) {
-        min-width: 0 !important;
-        max-width: none !important;
-        overflow: hidden !important;
-        word-break: normal !important;
-        overflow-wrap: normal !important;
-    }
-
-    .table-wrap th:nth-child(7),
-    .table-wrap td:nth-child(7) {
-        white-space: normal !important;
+    .table-wrap table col.col-left {
+        width: 8% !important;
     }
 
     .table-wrap th:nth-child(8),
-    .table-wrap td:nth-child(8),
-    .table-wrap th:nth-child(9),
-    .table-wrap td:nth-child(9) {
+    .table-wrap td:nth-child(8) {
+        width: 12% !important;
+        min-width: 0 !important;
+        max-width: 12% !important;
+        box-sizing: border-box !important;
+        padding-left: 7px !important;
+        padding-right: 7px !important;
         white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
         line-height: 1.25 !important;
     }
 
-    /* Action: Star + Delete directly beside each other. */
-    .table-wrap td.action-cell {
+    .table-wrap th:nth-child(9),
+    .table-wrap td:nth-child(9) {
+        width: 8% !important;
+        min-width: 0 !important;
+        max-width: 8% !important;
+        box-sizing: border-box !important;
+        padding-left: 7px !important;
+        padding-right: 7px !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+        line-height: 1.25 !important;
+    }
+
+    .table-wrap th:nth-child(8) .header-filter,
+    .table-wrap th:nth-child(9) .header-filter {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: bo<style id="final-crn-action-clean">
+@media (min-width: 901px) {
+    .table-wrap table col.col-crn {
+        width: 13% !important;
         min-width: 0 !important;
         max-width: none !important;
-        padding-left: 2px !important;
-        padding-right: 2px !important;
+    }
+
+
+    .table-wrap table col.col-parties {
+        width: 27% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .table-wrap table col.col-action {
+        width: 5% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        width: 14% !important;
+        min-width: 0 !important;
+        max-width: 14% !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        font-size: 15.5px !important;
+    }
+
+    .table-wrap td.crn-cell .crn-value {
+        display: inline-block !important;
+        width: auto !important;
+        max-width: none !important;
+        white-space: nowrap !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+        overflow: visible !important;
+        font-family: inherit !important;
+        font-size: 15.5px !important;
+        font-weight: 400 !important;
+        line-height: 1.2 !important;
+    }
+
+    td.action-cell .action-links {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: nowrap !important;
+        gap: 2px !important;
+        width: max-content !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    td.action-cell .action-links form,
+    td.action-cell .action-links a {
+        display: inline-flex !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    td.action-cell .action-links a,
+    td.action-cell .action-links button {
+        box-sizing: border-box !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 2px 4px !important;
+        font-family: inherit !important;
+        font-size: 15px !important;
+        font-weight: 400 !important;
+        line-height: 1.15 !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        border-radius: 4px !important;
+    }
+
+    td.action-cell .action-links {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: nowrap !important;
+        gap: 5px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    td.action-cell .action-links form {
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        width: 20px !important;
+        min-width: 20px !important;
+        max-width: 20px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    td.action-cell .action-links .icon-action {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 22px !important;
+        min-width: 22px !important;
+        max-width: 22px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        font-family: inherit !important;
+        font-size: 15px !important;
+        font-weight: 400 !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        cursor: pointer !important;
+    }
+
+    /* FINAL: symbol-only Action controls */
+    td.action-cell .action-links form {
+        display: inline-flex !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    td.action-cell .action-links button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        font-size: 15.5px !important;
+        line-height: 1 !important;
+        color: inherit !important;
+    }
+
+    td.action-cell .action-links button.icon-action,
+    .action-links button.icon-action span[aria-label] {
+        display: inline-block !important;
+        visibility: visible !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 15.5px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }
+
+    td.action-cell .action-links button.icon-action {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 20px !important;
+        min-width: 20px !important;
+        max-width: 20px !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        max-height: 20px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        font-size: 15px !important;
+        line-height: 1 !important;
+        color: inherit !important;
+        cursor: pointer !important;
+    }
+}
+</style>der-radius: 4px !important;
+    }
+}
+</style>
+
+<style id="court-tracker-final-locked-small-change">
+/* LOCKED — ONLY requested visual changes */
+@media (min-width: 901px) {
+    /* CRN unchanged. Court gives 1% to Parties. */
+    .table-wrap table col.col-court {
+        width: 6% !important;
+    }
+    .table-wrap table col.col-parties {
+        width: 31% !important;
+    }
+
+    /* Star + Delete: side-by-side, close together. */
+    .table-wrap td.action-cell {
         white-space: nowrap !important;
         text-align: center !important;
         vertical-align: middle !important;
-        overflow: visible !important;
     }
-
     .table-wrap td.action-cell .action-links {
         display: inline-flex !important;
         flex-direction: row !important;
@@ -1915,12 +2902,9 @@ document.addEventListener('DOMContentLoaded', function () {
         justify-content: center !important;
         gap: 2px !important;
         width: auto !important;
-        min-width: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        white-space: nowrap !important;
     }
-
     .table-wrap td.action-cell .action-links form {
         display: inline-flex !important;
         flex: 0 0 18px !important;
@@ -1930,12 +2914,10 @@ document.addEventListener('DOMContentLoaded', function () {
         margin: 0 !important;
         padding: 0 !important;
     }
-
     .table-wrap td.action-cell .icon-action {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        flex: 0 0 18px !important;
         width: 18px !important;
         min-width: 18px !important;
         height: 18px !important;
@@ -1948,15 +2930,8 @@ document.addEventListener('DOMContentLoaded', function () {
         box-shadow: none !important;
         font-size: 14px !important;
         line-height: 18px !important;
-        font-weight: normal !important;
         white-space: nowrap !important;
-        cursor: pointer !important;
     }
-}
-
-/* ONLY — light-green separator between case rows. */
-.table-wrap table tbody tr.case-row > td {
-    border-bottom: 1px solid #b9ddb9 !important;
 }
 </style>
 
