@@ -1488,11 +1488,11 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <td class="action-cell">
         <div class="action-links">
             <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
-                <button type="submit">{% if case.highlighted %}⭐ Unhighlight{% else %}☆ Highlight{% endif %}</button>
+                <button type="submit"><span aria-label="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}" title="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}">{% if case.highlighted %}⭐{% else %}☆{% endif %}</span></button>
             </form>
             <form action="/delete-case/{{ case.id }}" method="POST">
                 <button type="submit"
-                        onclick="return confirm('Delete this case?')">Delete</button>
+                        onclick="return confirm('Delete this case?')"><span aria-label="Delete" title="Delete">🗑️</span></button>
             </form>
         </div>
     </td>
@@ -2660,17 +2660,7 @@ document.addEventListener('DOMContentLoaded', function () {
         width: 100% !important;
         max-width: 100% !important;
         min-width: 0 !important;
-        box-sizing: border-box !important;
-    }
-}
-</style>
-
-
-
-
-
-
-<style id="final-crn-action-clean">
+        box-sizing: bo<style id="final-crn-action-clean">
 @media (min-width: 901px) {
     .table-wrap table col.col-crn {
         width: 14% !important;
@@ -2678,8 +2668,15 @@ document.addEventListener('DOMContentLoaded', function () {
         max-width: none !important;
     }
 
+
+    .table-wrap table col.col-parties {
+        width: 21% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+
     .table-wrap table col.col-action {
-        width: 13% !important;
+        width: 10% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
@@ -2736,6 +2733,16 @@ document.addEventListener('DOMContentLoaded', function () {
         padding: 0 !important;
     }
 
+
+    td.action-cell .action-links span[aria-label] {
+        display: inline-block !important;
+        font-size: 15.5px !important;
+        line-height: 1 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: auto !important;
+    }
+
     td.action-cell .action-links span {
         display: none !important;
     }
@@ -2759,6 +2766,9 @@ document.addEventListener('DOMContentLoaded', function () {
         white-space: nowrap !important;
         text-align: center !important;
         border-radius: 4px !important;
+    }
+}
+</style>der-radius: 4px !important;
     }
 }
 </style>
