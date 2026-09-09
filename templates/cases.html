@@ -2720,16 +2720,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     td.action-cell .action-links {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex-wrap: nowrap !important;
-        gap: 2px !important;
-        width: max-content !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
+        position: relative !important;
+        display: block !important;
+        width: 44px !important;
+        min-width: 44px !important;
+        max-width: 44px !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        max-height: 20px !important;
         margin: 0 auto !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        white-space: nowrap !important;
     }
 
     td.action-cell .action-links form,
@@ -2774,13 +2776,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     td.action-cell .action-links form {
-        display: inline-flex !important;
-        flex: 0 0 auto !important;
+        position: absolute !important;
+        top: 0 !important;
+        display: block !important;
         width: 20px !important;
         min-width: 20px !important;
         max-width: 20px !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        max-height: 20px !important;
         margin: 0 !important;
         padding: 0 !important;
+    }
+
+    td.action-cell .action-links form:first-child {
+        left: 0 !important;
+    }
+
+    td.action-cell .action-links form:last-child {
+        left: 22px !important;
     }
 
     td.action-cell .action-links .icon-action {
@@ -2870,6 +2884,7 @@ document.addEventListener('DOMContentLoaded', function () {
         line-height: 1 !important;
         color: inherit !important;
         cursor: pointer !important;
+        white-space: nowrap !important;
     }
 }
 </style>der-radius: 4px !important;
