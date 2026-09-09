@@ -1544,11 +1544,11 @@ function applyHeaderFilters() {
 
     document.querySelectorAll('tbody .case-row, .mobile-case-card').forEach(row => {
         const show =
-            (!caseNo || row.dataset.caseNo === caseNo) &&
-            (!crn || row.dataset.crn === crn) &&
-            (!court || String(row.dataset.court || '').replace(/^Court\s*/i, '').trim() === String(court).replace(/^Court\s*/i, '').trim()) &&
-            (!party || row.dataset.party === party) &&
-            (!stage || row.dataset.stage === stage);
+            (!caseNo || String(row.dataset.caseNo || '').trim().toLowerCase() === String(caseNo || '').trim().toLowerCase()) &&
+            (!crn || String(row.dataset.crn || '').trim().toLowerCase() === String(crn || '').trim().toLowerCase()) &&
+            (!court || String(row.dataset.court || '').replace(/^Court\s*/i, '').trim() === String(court || '').replace(/^Court\s*/i, '').trim()) &&
+            (!party || String(row.dataset.party || '').trim().toLowerCase() === String(party || '').trim().toLowerCase()) &&
+            (!stage || String(row.dataset.stage || '').trim().toLowerCase() === String(stage || '').trim().toLowerCase());
         row.style.display = show ? '' : 'none';
     });
 }
