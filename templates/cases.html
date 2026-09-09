@@ -2937,69 +2937,70 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 <style id="seven-day-id-neon-glow">
-/* ONLY: animated neon glow; original font colour, size and weight remain unchanged. */
-.case-id-cell.seven-day-id-glow,
-.case-number-seven-day-glow,
-.mobile-case-card .seven-day-id-glow,
-.mobile-case-card .case-number-seven-day-glow {
-    animation: sevenDayVisibleNeonBlink 1.05s ease-in-out infinite !important;
-    color: #000000 !important;
+/* ONLY: visible animated glow for 7-day cases. Font color/size/weight are preserved. */
+.case-id-cell.seven-day-id-glow {
+    animation: sevenDayIdBlink 1.15s ease-in-out infinite !important;
+    text-shadow: 0 0 5px rgba(0,255,255,.95), 0 0 12px rgba(0,255,255,.9), 0 0 22px rgba(0,255,255,.85), 0 0 36px rgba(0,255,255,.7) !important;
 }
-
-@keyframes sevenDayVisibleNeonBlink {
-    0%, 100% {
-        text-shadow:
-            0 0 3px rgba(0, 255, 255, .95),
-            0 0 7px rgba(0, 255, 255, .90),
-            0 0 14px rgba(0, 255, 255, .80),
-            0 0 24px rgba(0, 255, 255, .65) !important;
-    }
-    50% {
-        text-shadow:
-            0 0 5px rgba(0, 255, 255, 1),
-            0 0 12px rgba(0, 255, 255, 1),
-            0 0 22px rgba(0, 255, 255, .98),
-            0 0 36px rgba(0, 255, 255, .90),
-            0 0 52px rgba(0, 255, 255, .70) !important;
-    }
+.case-row .case-number-seven-day-glow {
+    animation: sevenDayCaseNoBlink 1.15s ease-in-out infinite !important;
+    text-shadow: 0 0 5px rgba(0,255,255,.95), 0 0 12px rgba(0,255,255,.9), 0 0 22px rgba(0,255,255,.85), 0 0 36px rgba(0,255,255,.7) !important;
 }
-</style>
-
-<style id="court-tracker-light-green-case-line">
-/* ONLY: thin light-green separator between individual case rows */
-.table-wrap table tbody tr.case-row > td {
-    border-bottom: 1px solid #b9ddb9 !important;
+@keyframes sevenDayIdBlink {
+    0%,100% { text-shadow: 0 0 2px rgba(0,255,255,.35), 0 0 6px rgba(0,255,255,.35), 0 0 12px rgba(0,255,255,.25) !important; }
+    50% { text-shadow: 0 0 6px rgba(0,255,255,1), 0 0 14px rgba(0,255,255,1), 0 0 28px rgba(0,255,255,.95), 0 0 46px rgba(0,255,255,.8) !important; }
+}
+@keyframes sevenDayCaseNoBlink {
+    0%,100% { text-shadow: 0 0 2px rgba(0,255,255,.35), 0 0 6px rgba(0,255,255,.35), 0 0 12px rgba(0,255,255,.25) !important; }
+    50% { text-shadow: 0 0 6px rgba(0,255,255,1), 0 0 14px rgba(0,255,255,1), 0 0 28px rgba(0,255,255,.95), 0 0 46px rgba(0,255,255,.8) !important; }
 }
 </style>
 
 <script id="seven-day-id-neon-glow-script">
 (function () {
-    function startOfDay(value) {
-        const d = new Date(value);
+    function dayOnly(value) {
+        if (!value) return null;
+        var text = String(value).trim();
+        var m = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        var d;
+        if (m) d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+        else d = new Date(text);
+        if (Number.isNaN(d.getTime())) return null;
         d.setHours(0, 0, 0, 0);
         return d;
     }
 
     function updateSevenDayIdGlow() {
-        const today = startOfDay(new Date());
+        var today = dayOnly(new Date());
+        if (!today) return;
 
-        document.querySelectorAll('.case-row, .mobile-case-card').forEach(function (row) {
-            const raw = row.dataset.nextDate || '';
-            const idCell = row.classList.contains('case-row')
-                ? row.querySelector('.case-id-cell')
-                : row.querySelector('.badge');
-            const caseNumber = row.classList.contains('case-row')
-                ? row.querySelector('td:nth-child(3) a')
-                : row.querySelector('.mobile-case-number');
-
+        document.querySelectorAll('tr.case-row').forEach(function (row) {
+            var raw = row.getAttribute('data-next-date') || row.dataset.nextDate || '';
+            var hearing = dayOnly(raw);
+            var idCell = row.querySelector('.case-id-cell');
+            var caseNumber = row.querySelector('td:nth-child(3) a, td:nth-child(3) .case-number-seven-day-glow');
             if (!idCell) return;
 
-            const hearing = raw ? startOfDay(raw + 'T00:00:00') : null;
-            let shouldGlow = false;
+            var shouldGlow = false;
+            if (hearing) {
+                var diff = Math.round((hearing.getTime() - today.getTime()) / 86400000);
+                shouldGlow = diff >= 0 && diff <= 6;
+            }
 
-            if (hearing && !Number.isNaN(hearing.getTime())) {
-                const diff = Math.round((hearing - today) / 86400000);
-                // Exactly 7 calendar days including today: today + next 6 days.
+            idCell.classList.toggle('seven-day-id-glow', shouldGlow);
+            if (caseNumber) caseNumber.classList.toggle('case-number-seven-day-glow', shouldGlow);
+        });
+
+        document.querySelectorAll('.mobile-case-card').forEach(function (row) {
+            var raw = row.getAttribute('data-next-date') || row.dataset.nextDate || '';
+            var hearing = dayOnly(raw);
+            var idCell = row.querySelector('.badge');
+            var caseNumber = row.querySelector('.mobile-case-number');
+            if (!idCell) return;
+
+            var shouldGlow = false;
+            if (hearing) {
+                var diff = Math.round((hearing.getTime() - today.getTime()) / 86400000);
                 shouldGlow = diff >= 0 && diff <= 6;
             }
 
@@ -3008,8 +3009,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    updateSevenDayIdGlow();
-    setInterval(updateSevenDayIdGlow, 60000);
+    function init() {
+        updateSevenDayIdGlow();
+        setInterval(updateSevenDayIdGlow, 60000);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
 })();
 </script>
 
