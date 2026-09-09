@@ -1488,11 +1488,17 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
     <td class="action-cell">
         <div class="action-links">
             <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
-                <button type="submit"><span aria-label="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}" title="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}">{% if case.highlighted %}⭐{% else %}☆{% endif %}</span></button>
+                <button type="submit"
+                        class="icon-action"
+                        title="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}"
+                        aria-label="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}">{% if case.highlighted %}⭐{% else %}☆{% endif %}</button>
             </form>
             <form action="/delete-case/{{ case.id }}" method="POST">
                 <button type="submit"
-                        onclick="return confirm('Delete this case?')"><span aria-label="Delete" title="Delete">🗑️</span></button>
+                        class="icon-action"
+                        title="Delete"
+                        aria-label="Delete"
+                        onclick="return confirm('Delete this case?')">🗑️</button>
             </form>
         </div>
     </td>
@@ -2732,20 +2738,6 @@ document.addEventListener('DOMContentLoaded', function () {
         margin: 0 !important;
         padding: 0 !important;
     }
-    td.action-cell .action-links span[aria-label] {
-        display: inline-block !important;
-        visibility: visible !important;
-        width: auto !important;
-        min-width: 0 !important;
-        max-width: none !important;
-        height: auto !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        font-size: 15.5px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-    }
 
     td.action-cell .action-links span {
         display: none !important;
@@ -2770,6 +2762,91 @@ document.addEventListener('DOMContentLoaded', function () {
         white-space: nowrap !important;
         text-align: center !important;
         border-radius: 4px !important;
+    }
+
+    td.action-cell .action-links {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: nowrap !important;
+        gap: 5px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    td.action-cell .action-links form {
+        display: inline-flex !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    td.action-cell .action-links .icon-action {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 22px !important;
+        min-width: 22px !important;
+        max-width: 22px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        font-family: inherit !important;
+        font-size: 15px !important;
+        font-weight: 400 !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        cursor: pointer !important;
+    }
+
+    /* FINAL: symbol-only Action controls */
+    td.action-cell .action-links form {
+        display: inline-flex !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    td.action-cell .action-links button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        font-size: 15.5px !important;
+        line-height: 1 !important;
+        color: inherit !important;
+    }
+
+    td.action-cell .action-links button span[aria-label] {
+        display: inline-block !important;
+        visibility: visible !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 15.5px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
     }
 }
 </style>der-radius: 4px !important;
