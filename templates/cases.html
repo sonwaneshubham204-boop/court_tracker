@@ -1486,22 +1486,22 @@ html body .cases-page .table-wrap tbody tr.case-row.highlighted-case:not(.today-
         {% endif %}
     </td>
     <td class="action-cell">
-        <div class="action-links">
-            <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
-                <button type="submit"
-                        class="icon-action"
-                        title="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}"
-                        aria-label="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}">{% if case.highlighted %}⭐{% else %}☆{% endif %}</button>
-            </form>
-            <form action="/delete-case/{{ case.id }}" method="POST">
-                <button type="submit"
-                        class="icon-action"
-                        title="Delete"
-                        aria-label="Delete"
-                        onclick="return confirm('Delete this case?')">🗑️</button>
-            </form>
-        </div>
-    </td>
+    <div class="action-links">
+        <form action="/case/{{ case.id }}/toggle-highlight" method="POST">
+            <button type="submit"
+                    class="icon-action"
+                    title="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}"
+                    aria-label="{% if case.highlighted %}Unhighlight{% else %}Highlight{% endif %}">{% if case.highlighted %}⭐{% else %}☆{% endif %}</button>
+        </form>
+        <form action="/delete-case/{{ case.id }}" method="POST">
+            <button type="submit"
+                    class="icon-action"
+                    title="Delete"
+                    aria-label="Delete"
+                    onclick="return confirm('Delete this case?')">🗑️</button>
+        </form>
+    </div>
+</td>
 </tr>
 {% endfor %}
 </tbody>
@@ -2876,6 +2876,65 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 }
 </style>
+
+<style id="court-tracker-final-locked-small-change">
+/* LOCKED — ONLY requested visual changes */
+@media (min-width: 901px) {
+    /* CRN unchanged. Court gives 1% to Parties. */
+    .table-wrap table col.col-court {
+        width: 6% !important;
+    }
+    .table-wrap table col.col-parties {
+        width: 31% !important;
+    }
+
+    /* Star + Delete: side-by-side, close together. */
+    .table-wrap td.action-cell {
+        white-space: nowrap !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+    .table-wrap td.action-cell .action-links {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        width: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .table-wrap td.action-cell .action-links form {
+        display: inline-flex !important;
+        flex: 0 0 18px !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .table-wrap td.action-cell .icon-action {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        font-size: 14px !important;
+        line-height: 18px !important;
+        white-space: nowrap !important;
+    }
+}
+</style>
+
 
 <style id="court-tracker-light-green-case-line">
 /* ONLY: thin light-green separator between individual case rows */
