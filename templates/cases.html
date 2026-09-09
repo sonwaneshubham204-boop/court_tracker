@@ -2676,13 +2676,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     .table-wrap table col.col-parties {
-        width: 23% !important;
+        width: 25% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
 
     .table-wrap table col.col-action {
-        width: 8% !important;
+        width: 6% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
@@ -2725,7 +2725,7 @@ document.addEventListener('DOMContentLoaded', function () {
         align-items: center !important;
         justify-content: flex-start !important;
         flex-wrap: nowrap !important;
-        gap: 4px !important;
+        gap: 2px !important;
         width: 100% !important;
         min-width: 0 !important;
     }
@@ -2737,10 +2737,6 @@ document.addEventListener('DOMContentLoaded', function () {
         flex: 0 0 auto !important;
         margin: 0 !important;
         padding: 0 !important;
-    }
-
-    td.action-cell .action-links span {
-        display: none !important;
     }
 
     td.action-cell .action-links a,
@@ -2835,7 +2831,8 @@ document.addEventListener('DOMContentLoaded', function () {
         color: inherit !important;
     }
 
-    td.action-cell .action-links button span[aria-label] {
+    td.action-cell .action-links button.icon-action,
+    .action-links button.icon-action span[aria-label] {
         display: inline-block !important;
         visibility: visible !important;
         width: auto !important;
@@ -2847,6 +2844,20 @@ document.addEventListener('DOMContentLoaded', function () {
         font-size: 15.5px !important;
         line-height: 1 !important;
         white-space: nowrap !important;
+    }
+
+    td.action-cell .action-links button.icon-action {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        color: inherit !important;
+        cursor: pointer !important;
     }
 }
 </style>der-radius: 4px !important;
