@@ -2046,15 +2046,108 @@ document.addEventListener('DOMContentLoaded', function () {
 </style>
 
 
-<style id="court-tracker-court-parties-width-lock">
-/* LOCKED — ONLY Court → Parties width transfer */
+<style id="court-tracker-neat-smart-compact-lock">
+/* LOCKED — ONLY desktop Cases table neat/compact spacing */
 @media (min-width: 901px) {
+    .table-wrap table {
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+
+    /* Width balance: CRN stays compact; Court gives 1% to Parties. */
+    .table-wrap table col.col-crn {
+        width: 10% !important;
+    }
     .table-wrap table col.col-court {
         width: 6% !important;
     }
     .table-wrap table col.col-parties {
         width: 31% !important;
     }
+    .table-wrap table col.col-action {
+        width: 5% !important;
+    }
+
+    /* Smart compact cells — enough breathing room, less row height. */
+    .table-wrap th,
+    .table-wrap td {
+        padding-top: 7px !important;
+        padding-bottom: 7px !important;
+        vertical-align: middle !important;
+    }
+
+    /* CRN: compact, single line. */
+    .table-wrap th:nth-child(4),
+    .table-wrap td:nth-child(4) {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: clip !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
+    }
+
+    /* Parties: wider, clean wrapping. */
+    .table-wrap th:nth-child(6),
+    .table-wrap td:nth-child(6) {
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.28 !important;
+    }
+
+    /* Star + Delete: compact and directly side-by-side. */
+    .table-wrap td.action-cell {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+    }
+
+    .table-wrap td.action-cell .action-links {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: auto !important;
+    }
+
+    .table-wrap td.action-cell .action-links form {
+        display: inline-flex !important;
+        flex: 0 0 18px !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .table-wrap td.action-cell .icon-action {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        font-size: 14px !important;
+        line-height: 18px !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* ONLY — subtle light-green separator for every case row. */
+.table-wrap table tbody tr.case-row > td {
+    border-bottom: 1px solid #b9ddb9 !important;
 }
 </style>
 
