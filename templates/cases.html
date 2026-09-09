@@ -2669,20 +2669,20 @@ document.addEventListener('DOMContentLoaded', function () {
         box-sizing: bo<style id="final-crn-action-clean">
 @media (min-width: 901px) {
     .table-wrap table col.col-crn {
-        width: 14% !important;
+        width: 13% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
 
 
     .table-wrap table col.col-parties {
-        width: 25% !important;
+        width: 27% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
 
     .table-wrap table col.col-action {
-        width: 6% !important;
+        width: 5% !important;
         min-width: 0 !important;
         max-width: none !important;
     }
@@ -2720,14 +2720,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     td.action-cell .action-links {
-        display: flex !important;
-        flex-direction: row !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, max-content) !important;
         align-items: center !important;
-        justify-content: flex-start !important;
-        flex-wrap: nowrap !important;
-        gap: 2px !important;
+        justify-content: center !important;
+        column-gap: 2px !important;
+        row-gap: 0 !important;
         width: 100% !important;
         min-width: 0 !important;
+        max-width: 100% !important;
+        flex-wrap: nowrap !important;
     }
 
     td.action-cell .action-links form,
@@ -2772,9 +2774,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     td.action-cell .action-links form {
-        display: inline-flex !important;
-        width: auto !important;
-        flex: 0 0 auto !important;
+        display: block !important;
+        width: max-content !important;
+        min-width: 0 !important;
+        max-width: max-content !important;
         margin: 0 !important;
         padding: 0 !important;
     }
@@ -2847,15 +2850,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     td.action-cell .action-links button.icon-action {
-        background: transparent !important;
-        border: 0 !important;
-        box-shadow: none !important;
-        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 20px !important;
+        min-width: 20px !important;
+        max-width: 20px !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        max-height: 20px !important;
         margin: 0 !important;
-        width: auto !important;
-        min-width: 0 !important;
-        height: auto !important;
-        min-height: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        font-size: 15px !important;
+        line-height: 1 !important;
         color: inherit !important;
         cursor: pointer !important;
     }
