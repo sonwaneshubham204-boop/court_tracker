@@ -854,10 +854,8 @@ def case_list():
 
     elif hearing_status == "upcoming":
 
-        next_7_days = today + timedelta(days=7)
         query = query.filter(
-            Case.next_hearing_date >= today,
-            Case.next_hearing_date <= next_7_days
+            Case.next_hearing_date > today
         )
 
     elif hearing_status == "undated":
