@@ -39,7 +39,9 @@ def roles(*allowed):
   return w
  return deco
 BASE="""<!doctype html><html lang=en><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>{{title}} | GlobMate</title><link rel=stylesheet href=/static/style.css><header><a class=brand href='/'>Glob<span>Mate</span></a><nav><a href='/'>Explore</a>{% if u %}{% if u.role=='provider' %}<a href='/provider'>Provider</a>{% elif u.role=='admin' %}<a href='/admin'>Admin</a>{% else %}<a href='/customer'>My bookings</a>{% endif %}<a href='/logout'>Sign out</a>{% else %}<a href='/login'>Sign in</a><a class=navcta href='/register'>Join GlobMate</a>{% endif %}</nav></header><main>{% for c,m in get_flashed_messages(with_categories=true) %}<p class='flash {{c}}'>{{m}}</p>{% endfor %}{{body|safe}}</main><footer>© 2026 GlobMate · Discover services across India</footer></html>"""
-def page(title,body,**ctx): return render_template_string(BASE,title=title,body=render_template_string(body,**ctx),u=current())
+def page(title,body,**ctx):
+ user=current()
+ return render_template_string(BASE,title=title,body=render_template_string(body,u=user,**ctx),u=user)
 @app.get("/")
 def home():
  q=request.args.get("q",""); city=request.args.get("city",""); cat=request.args.get("category","")
