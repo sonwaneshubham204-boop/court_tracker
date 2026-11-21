@@ -137,5 +137,18 @@ def create_admin():
  db.create_all()
  if User.query.filter_by(email=email.lower()).first(): print("Admin already exists."); return
  db.session.add(User(name=name,email=email.lower(),password=generate_password_hash(password),role="admin")); db.session.commit(); print("Super Admin created.")
-with app.app_context(): db.create_all()
+with app.app_context():
+ db.create_all()
+ # Keep the configured Super Admin account synchronized with Render environment values.
+ admin_email=os.environ.get("ADMIN_EMAIL","").strip().lower()
+ admin_password=os.environ.get("ADMIN_PASSWORD","")
+ if admin_email and admin_password:
+  admin_user=User.query.filter_by(email=admin_email).first()
+  if admin_user:
+   admin_user.name=os.environ.get("ADMIN_NAME","GlobMate Super Admin")
+   admin_user.role="admin"
+   admin_user.password=generate_password_hash(admin_password)
+  else:
+   db.session.add(User(name=os.environ.get("ADMIN_NAME","GlobMate Super Admin"),email=admin_email,password=generate_password_hash(admin_password),role="admin"))
+  db.session.commit()
 if __name__=="__main__": app.run(debug=True)
