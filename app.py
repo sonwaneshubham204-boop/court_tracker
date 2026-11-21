@@ -132,11 +132,22 @@ def book(sid):
 def customer():
  bs=Booking.query.filter_by(customer_id=current().id).order_by(Booking.id.desc()).all()
  return page("My bookings","""<h1>My booking requests</h1><div class=cards>{% for b in bookings %}<div class=card><small>{{b.status|upper}}</small><h3>{{b.service.title}}</h3><p>{{b.service.city}} · {{b.requested_date or 'Date not set'}}</p></div>{% else %}<p>No bookings yet. <a href='/'>Explore services</a>.</p>{% endfor %}</div>""",bookings=bs)
+@app.route("/admin/account-lookup",methods=["GET","POST"])
+@roles("admin")
+def admin_account_lookup():
+ account=None
+ searched_email=""
+ if request.method=="POST":
+  searched_email=request.form.get("email","").strip().lower()
+  if searched_email:
+   account=User.query.filter_by(email=searched_email).first()
+ return page("Provider account lookup","""<div class=formbox><h1>Account lookup</h1><p>Search by exact email. This tool only displays account name, email and role; it never displays passwords.</p><form method=post><label>Email address<input name=email type=email value='{{searched_email}}' required></label><button>Check account</button></form>{% if searched_email %}{% if account %}<div class=panel><h2>Account found</h2><p>Name: {{account.name}}</p><p>Email: {{account.email}}</p><p>Role: {{account.role}}</p><p>Account ID: {{account.id}}</p></div>{% else %}<div class=panel><h2>No account found</h2><p>No user is registered with {{searched_email}}.</p></div>{% endif %}{% endif %}<p><a href='/admin'>Back to Admin</a></p></div>""",account=account,searched_email=searched_email)
+
 @app.get("/admin")
 @roles("admin")
 def admin():
  pending=Service.query.filter_by(status="pending").all()
- return page("Admin","""<h1>Super Admin control centre</h1><h2>Pending provider listings</h2><div class=cards>{% for s in pending %}<div class=card><small>{{s.category}} · {{s.city}}</small><h3>{{s.title}}</h3><p>{{s.description}}</p><p>Provider: {{s.provider.name}} ({{s.provider.email}})</p><form method=post action='/admin/review/{{s.id}}/approved'><button>Approve</button></form><form method=post action='/admin/review/{{s.id}}/rejected'><button class=danger>Reject</button></form></div>{% else %}<p>No pending listings yet.</p>{% endfor %}</div>""",pending=pending)
+ return page("Admin","""<h1>Super Admin control centre</h1><div class=panel><h2>Provider account check</h2><p>Verify whether an account exists and confirm its role.</p><a class=button href='/admin/account-lookup'>Check account by email</a></div><h2>Pending provider listings</h2><div class=cards>{% for s in pending %}<div class=card><small>{{s.category}} · {{s.city}}</small><h3>{{s.title}}</h3><p>{{s.description}}</p><p>Provider: {{s.provider.name}} ({{s.provider.email}})</p><form method=post action='/admin/review/{{s.id}}/approved'><button>Approve</button></form><form method=post action='/admin/review/{{s.id}}/rejected'><button class=danger>Reject</button></form></div>{% else %}<p>No pending listings yet.</p>{% endfor %}</div>""",pending=pending)
 @app.post("/admin/review/<int:sid>/<status>")
 @roles("admin")
 def review(sid,status):
