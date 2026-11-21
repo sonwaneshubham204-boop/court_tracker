@@ -1,4 +1,5 @@
 import os
+import secrets
 from datetime import datetime, date
 from functools import wraps
 from flask import Flask, request, redirect, url_for, session, flash, render_template_string, abort
@@ -66,6 +67,33 @@ def login():
  return page("Sign in","""<div class=formbox><h1>Welcome back</h1><form method=post><label>Email<input name=email type=email required></label><label>Password<input name=password type=password required></label><button>Sign in</button></form></div>""")
 @app.get("/logout")
 def logout(): session.clear(); return redirect(url_for("home"))
+
+@app.route("/setup-super-admin",methods=["GET","POST"])
+def setup_super_admin():
+ setup_token=os.environ.get("ADMIN_SETUP_TOKEN","")
+ admin_email=os.environ.get("ADMIN_EMAIL","").strip().lower()
+ if not setup_token or not admin_email:
+  abort(404)
+ if User.query.filter_by(role="admin").first():
+  abort(404)
+ if request.method=="POST":
+  supplied=request.form.get("setup_token","")
+  name=request.form.get("name","GlobMate Super Admin").strip() or "GlobMate Super Admin"
+  password=request.form.get("password","")
+  if not secrets.compare_digest(supplied,setup_token):
+   flash("Invalid setup token.","error")
+  elif len(password)<12:
+   flash("Choose a password with at least 12 characters.","error")
+  elif User.query.filter_by(email=admin_email).first():
+   flash("This email is already registered. Contact the site administrator.","error")
+  else:
+   user=User(name=name,email=admin_email,password=generate_password_hash(password),role="admin")
+   db.session.add(user); db.session.commit()
+   session.clear(); session["uid"]=user.id
+   flash("Super Admin account created. Remove ADMIN_SETUP_TOKEN from Render Environment now.","success")
+   return redirect(url_for("admin"))
+ return page("Secure Super Admin setup","""<div class=formbox><h1>Create Super Admin</h1><p>This one-time setup is available only with the private setup token.</p><form method=post><label>Setup token<input name=setup_token type=password required autocomplete=off></label><label>Admin name<input name=name value='GlobMate Super Admin' required></label><label>Create admin password<input name=password type=password minlength=12 required autocomplete=new-password></label><button>Create Super Admin</button></form></div>""")
+
 @app.route("/provider",methods=["GET","POST"])
 @roles("provider")
 def provider():
@@ -93,7 +121,7 @@ def customer():
 @roles("admin")
 def admin():
  pending=Service.query.filter_by(status="pending").all()
- return page("Admin","""<h1>Super Admin control centre</h1><h2>Pending provider listings</h2><div class=cards>{% for s in pending %}<div class=card><small>{{s.category}} · {{s.city}}</small><h3>{{s.title}}</h3><p>{{s.description}}</p><p>Provider: {{s.provider.name}} ({{s.provider.email}})</p><form method=post action='/admin/review/{{s.id}}/approved'><button>Approve</button></form><form method=post action='/admin/review/{{s.id}}/rejected'><button class=danger>Reject</button></form></div>{% else %}<p>No pending listings.</p>{% endfor %}</div>""",pending=pending)
+ return page("Admin","""<h1>Super Admin control centre</h1><h2>Pending provider listings</h2><div class=cards>{% for s in pending %}<div class=card><small>{{s.category}} · {{s.city}}</small><h3>{{s.title}}</h3><p>{{s.description}}</p><p>Provider: {{s.provider.name}} ({{s.provider.email}})</p><form method=post action='/admin/review/{{s.id}}/approved'><button>Approve</button></form><form method=post action='/admin/review/{{s.id}}/rejected'><button class=danger>Reject</button></form></div>{% else %}<p>No pending listings yet.</p>{% endfor %}</div>""",pending=pending)
 @app.post("/admin/review/<int:sid>/<status>")
 @roles("admin")
 def review(sid,status):
