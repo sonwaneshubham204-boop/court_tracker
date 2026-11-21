@@ -1,5 +1,8 @@
-/instance
-/static.zip
-/templates.zip
-/uploads
-/venv
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+instance/*.db
+*.sqlite3
+globmate.db
