@@ -101,8 +101,23 @@ def provider():
  if request.method=="POST":
   s=Service(provider_id=u.id,title=request.form["title"].strip(),category=request.form["category"],city=request.form["city"].strip(),description=request.form["description"].strip(),price=float(request.form["price"]),status="pending")
   db.session.add(s); db.session.commit(); flash("Listing submitted for admin approval.","success"); return redirect(url_for("provider"))
- body="""<h1>Provider workspace</h1><p>New listings stay pending until admin approval.</p><div class=panel><h2>Add a service</h2><form method=post><label>Service title<input name=title required></label><label>Category<select name=category>{% for c in cats %}<option>{{c}}</option>{% endfor %}</select></label><label>City<input name=city required></label><label>Price (INR)<input name=price type=number min=1 step=.01 required></label><label>Description<textarea name=description required></textarea></label><button>Submit for approval</button></form></div><h2>Your listings</h2><div class=cards>{% for s in services %}<div class=card><small>{{s.status|upper}}</small><h3>{{s.title}}</h3><p>{{s.category}} · {{s.city}}</p></div>{% else %}<p>No listings yet.</p>{% endfor %}</div>"""
- return page("Provider",body,cats=CATEGORIES,services=Service.query.filter_by(provider_id=u.id).all())
+ body="""<h1>Provider workspace</h1><p>New listings stay pending until admin approval.</p><div class=panel><h2>Add a service</h2><form method=post><label>Service title<input name=title required></label><label>Category<select name=category>{% for c in cats %}<option>{{c}}</option>{% endfor %}</select></label><label>City<input name=city required></label><label>Price (INR)<input name=price type=number min=1 step=.01 required></label><label>Description<textarea name=description required></textarea></label><button>Submit for approval</button></form></div><h2>Your listings</h2><div class=cards>{% for s in services %}<div class=card><small>{{s.status|upper}}</small><h3>{{s.title}}</h3><p>{{s.category}} · {{s.city}}</p></div>{% else %}<p>No listings yet.</p>{% endfor %}</div><h2>Booking requests</h2><div class=cards>{% for b in bookings %}<div class=card><small>STATUS: {{b.status|upper}}</small><h3>{{b.service.title}}</h3><p>Customer: {{b.customer.name}} ({{b.customer.email}})</p><p>Requested date: {{b.requested_date or 'Not specified'}}</p><p>Message: {{b.message or 'No message'}}</p>{% if b.status=='requested' %}<form method=post action='/provider/booking/{{b.id}}/accepted'><button>Accept booking</button></form><form method=post action='/provider/booking/{{b.id}}/rejected'><button class=danger>Reject booking</button></form>{% endif %}</div>{% else %}<p>No booking requests yet.</p>{% endfor %}</div>"""
+ bookings=Booking.query.join(Service,Booking.service_id==Service.id).filter(Service.provider_id==u.id).order_by(Booking.id.desc()).all()
+ return page("Provider",body,cats=CATEGORIES,services=Service.query.filter_by(provider_id=u.id).all(),bookings=bookings)
+
+@app.post("/provider/booking/<int:bid>/<status>")
+@roles("provider")
+def update_provider_booking(bid,status):
+ if status not in ("accepted","rejected"): abort(400)
+ booking=db.session.get(Booking,bid) or abort(404)
+ if booking.service.provider_id != current().id: abort(403)
+ if booking.status != "requested":
+  flash("This booking has already been processed.","error")
+ else:
+  booking.status=status
+  db.session.commit()
+  flash("Booking "+status+".","success")
+ return redirect(url_for("provider"))
 @app.get("/service/<int:sid>")
 def service(sid):
  s=Service.query.filter_by(id=sid,status="approved").first_or_404()
